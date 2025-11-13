@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>首页模块编辑器 v2.0 - 听道后台管理系统</title>
+    <title>首页模块编辑器 v2.1 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -298,7 +298,7 @@
                                         <div class="mt-6">
                                             <div class="flex items-center justify-between mb-4">
                                                 <label class="label-text font-medium">经文库管理</label>
-                                                <button onclick="addNewScripture()" class="btn btn-outline btn-sm gap-2">
+                                                <button id="addNewScriptureBtn" class="btn btn-outline btn-sm gap-2">
                                                     <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
                                                     添加经文
                                                 </button>
@@ -1216,8 +1216,23 @@
         
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Home Editor 页面已加载');
+            console.log('✅ Home Editor 页面已加载 v2.1');
             console.log('✅ 所有函数已绑定到 window 对象');
+            
+            // 使用事件委托绑定所有按钮
+            document.body.addEventListener('click', (e) => {
+                const target = e.target.closest('button');
+                if (!target) return;
+                
+                // 添加经文按钮
+                if (target.id === 'addNewScriptureBtn') {
+                    e.preventDefault();
+                    console.log('🔘 添加经文按钮被点击');
+                    addNewScripture();
+                }
+            });
+            
+            console.log('✅ 事件委托已设置');
             
             // 加载现有的经文数据
             await loadExistingScriptures();

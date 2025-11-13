@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>发现页模块编辑器 v1.3 - 听道后台管理系统</title>
+    <title>发现页模块编辑器 v1.4 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -88,10 +88,24 @@
     </style>
 
     <!-- API Client -->
-    <script src="js/api-config.js?v=20251105v30"></script>
-    <script src="js/api-client.js?v=20251105v30"></script>
-    <script src="js/api-services.js?v=20251105v30"></script>
+    <script src="js/api-config.js?v=20251105v31"></script>
+    <script src="js/api-client.js?v=20251105v31"></script>
+    <script src="js/api-services.js?v=20251105v31"></script>
     <!-- curation-api.js removed to avoid conflicts with inline scripts -->
+    
+    <!-- 预先声明全局函数占位符，确保 onclick 可以找到函数 -->
+    <script>
+        // 创建函数占位符，稍后会被实际函数覆盖
+        window.openContentSelector = function() { console.log('Function not yet loaded'); };
+        window.removeItem = function() { console.log('Function not yet loaded'); };
+        window.autoLoadLatestSermons = function() { console.log('Function not yet loaded'); };
+        window.confirmContentSelection = function() { console.log('Function not yet loaded'); };
+        window.toggleModuleExpand = function() { console.log('Function not yet loaded'); };
+        window.openPreviewMode = function() { console.log('Function not yet loaded'); };
+        window.openPublishHistory = function() { console.log('Function not yet loaded'); };
+        window.saveAndPublish = function() { console.log('Function not yet loaded'); };
+        window.handleLogout = function() { console.log('Function not yet loaded'); };
+    </script>
     </head>
 <body class="bg-base-200 flex flex-col min-h-screen">
     <div class="flex flex-1">
@@ -1391,9 +1405,9 @@
 
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Discover Editor 页面已加载 v1.3 (immediate binding)');
+            console.log('✅ Discover Editor 页面已加载 v1.4 (function placeholders in head)');
+            console.log('✅ 函数占位符已在 <head> 中预先声明');
             console.log('✅ 所有函数已立即绑定到 window 对象 (12个函数)');
-            console.log('✅ onclick 属性现在可以正常工作');
             
             // 初始化标签拖拽
             initTagDragDrop();

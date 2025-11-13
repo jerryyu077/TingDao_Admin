@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>首页模块编辑器 v2.4 - 听道后台管理系统</title>
+    <title>首页模块编辑器 v2.5 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -1054,7 +1054,7 @@
             modal.showModal();
         }
         
-        function saveNewScripture() {
+        async function saveNewScripture() {
             const content = document.getElementById('scripture-content').value.trim();
             const reference = document.getElementById('scripture-reference').value.trim();
             
@@ -1066,53 +1066,83 @@
             const modal = document.getElementById('add-scripture-modal');
             const saveBtn = modal.querySelector('.btn-primary');
             
-            // Check if we're editing an existing card
-            if (window.editingScriptureCard) {
-                // Update existing card
-                const card = window.editingScriptureCard;
-                const contentEl = card.querySelector('p.text-sm');
-                const referenceEl = card.querySelector('p.text-xs');
+            try {
+                // 1. 获取当前的经文列表
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
                 
-                contentEl.textContent = `"${content}"`;
-                referenceEl.textContent = reference;
+                const result = await response.json();
+                if (!result.success || !result.data) {
+                    throw new Error('API 返回格式错误');
+                }
+                
+                let scriptures = result.data.config?.scriptures || [];
+                
+                // 2. 更新或添加经文
+                if (window.editingScriptureCard) {
+                    // 编辑现有经文
+                    const scriptureId = window.editingScriptureCard.dataset.scriptureId;
+                    const index = scriptures.findIndex(s => s.id === scriptureId);
+                    if (index !== -1) {
+                        scriptures[index].text = content;
+                        scriptures[index].reference = reference;
+                    }
+                } else {
+                    // 添加新经文
+                    const newScripture = {
+                        id: `scripture-${Date.now()}`,
+                        text: content,
+                        reference: reference,
+                        order: scriptures.length + 1
+                    };
+                    scriptures.push(newScripture);
+                }
+                
+                // 3. 保存到 API
+                const saveResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id: 'home-config',
+                        config: {
+                            scriptures: scriptures
+                        }
+                    })
+                });
+                
+                if (!saveResponse.ok) {
+                    throw new Error(`保存失败: HTTP ${saveResponse.status}`);
+                }
+                
+                const saveResult = await saveResponse.json();
+                if (!saveResult.success) {
+                    throw new Error(saveResult.message || '保存失败');
+                }
+                
+                // 4. 重新加载经文列表
+                await loadExistingScriptures();
+                
+                // 5. 关闭模态框并提示成功
+                showNotification(window.editingScriptureCard ? '经文更新成功' : '经文添加成功', 'success');
                 
                 // Reset editing state
                 window.editingScriptureCard = null;
                 saveBtn.textContent = '添加经文';
                 
-                showNotification('经文更新成功', 'success');
-            } else {
-                // Add new card
-                const scriptureList = document.getElementById('scripture-list');
-                if (!scriptureList) return;
+                // Clear form
+                document.getElementById('scripture-content').value = '';
+                document.getElementById('scripture-reference').value = '';
                 
-                const newCard = document.createElement('div');
-                newCard.className = 'card card-compact bg-base-200';
-                newCard.innerHTML = `
-                    <div class="card-body p-2">
-                        <div class="flex items-start gap-2">
-                            <div class="flex-1">
-                                <p class="text-sm font-medium">"${content}"</p>
-                                <p class="text-xs text-base-content/60 mt-1">${reference}</p>
-                            </div>
-                            <div class="flex gap-1">
-                                <button onclick="editScripture(this)" class="btn btn-ghost btn-xs">编辑</button>
-                                <button onclick="deleteScripture(this)" class="btn btn-ghost btn-xs text-error">删除</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                scriptureList.appendChild(newCard);
-                
-                showNotification('经文添加成功', 'success');
+                // Close modal
+                modal.close();
+            } catch (error) {
+                console.error('❌ 保存经文失败:', error);
+                showNotification('保存经文失败: ' + error.message, 'error');
             }
-            
-            // Clear form
-            document.getElementById('scripture-content').value = '';
-            document.getElementById('scripture-reference').value = '';
-            
-            // Close modal
-            modal.close();
         }
         
         function resetScriptureModal() {
@@ -1153,10 +1183,61 @@
             saveBtn.textContent = '更新经文';
         }
         
-        function deleteScripture(button) {
-            if (confirm('确定要删除这条经文吗？')) {
-                button.closest('.card').remove();
+        async function deleteScripture(button) {
+            if (!confirm('确定要删除这条经文吗？')) {
+                return;
+            }
+            
+            try {
+                const card = button.closest('.card');
+                const scriptureId = card.dataset.scriptureId;
+                
+                // 1. 获取当前的经文列表
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                if (!result.success || !result.data) {
+                    throw new Error('API 返回格式错误');
+                }
+                
+                let scriptures = result.data.config?.scriptures || [];
+                
+                // 2. 移除指定的经文
+                scriptures = scriptures.filter(s => s.id !== scriptureId);
+                
+                // 3. 保存到 API
+                const saveResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id: 'home-config',
+                        config: {
+                            scriptures: scriptures
+                        }
+                    })
+                });
+                
+                if (!saveResponse.ok) {
+                    throw new Error(`删除失败: HTTP ${saveResponse.status}`);
+                }
+                
+                const saveResult = await saveResponse.json();
+                if (!saveResult.success) {
+                    throw new Error(saveResult.message || '删除失败');
+                }
+                
+                // 4. 重新加载经文列表
+                await loadExistingScriptures();
+                
                 showNotification('经文已删除', 'success');
+            } catch (error) {
+                console.error('❌ 删除经文失败:', error);
+                showNotification('删除经文失败: ' + error.message, 'error');
             }
         }
         
@@ -1221,7 +1302,8 @@
         
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Home Editor 页面已加载 v2.4 (all functions bound correctly)');
+            console.log('✅ Home Editor 页面已加载 v2.5 (scripture functionality fully implemented with API)');
+            console.log('📝 新功能: 经文库支持从API加载、添加、编辑和删除');
             console.log('✅ 所有函数已绑定到 window 对象 (15个函数)');
             
             // 使用事件委托绑定所有按钮
@@ -1246,11 +1328,54 @@
         // 从 API 加载现有经文
         async function loadExistingScriptures() {
             try {
-                // 注意：这里需要你实现一个 API 端点来获取经文列表
-                // 暂时先不加载，等 API 端点准备好再启用
-                console.log('📝 经文加载功能待实现');
+                console.log('📝 加载经文库...');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                if (!result.success || !result.data) {
+                    throw new Error('API 返回格式错误');
+                }
+                
+                const scriptures = result.data.config?.scriptures || [];
+                console.log(`✅ 加载了 ${scriptures.length} 条经文`);
+                
+                // 渲染经文列表
+                const scriptureList = document.getElementById('scripture-list');
+                if (!scriptureList) return;
+                
+                scriptureList.innerHTML = ''; // 清空
+                
+                if (scriptures.length === 0) {
+                    scriptureList.innerHTML = '<p class="text-base-content/60 text-sm">暂无经文，点击上方"添加经文"按钮开始添加</p>';
+                    return;
+                }
+                
+                scriptures.forEach(scripture => {
+                    const newCard = document.createElement('div');
+                    newCard.className = 'card card-compact bg-base-200';
+                    newCard.dataset.scriptureId = scripture.id;
+                    newCard.innerHTML = `
+                        <div class="card-body p-2">
+                            <div class="flex items-start gap-2">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">"${scripture.text}"</p>
+                                    <p class="text-xs text-base-content/60 mt-1">${scripture.reference}</p>
+                                </div>
+                                <div class="flex gap-1">
+                                    <button onclick="editScripture(this)" class="btn btn-ghost btn-xs">编辑</button>
+                                    <button onclick="deleteScripture(this)" class="btn btn-ghost btn-xs text-error">删除</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    scriptureList.appendChild(newCard);
+                });
             } catch (error) {
-                console.error('加载经文失败:', error);
+                console.error('❌ 加载经文失败:', error);
+                showNotification('加载经文失败: ' + error.message, 'error');
             }
         }
     </script>

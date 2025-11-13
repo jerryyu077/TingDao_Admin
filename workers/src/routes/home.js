@@ -89,9 +89,95 @@ export async function updateHomeConfig(request, env) {
   }
 }
 
-// GET /v1/curation/home-config - 兼容旧API
+// GET /v1/curation/home-config - 兼容旧API（返回格式适配前端）
 export async function getCurationHomeConfig(request, env) {
-  return getHomeConfig(request, env);
+  try {
+    const sql = 'SELECT * FROM home_config WHERE id = ?';
+    let config = await queryOne(env.DB, sql, [1]);
+    
+    if (!config) {
+      return success({
+        id: 'home-config',
+        page: 'home',
+        config: {
+          scriptures: [],
+          recommendedSermons: [],
+          moreRecommendedSermons: [],
+          featuredTopics: [],
+          browseTopics: [],
+          popularSpeakers: [],
+          moreSpeakers: []
+        }
+      });
+    }
+
+    // 解析JSON字段
+    const scriptures = config.scriptures ? JSON.parse(config.scriptures) : [];
+    const recommendedSermons = config.recommended_sermons ? JSON.parse(config.recommended_sermons) : [];
+    const featuredTopics = config.featured_topics ? JSON.parse(config.featured_topics) : [];
+    const featuredSpeakers = config.featured_speakers ? JSON.parse(config.featured_speakers) : [];
+
+    return success({
+      id: 'home-config',
+      page: 'home',
+      config: {
+        scriptures: scriptures,
+        recommendedSermons: recommendedSermons,
+        moreRecommendedSermons: recommendedSermons, // 暂时用同一个数据
+        featuredTopics: featuredTopics,
+        browseTopics: featuredTopics, // 暂时用同一个数据
+        popularSpeakers: featuredSpeakers,
+        moreSpeakers: featuredSpeakers // 暂时用同一个数据
+      }
+    });
+  } catch (e) {
+    console.error('Error fetching home config:', e);
+    return error('获取首页配置失败: ' + e.message);
+  }
+}
+
+// PATCH /v1/curation/home-config - 更新首页配置（适配前端格式）
+export async function updateCurationHomeConfig(request, env) {
+  try {
+    const data = await request.json();
+    const config = data.config || {};
+    const now = new Date().toISOString();
+    
+    // 提取各个字段
+    const scriptures = config.scriptures || [];
+    const recommendedSermons = config.recommendedSermons || [];
+    const moreRecommendedSermons = config.moreRecommendedSermons || [];
+    const featuredTopics = config.featuredTopics || [];
+    const browseTopics = config.browseTopics || [];
+    const popularSpeakers = config.popularSpeakers || [];
+    const moreSpeakers = config.moreSpeakers || [];
+    
+    const sql = `
+      UPDATE home_config SET
+        scriptures = ?,
+        recommended_sermons = ?,
+        featured_topics = ?,
+        featured_speakers = ?,
+        updated_at = ?
+      WHERE id = 1
+    `;
+    
+    await execute(env.DB, sql, [
+      JSON.stringify(scriptures),
+      JSON.stringify(recommendedSermons),
+      JSON.stringify(featuredTopics),
+      JSON.stringify(popularSpeakers),
+      now
+    ]);
+
+    return success({ 
+      id: 'home-config',
+      config: config
+    }, { message: '首页配置更新成功' });
+  } catch (e) {
+    console.error('Error updating home config:', e);
+    return error('更新首页配置失败: ' + e.message);
+  }
 }
 
 // GET /v1/curation/discover-config - 获取发现页配置

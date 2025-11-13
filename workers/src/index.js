@@ -182,6 +182,11 @@ export default {
         return await homeRoute.getCurationHomeConfig(request, env);
       }
       
+      // PATCH /v1/curation/home-config
+      if (path === '/api/v1/curation/home-config' && method === 'PATCH') {
+        return await homeRoute.updateCurationHomeConfig(request, env);
+      }
+      
       // GET /v1/curation/discover-config
       if (path === '/api/v1/curation/discover-config' && method === 'GET') {
         return await homeRoute.getDiscoverConfig(request, env);

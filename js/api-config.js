@@ -7,10 +7,10 @@
  */
 const APIConfig = {
     // 基础 URL - Cloudflare Workers API
-    baseURL: 'https://tingdao-api.living-water-tingdaoapp.workers.dev/api',
+    baseURL: 'https://tingdao-api.living-water-tingdaoapp.workers.dev/api/v1',
     
     // 本地开发备用URL（取消注释以使用本地服务器）
-    // baseURL: 'http://localhost:3000',
+    // baseURL: 'http://localhost:3000/v1',
     
     // 超时时间（毫秒）
     timeout: 30000,
@@ -21,8 +21,8 @@ const APIConfig = {
     // 是否启用调试日志
     debug: true,
     
-    // API 版本（如果后端使用了版本前缀）
-    apiVersion: '/v1', // 使用 /v1 前缀
+    // API 版本（已包含在baseURL中）
+    apiVersion: '', // 留空，因为版本已在baseURL中
     
     // 认证相关
     auth: {

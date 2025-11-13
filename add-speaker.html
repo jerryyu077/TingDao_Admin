@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加讲员 - 听道后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .sidebar-wrapper {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-text {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="bg-base-200 flex flex-col min-h-screen">
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside class="sidebar-wrapper bg-base-100 border-r border-base-300">
+            <div class="p-3 border-b border-base-300">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="iconify text-white" data-icon="heroicons:home" data-width="20"></span>
+                    </div>
+                    <span class="sidebar-text text-lg font-semibold">听道后台</span>
+                </div>
+            </div>
+
+            <ul class="menu menu-sm gap-1 p-3">
+                <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span class="sidebar-text">仪表盘</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span class="sidebar-text">讲道内容</span></summary>
+                        <ul>
+                            <li><a href="sermons.html">讲道列表</a></li>
+                            <li><a href="add-sermon.html">添加讲道</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details open>
+                        <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html">讲员列表</a></li>
+                            <li><a href="add-speaker.html" class="active">添加讲员</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span class="sidebar-text">内容编排</span></summary>
+                        <ul>
+                            <li><a href="curation.html">编排概览</a></li>
+                            <li><a href="home-editor.html">首页模块</a></li>
+                            <li><a href="discover-editor.html">发现页模块</a></li>
+                            <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span class="sidebar-text">用户管理</span></summary>
+                        <ul>
+                            <li><a href="users.html">所有用户</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span class="sidebar-text">标签主题</span></summary>
+                        <ul>
+                            <li><a href="tags.html">标签管理</a></li>
+                            <li><a href="tag-edit.html">标签编辑</a></li>
+                            <li><a href="topic-groups.html">主题组</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span class="sidebar-text">数据统计</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span class="sidebar-text">系统设置</span></summary>
+                        <ul>
+                            <li><a href="settings.html">系统概览</a></li>
+                            <li><a href="admins.html">账户管理</a></li>
+                            <li><a href="permissions.html">权限控制</a></li>
+                            <li><a href="api-config.html">API配置</a></li>
+                            <li><a href="logs.html">日志版本</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span class="sidebar-text">帮助中心</span></summary>
+                        <ul>
+                            <li><a href="help.html">帮助文档</a></li>
+                            <li><a href="upload-guide.html">上传指南</a></li>
+                            <li><a href="review-standards.html">审核标准</a></li>
+                            <li><a href="contact.html">联系开发者</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+                <div class="navbar-start gap-2">
+                    <button class="btn btn-ghost btn-circle" onclick="location.href='speakers.html'">
+                        <span class="iconify" data-icon="heroicons:arrow-left" data-width="20"></span>
+                    </button>
+                    <span class="text-xl font-semibold">添加讲员</span>
+                </div>
+                
+                <div class="navbar-end gap-3">
+                    <div class="indicator">
+                        <span class="indicator-item badge badge-accent badge-sm">8</span>
+                        <button class="btn btn-ghost btn-circle">
+                            <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                        </button>
+                    </div>
+                    
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                                <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                            </div>
+                        </div>
+                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                            <li class="menu-title"><span>管理员中心</span></li>
+                            <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                            <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                            <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                            <div class="divider my-1"></div>
+                            <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs text-xs py-2 px-6 bg-base-100 border-b border-base-300">
+                <ul>
+                    <li><a href="dashboard.html" class="text-base-content/70 hover:text-primary"><span class="iconify" data-icon="heroicons:home" data-width="14"></span>首页</a></li>
+                    <li><a href="speakers.html" class="text-base-content/70 hover:text-primary">讲员管理</a></li>
+                    <li><span class="font-medium text-base-content">添加讲员</span></li>
+                </ul>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="max-w-4xl mx-auto">
+                    <form id="addSpeakerForm" class="space-y-6">
+                        <!-- Basic Info Card -->
+                        <div class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body p-6">
+                                <h2 class="text-lg font-semibold mb-4">基本信息</h2>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Chinese Name -->
+                                    <div class="form-control">
+                                        <label class="label">
+                                            <span class="label-text">中文姓名 <span class="text-error">*</span></span>
+                                        </label>
+                                        <input type="text" name="name" placeholder="请输入中文姓名" class="input input-sm input-bordered" required>
+                                    </div>
+
+                                    <!-- English Name -->
+                                    <div class="form-control">
+                                        <label class="label">
+                                            <span class="label-text">英文姓名</span>
+                                        </label>
+                                        <input type="text" name="name_en" placeholder="请输入英文姓名" class="input input-sm input-bordered">
+                                    </div>
+
+                                    <!-- Title -->
+                                    <div class="form-control">
+                                        <label class="label">
+                                            <span class="label-text">职位 <span class="text-error">*</span></span>
+                                        </label>
+                                        <input type="text" name="title" placeholder="如: 主任牧师、副牧师、传道师" class="input input-sm input-bordered" required>
+                                    </div>
+
+                                    <!-- Church -->
+                                    <div class="form-control">
+                                        <label class="label">
+                                            <span class="label-text">所属教会 <span class="text-error">*</span></span>
+                                        </label>
+                                        <input type="text" name="church" placeholder="请输入教会名称" class="input input-sm input-bordered" required>
+                                    </div>
+                                </div>
+
+                                <!-- Avatar Upload -->
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text">头像</span>
+                                    </label>
+                                    <div class="flex items-center gap-4">
+                                        <div class="avatar">
+                                            <div class="w-24 h-24 rounded-full bg-base-200">
+                                                <img id="avatarPreview" src="" alt="头像预览" class="hidden">
+                                                <div id="avatarPlaceholder" class="w-full h-full flex items-center justify-center">
+                                                    <span class="iconify text-base-content/40" data-icon="heroicons:user" data-width="48"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input type="file" id="avatarUpload" class="file-input file-input-bordered file-input-sm w-full max-w-xs" accept="image/*" onchange="previewAvatar(event)">
+                                    </div>
+                                </div>
+
+                                <!-- Short Bio -->
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text">简短介绍 <span class="text-error">*</span></span>
+                                        <span class="label-text-alt">建议50字以内</span>
+                                    </label>
+                                    <textarea name="bio" class="textarea textarea-bordered h-20" placeholder="请输入简短介绍" required></textarea>
+                                </div>
+
+                                <!-- Long Bio -->
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text">详细介绍</span>
+                                        <span class="label-text-alt">可选，详细的个人背景和事工经历</span>
+                                    </label>
+                                    <textarea name="bio_long" class="textarea textarea-bordered h-32" placeholder="请输入详细介绍"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Info Card -->
+                        <div class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body p-6">
+                                <h2 class="text-lg font-semibold mb-4">联系方式</h2>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Email -->
+                                    <div class="form-control">
+                                        <label class="label">
+                                            <span class="label-text">邮箱 <span class="text-error">*</span></span>
+                                        </label>
+                                        <input type="email" name="email" placeholder="请输入邮箱地址" class="input input-sm input-bordered" required>
+                                    </div>
+
+                                    <!-- Website -->
+                                    <div class="form-control">
+                                        <label class="label">
+                                            <span class="label-text">个人网站</span>
+                                        </label>
+                                        <input type="url" name="website" placeholder="https://example.com" class="input input-sm input-bordered">
+                                    </div>
+
+                                    <!-- WeChat -->
+                                    <div class="form-control">
+                                        <label class="label">
+                                            <span class="label-text">微信号</span>
+                                        </label>
+                                        <input type="text" name="wechat" placeholder="请输入微信号" class="input input-sm input-bordered">
+                                    </div>
+
+                                    <!-- YouTube -->
+                                    <div class="form-control">
+                                        <label class="label">
+                                            <span class="label-text">YouTube频道</span>
+                                        </label>
+                                        <input type="text" name="youtube" placeholder="@ChannelName" class="input input-sm input-bordered">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Card -->
+                        <div class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body p-6">
+                                <h2 class="text-lg font-semibold mb-4">状态设置</h2>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Status -->
+                                    <div class="form-control">
+                                        <label class="label">
+                                            <span class="label-text">状态 <span class="text-error">*</span></span>
+                                        </label>
+                                        <select name="status" class="select select-sm select-bordered" required>
+                                            <option value="active">活跃</option>
+                                            <option value="inactive">停用</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Verified -->
+                                    <div class="form-control">
+                                        <label class="label">
+                                            <span class="label-text">认证状态</span>
+                                        </label>
+                                        <label class="label cursor-pointer justify-start gap-3">
+                                            <input type="checkbox" name="is_verified" class="checkbox checkbox-sm">
+                                            <span class="label-text">已认证讲员</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="flex items-center justify-end gap-3">
+                            <button type="button" class="btn btn-ghost" onclick="location.href='speakers.html'">取消</button>
+                            <button type="submit" class="btn btn-primary">
+                                <span class="iconify" data-icon="heroicons:check" data-width="20"></span>
+                                保存讲员
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        }
+
+        function previewAvatar(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                    document.getElementById('avatarPreview').classList.remove('hidden');
+                    document.getElementById('avatarPlaceholder').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Helper function to convert file to base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // Generate unique ID for new speaker
+        function generateSpeakerId() {
+            const timestamp = Date.now();
+            const random = Math.floor(Math.random() * 1000);
+            return `speaker-${timestamp}-${random}`;
+        }
+
+        document.getElementById('addSpeakerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!confirm('确认添加此讲员？')) {
+                return;
+            }
+            
+            try {
+                // Get form data
+                const formData = new FormData(this);
+                
+                // Get avatar file
+                const avatarFile = document.getElementById('avatarUpload').files[0];
+                let avatarBase64 = '';
+                
+                if (avatarFile) {
+                    avatarBase64 = await fileToBase64(avatarFile);
+                }
+                
+                // Prepare speaker data
+                const speakerData = {
+                    id: generateSpeakerId(),
+                    name: formData.get('name'),
+                    name_en: formData.get('name_en') || '',
+                    title: formData.get('title'),
+                    avatar_url: avatarBase64 || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
+                    bio: formData.get('bio'),
+                    bio_long: formData.get('bio_long') || '',
+                    church: formData.get('church'),
+                    email: formData.get('email'),
+                    website: formData.get('website') || '',
+                    social_media: {
+                        wechat: formData.get('wechat') || '',
+                        youtube: formData.get('youtube') || ''
+                    },
+                    sermon_count: 0,
+                    follower_count: 0,
+                    total_play_count: 0,
+                    status: formData.get('status'),
+                    is_verified: formData.get('is_verified') === 'on',
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+                
+                console.log('Submitting speaker data:', speakerData);
+                
+                // Submit to API
+                const response = await fetch('http://localhost:3000/v1/speakers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(speakerData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    alert('讲员添加成功！');
+                    console.log('Speaker added successfully:', result);
+                    window.location.href = 'speakers.html';
+                } else {
+                    throw new Error(result.error?.message || '添加失败');
+                }
+            } catch (error) {
+                console.error('Error adding speaker:', error);
+                alert('添加讲员失败：' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

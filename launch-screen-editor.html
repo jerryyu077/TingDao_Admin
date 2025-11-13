@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开屏页模块编辑器 - 听道后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .sidebar-wrapper {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-text {
+            white-space: nowrap;
+        }
+
+        .preview-phone {
+            width: 375px;
+            height: 812px;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #0D1B3E 0%, #1A2A6C 100%);
+            position: relative;
+        }
+
+        .preview-illustration {
+            width: 256px;
+            height: 256px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-center;
+            margin: 0 auto;
+        }
+
+        .preview-illustration img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="bg-base-200 flex flex-col min-h-screen">
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside class="sidebar-wrapper bg-base-100 border-r border-base-300">
+            <div class="p-3 border-b border-base-300">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="iconify text-white" data-icon="heroicons:home" data-width="20"></span>
+                    </div>
+                    <span class="sidebar-text text-lg font-semibold">听道后台</span>
+                </div>
+            </div>
+
+            <ul class="menu menu-sm gap-1 p-3">
+                <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span class="sidebar-text">仪表盘</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span class="sidebar-text">讲道内容</span></summary>
+                        <ul>
+                            <li><a href="sermons.html">讲道列表</a></li>
+                            <li><a href="add-sermon.html">添加讲道</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html">讲员列表</a></li>
+                            <li><a href="add-speaker.html">添加讲员</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details open>
+                        <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span class="sidebar-text">内容编排</span></summary>
+                        <ul>
+                            <li><a href="curation.html">编排概览</a></li>
+                            <li><a href="home-editor.html">首页模块</a></li>
+                            <li><a href="discover-editor.html">发现页模块</a></li>
+                            <li><a href="launch-screen-editor.html" class="active">开屏页模块</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span class="sidebar-text">用户管理</span></summary>
+                        <ul>
+                            <li><a href="users.html">所有用户</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span class="sidebar-text">标签主题</span></summary>
+                        <ul>
+                            <li><a href="tags.html">标签管理</a></li>
+                            <li><a href="tag-edit.html">标签编辑</a></li>
+                            <li><a href="topic-groups.html">主题组</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span class="sidebar-text">数据统计</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span class="sidebar-text">系统设置</span></summary>
+                        <ul>
+                            <li><a href="settings.html">系统概览</a></li>
+                            <li><a href="admins.html">账户管理</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-base-100 border-b border-base-300 sticky top-0 z-10">
+                <div class="flex items-center justify-between px-8 py-4">
+                    <div>
+                        <h1 class="text-2xl font-bold flex items-center gap-3">
+                            <span class="iconify text-purple-600" data-icon="heroicons:sparkles" data-width="28"></span>
+                            开屏页模块编辑器
+                        </h1>
+                        <p class="text-sm text-base-content/60 mt-1">配置App启动时的开屏页内容</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="previewChanges()" class="btn btn-outline btn-sm gap-2">
+                            <span class="iconify" data-icon="heroicons:eye" data-width="16"></span>
+                            预览
+                        </button>
+                        <button onclick="saveAndPublish()" class="btn btn-primary btn-sm gap-2">
+                            <span class="iconify" data-icon="heroicons:cloud-arrow-up" data-width="16"></span>
+                            保存并发布
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 左侧：编辑表单 -->
+                    <div class="space-y-6">
+                        <!-- 开屏图片配置 -->
+                        <section class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body">
+                                <h2 class="card-title text-lg flex items-center gap-2">
+                                    <span class="iconify text-blue-600" data-icon="heroicons:photo" data-width="20"></span>
+                                    开屏插画
+                                </h2>
+                                <p class="text-sm text-base-content/60">设置App启动时显示的中心插画图片</p>
+                                
+                                <div class="form-control mt-4">
+                                    <label class="label">
+                                        <span class="label-text font-medium">当前插画</span>
+                                    </label>
+                                    <div class="relative w-full aspect-square max-w-xs mx-auto bg-base-200 rounded-lg overflow-hidden">
+                                        <img id="current-illustration" src="" alt="开屏插画" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300?text=暂无图片'">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                                    </div>
+                                </div>
+
+                                <div class="form-control mt-4">
+                                    <label class="label">
+                                        <span class="label-text font-medium">上传插画图片</span>
+                                    </label>
+                                    <input type="file" id="illustration-file" class="file-input file-input-bordered" accept="image/*" onchange="handleFileUpload(this)">
+                                    <label class="label">
+                                        <span class="label-text-alt text-base-content/60">建议尺寸：512x512px，圆形构图效果最佳</span>
+                                    </label>
+                                    <label class="label">
+                                        <span class="label-text-alt text-base-content/60">支持 JPG、PNG 格式，最大 2MB</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- 经文配置 -->
+                        <section class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body">
+                                <h2 class="card-title text-lg flex items-center gap-2">
+                                    <span class="iconify text-green-600" data-icon="heroicons:book-open" data-width="20"></span>
+                                    开屏经文
+                                </h2>
+                                <p class="text-sm text-base-content/60">设置App启动时显示的经文内容</p>
+                                
+                                <div class="form-control mt-4">
+                                    <label class="label">
+                                        <span class="label-text font-medium">经文内容</span>
+                                    </label>
+                                    <textarea id="scripture-text" class="textarea textarea-bordered h-24" placeholder="输入经文内容..."></textarea>
+                                    <label class="label">
+                                        <span class="label-text-alt text-base-content/60">当前字符数：<span id="char-count">0</span> / 建议不超过50字</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-medium">经文出处（可选）</span>
+                                    </label>
+                                    <input type="text" id="scripture-reference" class="input input-bordered" placeholder="例如：诗篇 23:1">
+                                    <label class="label">
+                                        <span class="label-text-alt text-base-content/60">如果填写，将显示在经文下方</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- 操作提示 -->
+                        <div class="alert alert-info">
+                            <span class="iconify" data-icon="heroicons:information-circle" data-width="20"></span>
+                            <div>
+                                <h3 class="font-bold">操作提示</h3>
+                                <div class="text-sm mt-1">
+                                    <p>• 修改后点击"保存并发布"以应用更改</p>
+                                    <p>• 图片会在下次App启动时生效</p>
+                                    <p>• 建议使用温馨、平和的图片风格</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧：实时预览 -->
+                    <div class="sticky top-24">
+                        <section class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body">
+                                <h2 class="card-title text-lg flex items-center gap-2">
+                                    <span class="iconify text-purple-600" data-icon="heroicons:device-phone-mobile" data-width="20"></span>
+                                    实时预览
+                                </h2>
+                                <p class="text-sm text-base-content/60 mb-4">iPhone 效果预览</p>
+                                
+                                <!-- 手机预览框 -->
+                                <div class="flex justify-center">
+                                    <div class="preview-phone">
+                                        <!-- 预览内容 -->
+                                        <div class="flex flex-col items-center justify-center h-full px-8 text-white">
+                                            <!-- 中间插画 -->
+                                            <div class="flex-1 flex items-center justify-center">
+                                                <div class="preview-illustration">
+                                                    <img id="preview-illustration" src="https://via.placeholder.com/256?text=开屏插画" alt="插画">
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 底部内容 -->
+                                            <div class="pb-24 space-y-8 text-center">
+                                                <!-- 经文 -->
+                                                <div>
+                                                    <p id="preview-scripture" class="text-base opacity-80 leading-relaxed">
+                                                        "耶和华是我的牧者，我必不致缺乏。"
+                                                    </p>
+                                                    <p id="preview-reference" class="text-sm opacity-60 mt-2"></p>
+                                                </div>
+                                                
+                                                <!-- Logo和品牌 -->
+                                                <div class="flex items-center justify-center gap-3">
+                                                    <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                                                        <span class="iconify text-white" data-icon="heroicons:book-open" data-width="16"></span>
+                                                    </div>
+                                                    <span class="text-xl font-bold">听道</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 配置数据
+        let launchConfig = {
+            illustrationUrl: '',
+            scripture: {
+                text: '"耶和华是我的牧者，我必不致缺乏。"',
+                reference: '诗篇 23:1'
+            }
+        };
+        
+        // 用于存储当前的插画 URL（可能是上传的 base64 或原始 URL）
+        let currentIllustrationUrl = '';
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfig();
+            setupEventListeners();
+        });
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 监听输入变化以实时预览
+            document.getElementById('scripture-text').addEventListener('input', function() {
+                updateCharCount();
+                updatePreview();
+            });
+            document.getElementById('scripture-reference').addEventListener('input', updatePreview);
+        }
+
+        // 加载配置
+        async function loadConfig() {
+            try {
+                const response = await fetch('http://localhost:3000/v1/curation/launch-screen-config');
+                if (!response.ok) {
+                    throw new Error('Failed to load config');
+                }
+                
+                const result = await response.json();
+                launchConfig = result.data.config;
+                
+                // 填充表单
+                currentIllustrationUrl = launchConfig.illustrationUrl || '';
+                document.getElementById('scripture-text').value = launchConfig.scripture.text || '';
+                document.getElementById('scripture-reference').value = launchConfig.scripture.reference || '';
+                
+                updateCharCount();
+                updatePreview();
+                
+                console.log('✅ 配置加载成功', launchConfig);
+            } catch (error) {
+                console.log('⚠️ 使用默认配置', error);
+                // 使用默认配置
+                document.getElementById('scripture-text').value = launchConfig.scripture.text;
+                document.getElementById('scripture-reference').value = launchConfig.scripture.reference;
+                updateCharCount();
+                updatePreview();
+            }
+        }
+
+        // 更新字符计数
+        function updateCharCount() {
+            const text = document.getElementById('scripture-text').value;
+            document.getElementById('char-count').textContent = text.length;
+        }
+
+        // 更新预览
+        function updatePreview() {
+            const scriptureText = document.getElementById('scripture-text').value;
+            const scriptureReference = document.getElementById('scripture-reference').value;
+            
+            // 更新插画
+            if (currentIllustrationUrl) {
+                document.getElementById('current-illustration').src = currentIllustrationUrl;
+                document.getElementById('preview-illustration').src = currentIllustrationUrl;
+            }
+            
+            // 更新经文
+            document.getElementById('preview-scripture').textContent = scriptureText || '"耶和华是我的牧者，我必不致缺乏。"';
+            document.getElementById('preview-reference').textContent = scriptureReference || '';
+        }
+
+        // 处理文件上传
+        function handleFileUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                // 检查文件大小（2MB）
+                if (file.size > 2 * 1024 * 1024) {
+                    showNotification('文件太大，请选择小于2MB的图片', 'error');
+                    return;
+                }
+                
+                // 读取并预览
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const dataUrl = e.target.result;
+                    currentIllustrationUrl = dataUrl;
+                    updatePreview();
+                    showNotification('图片上传成功，请点击"保存并发布"以应用', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 预览变更
+        function previewChanges() {
+            updatePreview();
+            showNotification('预览已更新', 'info');
+        }
+
+        // 保存并发布
+        async function saveAndPublish() {
+            const scriptureText = document.getElementById('scripture-text').value.trim();
+            const scriptureReference = document.getElementById('scripture-reference').value.trim();
+            
+            if (!scriptureText) {
+                showNotification('请输入经文内容', 'warning');
+                return;
+            }
+            
+            const configData = {
+                illustrationUrl: currentIllustrationUrl,
+                scripture: {
+                    text: scriptureText,
+                    reference: scriptureReference
+                }
+            };
+            
+            try {
+                const response = await fetch('http://localhost:3000/v1/curation/launch-screen-config', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        config: configData
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('保存失败');
+                }
+                
+                const result = await response.json();
+                launchConfig = result.config;
+                
+                showNotification('保存成功！开屏页配置已更新', 'success');
+                console.log('✅ 配置已保存', result);
+            } catch (error) {
+                console.error('❌ 保存失败', error);
+                showNotification('保存失败: ' + error.message, 'error');
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} shadow-lg fixed top-4 right-4 w-auto max-w-md z-50 animate-in fade-in slide-in-from-right`;
+            notification.innerHTML = `
+                <span class="iconify" data-icon="heroicons:${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'information-circle'}" data-width="20"></span>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // 3秒后自动移除
+            setTimeout(() => {
+                notification.classList.add('animate-out', 'fade-out', 'slide-out-to-right');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
+

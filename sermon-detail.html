@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>讲道详情与审核 - 听道后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* Status indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+        }
+
+        .status-pending {
+            background-color: rgba(251, 191, 36, 0.1);
+            color: rgba(180, 83, 9, 1);
+        }
+
+        .status-published,
+        .status-approved {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: rgba(5, 150, 105, 1);
+        }
+
+        .status-rejected,
+        .status-revision {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: rgba(185, 28, 28, 1);
+        }
+
+        /* Card styles */
+        .card-minimal {
+            border: 1px solid #E5E7EB;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-minimal:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Sidebar styles */
+        .sidebar-wrapper {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-wrapper .menu li > a {
+            padding: 0.6rem 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-wrapper .menu li > a .iconify {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Header styles */
+        .header-height {
+            height: 64px;
+        }
+
+        /* Audio player styles */
+        .audio-progress-bar {
+            background: #E5E7EB;
+            height: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .audio-progress-fill {
+            background: #3B82F6;
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.1s ease;
+        }
+
+        /* Transition utilities */
+        .transition-smooth {
+            transition: all 0.15s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-base-200">
+    <!-- Header -->
+    <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+        <div class="navbar-start gap-2">
+            <img src="https://spark-builder.s3.cn-north-1.amazonaws.com.cn/image/2025/10/22/523fba63-3739-42ea-876b-c02f6da135ee.png" alt="Logo" class="w-10 h-10 rounded-lg">
+            <span class="text-xl font-semibold hidden lg:inline">听道后台</span>
+        </div>
+        
+        <div class="navbar-center hidden md:flex">
+            <div class="join">
+                <input type="text" placeholder="搜索讲道、讲员..." class="input input-bordered input-sm join-item w-80">
+                <button class="btn btn-sm join-item btn-primary">
+                    <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="navbar-end gap-3">
+            <div class="indicator">
+                <span class="indicator-item badge badge-accent badge-sm">8</span>
+                <button class="btn btn-ghost btn-circle">
+                    <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                </button>
+            </div>
+            
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                        <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                    </div>
+                </div>
+                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                    <li class="menu-title"><span>管理员中心</span></li>
+                    <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                    <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                    <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                    <div class="divider my-1"></div>
+                    <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="sidebar-wrapper bg-base-100 border-r border-base-300 min-h-screen">
+            <!-- Sidebar Menu -->
+            <ul class="menu p-3 gap-1 menu-sm pt-4">
+                <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span>仪表盘</span></a></li>
+                
+                <li>
+                    <details open>
+                        <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span>讲道内容</span></summary>
+                        <ul>
+                            <li><a href="sermons.html">讲道列表</a></li>
+                            <li><a href="add-sermon.html">添加讲道</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span>讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html">讲员列表</a></li>
+                            <li><a href="add-speaker.html">添加讲员</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span>内容编排</span></summary>
+                        <ul>
+                            <li><a href="curation.html">编排概览</a></li>
+                            <li><a href="home-editor.html">首页模块</a></li>
+                            <li><a href="discover-editor.html">发现页模块</a></li>
+                            <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span>用户管理</span></summary>
+                        <ul>
+                            <li><a href="users.html">所有用户</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span>标签主题</span></summary>
+                        <ul>
+                            <li><a href="tags.html">标签管理</a></li>
+                            <li><a href="tag-edit.html">标签编辑</a></li>
+                            <li><a href="topic-groups.html">主题组</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span>数据统计</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span>系统设置</span></summary>
+                        <ul>
+                            <li><a href="settings.html">系统概览</a></li>
+                            <li><a href="admins.html">账户管理</a></li>
+                            <li><a href="permissions.html">权限控制</a></li>
+                            <li><a href="api-config.html">API配置</a></li>
+                            <li><a href="logs.html">日志版本</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span>帮助中心</span></summary>
+                        <ul>
+                            <li><a href="help.html">帮助文档</a></li>
+                            <li><a href="upload-guide.html">上传指南</a></li>
+                            <li><a href="review-standards.html">审核标准</a></li>
+                            <li><a href="contact.html">联系开发者</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col">
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs text-sm py-3 px-6 bg-base-100 border-b border-base-300">
+                <ul>
+                    <li><a href="dashboard.html">首页</a></li>
+                    <li><a href="sermons.html">讲道内容</a></li>
+                    <li>讲道详情与审核</li>
+                </ul>
+            </div>
+
+            <!-- Page Header -->
+            <div class="px-8 py-6 bg-base-100 border-b border-base-300">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <button class="btn btn-ghost btn-circle" onclick="location.href='sermons.html'">
+                            <span class="iconify" data-icon="heroicons:arrow-left" data-width="20"></span>
+                        </button>
+                        <div>
+                            <h1 class="text-2xl font-semibold">讲道详情审核</h1>
+                            <p class="text-sm text-base-content/70 mt-1">查看讲道详细信息并进行审核操作</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="editBtn" class="btn btn-primary" onclick="toggleEditMode()">
+                            <span class="iconify" data-icon="heroicons:pencil-square" data-width="20"></span>
+                            编辑
+                        </button>
+                        <button id="saveBtn" class="btn btn-success hidden" onclick="saveChanges()">
+                            <span class="iconify" data-icon="heroicons:check" data-width="20"></span>
+                            保存
+                        </button>
+                        <button id="cancelBtn" class="btn btn-ghost hidden" onclick="cancelEdit()">
+                            取消
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                    <!-- Left Column: Sermon Details -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Main Info Card -->
+                        <div class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body p-6">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex-1">
+                                        <!-- Title View -->
+                                        <h2 class="text-xl font-semibold mb-2" data-mode="view" id="titleView">加载中...</h2>
+                                        <!-- Title Edit -->
+                                        <input type="text" id="titleEdit" class="input input-bordered w-full mb-2 hidden" data-mode="edit" value="">
+                                        
+                                        <div class="flex items-center gap-4 text-sm text-base-content/70 mb-2">
+                                            <!-- Date View -->
+                                            <span class="flex items-center gap-1" data-mode="view">
+                                                <span class="iconify" data-icon="heroicons:calendar" data-width="16"></span>
+                                                <span id="dateView">--</span>
+                                            </span>
+                                            <!-- Date Edit -->
+                                            <div class="flex items-center gap-1 hidden" data-mode="edit">
+                                                <span class="iconify" data-icon="heroicons:calendar" data-width="16"></span>
+                                                <input type="date" id="dateEdit" class="input input-bordered input-sm" value="">
+                                            </div>
+                                            
+                                            <!-- Duration View (always readonly - from audio file) -->
+                                            <span class="flex items-center gap-1">
+                                                <span class="iconify" data-icon="heroicons:clock" data-width="16"></span>
+                                                <span id="durationView">--</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="status-indicator status-pending" id="headerStatus">
+                                        <span class="iconify" data-icon="heroicons:clock" data-width="16"></span>
+                                        待审核
+                                    </div>
+                                </div>
+
+                                <!-- Cover Image -->
+                                <div class="mb-6">
+                                    <img id="coverPreview" src="https://spark-builder.s3.cn-north-1.amazonaws.com.cn/image/2025/10/22/b8f137a0-5f16-4365-9743-e5dcac798777.png" alt="讲道封面" class="w-full h-64 object-cover rounded-lg">
+                                    <input type="file" id="coverUpload" class="file-input file-input-bordered w-full mt-2 hidden" data-mode="edit" accept="image/*" onchange="previewCover(event)">
+                                </div>
+
+                                <!-- Summary -->
+                                <div class="mb-6">
+                                    <h3 class="text-lg font-medium mb-3">讲道摘要</h3>
+                                    <!-- Summary View -->
+                                    <p class="text-base-content/80 leading-relaxed" data-mode="view" id="summaryView">
+                                        加载中...
+                                    </p>
+                                    <!-- Summary Edit -->
+                                    <textarea id="summaryEdit" class="textarea textarea-bordered w-full h-32 hidden" data-mode="edit"></textarea>
+                                </div>
+
+                                <!-- Scripture References -->
+                                <div class="mb-6">
+                                    <h3 class="text-lg font-medium mb-3">经文引用</h3>
+                                    <!-- Scripture View -->
+                                    <div class="space-y-2" data-mode="view" id="scripturesView">
+                                        <div class="text-base-content/60">加载中...</div>
+                                    </div>
+                                    <!-- Scripture Edit -->
+                                    <div class="space-y-2 hidden" data-mode="edit" id="scripturesEdit">
+                                        <button class="btn btn-sm btn-ghost" id="addScriptureBtn" onclick="addScripture()">
+                                            <span class="iconify" data-icon="heroicons:plus" data-width="16"></span>
+                                            添加经文
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Tags -->
+                                <div>
+                                    <h3 class="text-lg font-medium mb-3">标签</h3>
+                                    <!-- Tags View -->
+                                    <div class="flex flex-wrap gap-2" data-mode="view" id="tagsView">
+                                        <div class="badge badge-primary badge-lg">恩典</div>
+                                        <div class="badge badge-primary badge-lg">救赎</div>
+                                        <div class="badge badge-primary badge-lg">信仰</div>
+                                        <div class="badge badge-primary badge-lg">圣经教导</div>
+                                    </div>
+                                    <!-- Tags Edit -->
+                                    <div class="hidden" data-mode="edit">
+                                        <div class="flex flex-wrap gap-2 mb-2 p-2 border border-base-300 rounded-lg min-h-12" id="tagContainerEdit">
+                                            <span class="badge badge-md gap-1.5 cursor-pointer hover:badge-error" onclick="removeTag(this)">
+                                                恩典
+                                                <span class="iconify" data-icon="heroicons:x-mark" data-width="12"></span>
+                                            </span>
+                                            <span class="badge badge-md gap-1.5 cursor-pointer hover:badge-error" onclick="removeTag(this)">
+                                                救赎
+                                                <span class="iconify" data-icon="heroicons:x-mark" data-width="12"></span>
+                                            </span>
+                                            <span class="badge badge-md gap-1.5 cursor-pointer hover:badge-error" onclick="removeTag(this)">
+                                                信仰
+                                                <span class="iconify" data-icon="heroicons:x-mark" data-width="12"></span>
+                                            </span>
+                                            <span class="badge badge-md gap-1.5 cursor-pointer hover:badge-error" onclick="removeTag(this)">
+                                                圣经教导
+                                                <span class="iconify" data-icon="heroicons:x-mark" data-width="12"></span>
+                                            </span>
+                                        </div>
+                                        <input type="text" id="tagInputEdit" placeholder="输入标签后按回车添加..." class="input input-sm input-bordered w-full" onkeydown="handleTagInputEdit(event)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Speaker Info Card -->
+                        <div class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body p-6">
+                                <h3 class="text-lg font-medium mb-4">讲员信息</h3>
+                                <!-- Speaker View -->
+                                <div class="flex items-start gap-4" data-mode="view">
+                                    <div class="w-16 h-16 rounded-full overflow-hidden bg-primary text-primary-content flex items-center justify-center text-lg font-bold" id="speakerAvatarView">
+                                        <!-- Avatar image or initials will be loaded here -->
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-base font-medium mb-1" id="speakerNameView">加载中...</h4>
+                                        <p class="text-sm text-base-content/70 mb-2" id="speakerTitleView">--</p>
+                                        <p class="text-sm text-base-content/80 leading-relaxed" id="speakerBioView">
+                                            加载中...
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- Speaker Edit -->
+                                <div class="space-y-3 hidden" data-mode="edit">
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">讲员姓名</span></label>
+                                        <input type="text" id="speakerNameEdit" class="input input-bordered input-sm" value="">
+                                    </div>
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">职位</span></label>
+                                        <input type="text" id="speakerTitleEdit" class="input input-bordered input-sm" value="">
+                                    </div>
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">简介</span></label>
+                                        <textarea id="speakerBioEdit" class="textarea textarea-bordered h-24"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Audio Preview Card -->
+                        <div class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body p-6">
+                                <h3 class="text-lg font-medium mb-4">音频预览</h3>
+                                <div class="bg-base-200 rounded-lg p-4">
+                                    <div class="flex items-center gap-4 mb-3">
+                                        <button class="btn btn-circle btn-primary" id="playPauseBtn" onclick="toggleAudioPlayback()">
+                                            <span class="iconify" data-icon="heroicons:play" data-width="20" id="playIcon"></span>
+                                        </button>
+                                        <div class="flex-1">
+                                            <div class="text-sm font-medium mb-1" id="audioTitleView">加载中...</div>
+                                            <div class="text-xs text-base-content/70" id="audioMetaView">--</div>
+                                        </div>
+                                        <div class="text-sm text-base-content/70" id="audioTime">00:00 / 00:00</div>
+                                    </div>
+                                    <div class="w-full bg-base-300 rounded-full h-2 cursor-pointer" onclick="seekAudio(event)">
+                                        <div class="bg-primary h-2 rounded-full transition-all duration-300" style="width: 0%" id="progressBar"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Audit Actions -->
+                    <div class="space-y-6">
+                        <!-- Audit Status Card -->
+                        <div class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body p-6">
+                                <h3 class="text-lg font-medium mb-4">审核状态</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-base-content/70">当前状态</span>
+                                        <div class="status-indicator status-pending" id="sidebarStatus">
+                                            <span class="iconify" data-icon="heroicons:clock" data-width="16"></span>
+                                            待审核
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-base-content/70">提交时间</span>
+                                        <span class="text-sm" id="submittedAtView">--</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-base-content/70">提交者</span>
+                                        <a href="user-detail.html?id=user-10245" id="submitterView" class="text-sm text-primary hover:underline">张弟兄</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Audit Actions Card -->
+                        <div class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body p-6">
+                                <h3 class="text-lg font-medium mb-4">审核操作</h3>
+                                <div class="space-y-3">
+                                    <button class="btn btn-success w-full" onclick="approveSermon()">
+                                        <span class="iconify" data-icon="heroicons:check-circle" data-width="20"></span>
+                                        通过审核
+                                    </button>
+                                    <button class="btn btn-warning w-full" onclick="requestRevision()">
+                                        <span class="iconify" data-icon="heroicons:arrow-path" data-width="20"></span>
+                                        退回修改
+                                    </button>
+                                    <button class="btn btn-error w-full" onclick="showRejectModal()">
+                                        <span class="iconify" data-icon="heroicons:x-circle" data-width="20"></span>
+                                        拒绝申请
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Reject Modal -->
+    <dialog id="rejectModal" class="modal">
+        <div class="modal-box max-w-md">
+            <h3 class="font-bold text-lg mb-4">拒绝申请</h3>
+            <div class="space-y-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">拒绝理由</span>
+                    </label>
+                    <textarea class="textarea textarea-bordered h-24 resize-none" placeholder="请输入拒绝理由..." id="rejectReason"></textarea>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">常用理由</span>
+                    </label>
+                    <select class="select select-bordered" onchange="fillRejectReason(this.value)">
+                        <option value="">选择常用理由</option>
+                        <option value="内容不符合教会教义">内容不符合教会教义</option>
+                        <option value="音频质量不佳">音频质量不佳</option>
+                        <option value="缺少必要的经文引用">缺少必要的经文引用</option>
+                        <option value="内容过于简短">内容过于简短</option>
+                        <option value="其他技术问题">其他技术问题</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-action">
+                <button class="btn btn-ghost" onclick="closeRejectModal()">取消</button>
+                <button class="btn btn-error" onclick="confirmReject()">确认拒绝</button>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <script>
+        // Edit mode state
+        let isEditMode = false;
+        let originalData = {};
+
+        // Toggle edit mode
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            
+            if (isEditMode) {
+                // Save original data
+                saveOriginalData();
+                // Show edit mode
+                document.querySelectorAll('[data-mode="view"]').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('[data-mode="edit"]').forEach(el => el.classList.remove('hidden'));
+                // Toggle buttons
+                document.getElementById('editBtn').classList.add('hidden');
+                document.getElementById('saveBtn').classList.remove('hidden');
+                document.getElementById('cancelBtn').classList.remove('hidden');
+            } else {
+                // Show view mode
+                document.querySelectorAll('[data-mode="view"]').forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('[data-mode="edit"]').forEach(el => el.classList.add('hidden'));
+                // Toggle buttons
+                document.getElementById('editBtn').classList.remove('hidden');
+                document.getElementById('saveBtn').classList.add('hidden');
+                document.getElementById('cancelBtn').classList.add('hidden');
+            }
+        }
+
+        // Save original data
+        function saveOriginalData() {
+            originalData = {
+                title: document.getElementById('titleEdit').value,
+                date: document.getElementById('dateEdit').value,
+                // duration is readonly - don't save to originalData
+                summary: document.getElementById('summaryEdit').value,
+                speakerName: document.getElementById('speakerNameEdit').value,
+                speakerTitle: document.getElementById('speakerTitleEdit').value,
+                speakerBio: document.getElementById('speakerBioEdit').value
+            };
+        }
+
+        // Save changes
+        async function saveChanges() {
+            if (!confirm('确认保存所有修改？')) {
+                return;
+            }
+
+            // Collect all sermon data
+            const sermonId = getSermonIdFromUrl();
+            const sermonDataKey = `sermon_data_${sermonId}`;
+            
+            const sermonData = {
+                title: document.getElementById('titleEdit').value,
+                date: document.getElementById('dateEdit').value,
+                // duration is readonly - comes from audio file
+                summary: document.getElementById('summaryEdit').value,
+                scripture: Array.from(document.querySelectorAll('.scripture-input'))
+                    .map(input => input.value.trim())
+                    .filter(val => val)
+                    .join('; '),
+                tags: Array.from(document.getElementById('tagContainerEdit').querySelectorAll('.badge'))
+                    .map(badge => badge.textContent.trim().replace('×', '').trim()),
+                speakerName: document.getElementById('speakerNameEdit').value,
+                speakerTitle: document.getElementById('speakerTitleEdit').value,
+                speakerBio: document.getElementById('speakerBioEdit').value,
+                // Use base64 image data
+                coverImage: document.getElementById('coverPreview').src,
+                savedAt: new Date().toISOString()
+            };
+            
+            try {
+                // Save to backend API
+                const response = await fetch(`http://localhost:3000/v1/sermons/${sermonId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: sermonData.title,
+                        date: sermonData.date,
+                        // Don't update duration - it comes from audio file metadata
+                        summary: sermonData.summary,
+                        scripture: sermonData.scripture,
+                        tags: sermonData.tags,
+                        cover_image_url: sermonData.coverImage
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API 更新失败');
+                }
+                
+                console.log('✅ Sermon saved to API:', sermonData);
+                
+                // Save to localStorage
+                localStorage.setItem(sermonDataKey, JSON.stringify(sermonData));
+                console.log('✅ Saved sermon data to localStorage');
+
+                // Update view with edit values
+                document.getElementById('titleView').textContent = sermonData.title;
+                
+                const dateFormatted = new Date(sermonData.date).toLocaleDateString('zh-CN');
+                document.getElementById('dateView').textContent = dateFormatted;
+                
+                // Duration is readonly - don't update from save
+                
+                document.getElementById('summaryView').textContent = sermonData.summary;
+                
+                document.getElementById('speakerNameView').textContent = sermonData.speakerName;
+                document.getElementById('speakerTitleView').textContent = sermonData.speakerTitle;
+                document.getElementById('speakerBioView').textContent = sermonData.speakerBio;
+
+                // Update scriptures view
+                updateScripturesView();
+                
+                // Update tags view
+                updateTagsView();
+
+                // Exit edit mode
+                document.querySelectorAll('[data-mode="view"]').forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('[data-mode="edit"]').forEach(el => el.classList.add('hidden'));
+                document.getElementById('editBtn').classList.remove('hidden');
+                document.getElementById('saveBtn').classList.add('hidden');
+                document.getElementById('cancelBtn').classList.add('hidden');
+                isEditMode = false;
+                
+                alert('修改已保存成功！');
+                
+            } catch (error) {
+                console.error('❌ 保存失败:', error);
+                alert('保存失败: ' + error.message);
+            }
+        }
+
+        // Cancel edit
+        function cancelEdit() {
+            if (!confirm('确认取消编辑？未保存的修改将丢失。')) {
+                return;
+            }
+
+            // Restore original data
+            document.getElementById('titleEdit').value = originalData.title;
+            document.getElementById('dateEdit').value = originalData.date;
+            // duration is readonly - don't restore
+            document.getElementById('summaryEdit').value = originalData.summary;
+            document.getElementById('speakerNameEdit').value = originalData.speakerName;
+            document.getElementById('speakerTitleEdit').value = originalData.speakerTitle;
+            document.getElementById('speakerBioEdit').value = originalData.speakerBio;
+
+            // Exit edit mode
+            document.querySelectorAll('[data-mode="view"]').forEach(el => el.classList.remove('hidden'));
+            document.querySelectorAll('[data-mode="edit"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('editBtn').classList.remove('hidden');
+            document.getElementById('saveBtn').classList.add('hidden');
+            document.getElementById('cancelBtn').classList.add('hidden');
+            isEditMode = false;
+        }
+
+        // Preview cover image
+        function previewCover(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Convert to base64 for local testing
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('coverPreview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Scripture management
+        function addScripture() {
+            const container = document.getElementById('scripturesEdit');
+            const addButton = document.getElementById('addScriptureBtn');
+            
+            if (!container) {
+                console.error('Scripture edit container not found');
+                return;
+            }
+            
+            const newScripture = document.createElement('div');
+            newScripture.className = 'flex items-center gap-2';
+            newScripture.innerHTML = `
+                <input type="text" class="input input-bordered input-sm flex-1 scripture-input" placeholder="请输入经文引用，如：约翰福音 3:16">
+                <button class="btn btn-ghost btn-sm btn-circle" onclick="removeScripture(this)">
+                    <span class="iconify" data-icon="heroicons:x-mark" data-width="16"></span>
+                </button>
+            `;
+            
+            // Insert before the add button
+            if (addButton) {
+                container.insertBefore(newScripture, addButton);
+                console.log('Added new scripture input field');
+            } else {
+                console.error('Add scripture button not found');
+            }
+        }
+
+        function removeScripture(button) {
+            button.closest('div').remove();
+        }
+
+        function updateScripturesView() {
+            const inputs = document.querySelectorAll('.scripture-input');
+            const viewContainer = document.getElementById('scripturesView');
+            viewContainer.innerHTML = '';
+            
+            inputs.forEach(input => {
+                if (input.value.trim()) {
+                    const scriptureDiv = document.createElement('div');
+                    scriptureDiv.className = 'flex items-center gap-2 p-3 bg-base-200 rounded-lg';
+                    scriptureDiv.innerHTML = `
+                        <span class="iconify text-primary" data-icon="heroicons:book-open" data-width="16"></span>
+                        <span class="font-medium">${input.value}</span>
+                    `;
+                    viewContainer.appendChild(scriptureDiv);
+                }
+            });
+        }
+
+        // Tag management
+        function handleTagInputEdit(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const input = event.target;
+                const value = input.value.trim();
+                
+                if (value) {
+                    const container = document.getElementById('tagContainerEdit');
+                    const newTag = document.createElement('span');
+                    newTag.className = 'badge badge-md gap-1.5 cursor-pointer hover:badge-error';
+                    newTag.onclick = function() { removeTag(this); };
+                    newTag.innerHTML = `
+                        ${value}
+                        <span class="iconify" data-icon="heroicons:x-mark" data-width="12"></span>
+                    `;
+                    container.appendChild(newTag);
+                    input.value = '';
+                }
+            }
+        }
+
+        function removeTag(element) {
+            element.remove();
+        }
+
+        function updateTagsView() {
+            const editTags = document.querySelectorAll('#tagContainerEdit .badge');
+            const viewContainer = document.getElementById('tagsView');
+            viewContainer.innerHTML = '';
+            
+            editTags.forEach(tag => {
+                const tagText = tag.childNodes[0].textContent.trim();
+                const newTag = document.createElement('div');
+                newTag.className = 'badge badge-primary badge-lg';
+                newTag.textContent = tagText;
+                viewContainer.appendChild(newTag);
+            });
+        }
+
+        // Audio player state
+        let isPlaying = false;
+        let currentTime = 0;
+        let duration = 0; // Will be set from sermon data
+        let audioInterval;
+        let audioElement = null; // HTML5 Audio element for actual playback
+
+        // Initialize audio element
+        function initAudioElement() {
+            if (!audioElement && window.currentSermonAudioUrl) {
+                audioElement = new Audio(window.currentSermonAudioUrl);
+                
+                // Update time display as audio plays
+                audioElement.addEventListener('timeupdate', function() {
+                    if (audioElement && !audioElement.paused) {
+                        currentTime = Math.floor(audioElement.currentTime);
+                        updateAudioDisplay();
+                    }
+                });
+                
+                // Handle audio end
+                audioElement.addEventListener('ended', function() {
+                    isPlaying = false;
+                    currentTime = 0;
+                    document.getElementById('playIcon').setAttribute('data-icon', 'heroicons:play');
+                    updateAudioDisplay();
+                });
+                
+                // Update duration when metadata loads
+                audioElement.addEventListener('loadedmetadata', function() {
+                    if (audioElement.duration && audioElement.duration !== Infinity) {
+                        duration = Math.floor(audioElement.duration);
+                        updateAudioDisplay();
+                    }
+                });
+            }
+        }
+
+        // Audio player functions
+        function toggleAudioPlayback() {
+            const playIcon = document.getElementById('playIcon');
+            
+            // Initialize audio element if not already done
+            initAudioElement();
+            
+            if (!audioElement) {
+                alert('音频文件尚未加载，请稍后再试');
+                return;
+            }
+            
+            if (isPlaying) {
+                isPlaying = false;
+                audioElement.pause();
+                playIcon.setAttribute('data-icon', 'heroicons:play');
+            } else {
+                isPlaying = true;
+                audioElement.play().catch(err => {
+                    console.error('播放失败:', err);
+                    isPlaying = false;
+                    playIcon.setAttribute('data-icon', 'heroicons:play');
+                    alert('播放失败，请检查音频文件');
+                });
+                playIcon.setAttribute('data-icon', 'heroicons:pause');
+            }
+        }
+
+        function updateAudioDisplay() {
+            const progressBar = document.getElementById('progressBar');
+            const audioTime = document.getElementById('audioTime');
+            
+            if (progressBar) {
+                const progress = (currentTime / duration) * 100;
+                progressBar.style.width = progress + '%';
+            }
+            
+            if (audioTime) {
+                const currentFormatted = formatTime(currentTime);
+                const durationFormatted = formatTime(duration);
+                audioTime.textContent = `${currentFormatted} / ${durationFormatted}`;
+            }
+        }
+
+        function seekAudio(event) {
+            const progressContainer = event.currentTarget;
+            const rect = progressContainer.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const percentage = clickX / rect.width;
+            
+            currentTime = Math.floor(duration * percentage);
+            
+            // Update audio element currentTime if exists
+            if (audioElement) {
+                audioElement.currentTime = currentTime;
+            }
+            
+            updateAudioDisplay();
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Audit action functions
+        async function approveSermon() {
+            if (confirm('确认通过此讲道审核？')) {
+                const sermonId = getSermonIdFromUrl();
+                
+                try {
+                    // Update status in backend API
+                    const response = await fetch(`http://localhost:3000/v1/sermons/${sermonId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'published' })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('API 更新失败');
+                    }
+                    
+                    // Update status display
+                    updateStatusDisplay('published');
+                    
+                    // Save status to localStorage
+                    saveSermonStatus('published');
+                    
+                    // Show success message
+                    alert('讲道审核已通过，状态已更新为"已发布"');
+                    
+                    console.log(`✅ Sermon ${sermonId} status updated to 'published' in API`);
+                } catch (error) {
+                    console.error('更新状态失败:', error);
+                    alert('更新失败: ' + error.message);
+                }
+            }
+        }
+
+        async function requestRevision() {
+            if (confirm('确认退回此讲道要求修改？')) {
+                const sermonId = getSermonIdFromUrl();
+                
+                try {
+                    // Update status in backend API
+                    const response = await fetch(`http://localhost:3000/v1/sermons/${sermonId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'revision' })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('API 更新失败');
+                    }
+                    
+                    // Update status display
+                    updateStatusDisplay('revision');
+                    
+                    // Save status to localStorage
+                    saveSermonStatus('revision');
+                    
+                    // Show success message
+                    alert('已退回要求修改，状态已更新为"已退回"');
+                    
+                    console.log(`✅ Sermon ${sermonId} status updated to 'revision' in API`);
+                } catch (error) {
+                    console.error('更新状态失败:', error);
+                    alert('更新失败: ' + error.message);
+                }
+            }
+        }
+
+        // Reject modal functions
+        function showRejectModal() {
+            const modal = document.getElementById('rejectModal');
+            if (modal) {
+                modal.showModal();
+            }
+        }
+
+        function closeRejectModal() {
+            const modal = document.getElementById('rejectModal');
+            const textarea = document.getElementById('rejectReason');
+            const select = modal.querySelector('select');
+            
+            if (modal) {
+                modal.close();
+            }
+            if (textarea) {
+                textarea.value = '';
+            }
+            if (select) {
+                select.value = '';
+            }
+        }
+
+        function fillRejectReason(reason) {
+            const textarea = document.getElementById('rejectReason');
+            if (textarea && reason) {
+                textarea.value = reason;
+            }
+        }
+
+        async function confirmReject() {
+            const textarea = document.getElementById('rejectReason');
+            const reason = textarea ? textarea.value.trim() : '';
+            
+            if (!reason) {
+                alert('请输入拒绝理由');
+                return;
+            }
+            
+            if (confirm('确认拒绝此讲道申请？')) {
+                const sermonId = getSermonIdFromUrl();
+                
+                try {
+                    // Update status in backend API
+                    const response = await fetch(`http://localhost:3000/v1/sermons/${sermonId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            status: 'rejected',
+                            rejection_reason: reason
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('API 更新失败');
+                    }
+                    
+                    // Update status display
+                    updateStatusDisplay('rejected');
+                    
+                    // Save status to localStorage
+                    saveSermonStatus('rejected');
+                    
+                    // Show success message
+                    alert('已拒绝申请，状态已更新为"已拒绝"');
+                    closeRejectModal();
+                    
+                    console.log(`✅ Sermon ${sermonId} status updated to 'rejected' in API`);
+                } catch (error) {
+                    console.error('更新状态失败:', error);
+                    alert('更新失败: ' + error.message);
+                }
+            }
+        }
+
+        // Logout function
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        }
+
+        // Function to get sermon ID from URL
+        function getSermonIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id') || 'sermon-001'; // Default for demo
+        }
+
+        // Script version: 2025-11-06 v1 - Added API calls for status updates
+        console.log('sermon-detail.html script loaded: v2025-11-06-v1');
+        
+        // Default sermon data for each sermon ID (matching seed.json)
+        const defaultSermonData = {
+            'sermon-001': {
+                title: '信心的力量：在困境中寻找希望',
+                date: '2025-10-27',
+                duration: '43',
+                summary: '在我们生命的每一天，都需要回到信仰的根基上去，才能站立得稳。本讲道探讨如何在困境中保持信心，并找到神赐予的希望。',
+                scriptures: ['希伯来书 11:1'],
+                tags: ['信心', '希望', '困境'],
+                speakerName: '约翰·史密斯',
+                speakerTitle: '主任牧师',
+                speakerBio: '在牧会服事超过20年，专注于讲解圣经真理，帮助信徒在信仰上成长。',
+                submitter: '王小明',
+                coverImage: 'https://images.unsplash.com/photo-1560131542-8637f14c4e64',
+                status: 'published'  // Default status from seed.json
+            },
+            'sermon-002': {
+                title: '祷告的深度：与神建立更深关系',
+                date: '2025-10-26',
+                duration: '35',
+                summary: '深入探讨祷告的本质，学习如何透过祷告与神建立更亲密的关系。包括祷告的原则、方法和实际操练。',
+                scriptures: ['马太福音 6:9-13'],
+                tags: ['祷告', '灵修', '门徒训练'],
+                speakerName: '玛丽·约翰逊',
+                speakerTitle: '副牧师',
+                speakerBio: '热心于祷告事工和灵修辅导，致力于帮助信徒建立与神更深的关系。',
+                submitter: '李姐妹',
+                coverImage: 'https://images.unsplash.com/photo-1551847653-6740008053b5',
+                status: 'published'  // Default status from seed.json
+            },
+            'sermon-003': {
+                title: '神的恩典：超越我们的理解',
+                date: '2025-10-25',
+                duration: '38',
+                summary: '神的恩典是白白赐给我们的礼物，无需我们凭行为赚取。本讲道帮助我们更深刻地理解恩典的含义和在生活中的应用。',
+                scriptures: ['以弗所书 2:8-9'],
+                tags: ['恩典', '救恩', '信仰'],
+                speakerName: '保罗·安德森',
+                speakerTitle: '传道师',
+                speakerBio: '专注于神学教导和门徒训练，帮助信徒建立扎实的圣经根基。',
+                submitter: '张弟兄',
+                coverImage: 'https://images.unsplash.com/photo-1649774472544-d1417fd66a34',
+                status: 'published'  // Default status from seed.json
+            }
+        };
+
+        // Function to load sermon status from localStorage or API
+        function loadSermonStatus() {
+            const sermonId = getSermonIdFromUrl();
+            const statusKey = `sermon_status_${sermonId}`;
+            const savedStatus = localStorage.getItem(statusKey);
+            
+            console.log(`Loading status for ${sermonId}:`, {
+                savedStatus,
+                hasDefaultData: !!defaultSermonData[sermonId],
+                defaultStatus: defaultSermonData[sermonId]?.status
+            });
+            
+            if (savedStatus) {
+                console.log(`Using saved status: ${savedStatus}`);
+                updateStatusDisplay(savedStatus);
+            } else {
+                // If no saved status, use default from defaultSermonData
+                const defaultStatus = defaultSermonData[sermonId]?.status || 'pending';
+                console.log(`Using default status: ${defaultStatus}`);
+                updateStatusDisplay(defaultStatus);
+            }
+        }
+
+        // Function to update status display
+        function updateStatusDisplay(status) {
+            const statusConfig = {
+                'pending': {
+                    className: 'status-pending',
+                    icon: 'heroicons:clock',
+                    text: '待审核'
+                },
+                'published': {
+                    className: 'status-published',
+                    icon: 'heroicons:check-circle',
+                    text: '已发布'
+                },
+                'approved': {  // Keep for backwards compatibility
+                    className: 'status-published',
+                    icon: 'heroicons:check-circle',
+                    text: '已发布'
+                },
+                'rejected': {
+                    className: 'status-rejected',
+                    icon: 'heroicons:x-circle',
+                    text: '已拒绝'
+                },
+                'revision': {
+                    className: 'status-revision',
+                    icon: 'heroicons:arrow-path',
+                    text: '已退回'
+                }
+            };
+
+            const config = statusConfig[status] || statusConfig['pending'];
+            console.log(`Updating status display:`, { status, config, hasConfig: !!statusConfig[status] });
+            
+            const statusIndicators = document.querySelectorAll('.status-indicator');
+            console.log(`Found ${statusIndicators.length} status indicators`);
+            
+            statusIndicators.forEach(indicator => {
+                indicator.className = `status-indicator ${config.className}`;
+                indicator.innerHTML = `
+                    <span class="iconify" data-icon="${config.icon}" data-width="16"></span>
+                    ${config.text}
+                `;
+            });
+        }
+
+        // Function to save sermon status
+        function saveSermonStatus(status) {
+            const sermonId = getSermonIdFromUrl();
+            const statusKey = `sermon_status_${sermonId}`;
+            localStorage.setItem(statusKey, status);
+        }
+
+        // Load saved sermon data
+        async function loadSavedSermonData() {
+            const sermonId = getSermonIdFromUrl();
+            const sermonDataKey = `sermon_data_${sermonId}`;
+            const savedData = localStorage.getItem(sermonDataKey);
+            
+            // First, try to load from API
+            try {
+                const response = await fetch(`http://localhost:3000/v1/sermons/${sermonId}`);
+                if (response.ok) {
+                    const result = await response.json();
+                    const apiData = result.data;
+                    
+                    // Transform API data to page format
+                    const sermonData = {
+                        title: apiData.title,
+                        date: apiData.date.split('T')[0],
+                        duration: apiData.duration, // Keep as seconds from API
+                        summary: apiData.summary,
+                        scriptures: apiData.scripture ? apiData.scripture.split(';').map(s => s.trim()) : [],
+                        tags: apiData.tags || [],
+                        speakerName: apiData.speaker?.name || '',
+                        speakerTitle: apiData.speaker?.title || '',
+                        speakerBio: apiData.speaker?.bio || '',
+                        speakerAvatarURL: apiData.speaker?.avatar_url || '',
+                        submitter: apiData.submitter?.username || '',
+                        coverImage: apiData.cover_image_url || '',
+                        audioUrl: apiData.audio_url || '',
+                        createdAt: apiData.created_at || ''
+                    };
+                    
+                    console.log('✅ Loaded sermon data from API:', sermonData);
+                    loadSermonDataIntoPage(sermonData);
+                    return;
+                }
+            } catch (error) {
+                console.error('❌ Failed to load from API:', error);
+            }
+            
+            // Fallback: load default data if available
+            const defaultData = defaultSermonData[sermonId];
+            if (defaultData) {
+                loadSermonDataIntoPage(defaultData);
+            }
+            
+            // Then, if there's saved data, override with saved data
+            if (savedData) {
+                try {
+                    const sermonData = JSON.parse(savedData);
+                    console.log('Loading saved sermon data (overriding defaults):', sermonData);
+                    loadSermonDataIntoPage(sermonData);
+                    console.log('Successfully loaded saved sermon data');
+                } catch (e) {
+                    console.error('Error loading saved sermon data:', e);
+                }
+            } else {
+                console.log('No saved data found, using default/API data');
+            }
+        }
+
+        // Function to load sermon data into the page
+        function loadSermonDataIntoPage(sermonData) {
+            // Update view mode displays
+            document.getElementById('titleView').textContent = sermonData.title;
+            document.getElementById('titleEdit').value = sermonData.title;
+            
+            // Format date as YYYY年MM月DD日
+            const dateParts = sermonData.date.split('-');
+            const dateFormatted = `${dateParts[0]}年${dateParts[1]}月${dateParts[2]}日`;
+            document.getElementById('dateView').textContent = dateFormatted;
+            document.getElementById('dateEdit').value = sermonData.date;
+            
+            // Format duration: convert seconds to minutes:seconds or just minutes
+            const durationInSeconds = parseInt(sermonData.duration);
+            let durationText;
+            if (durationInSeconds >= 60) {
+                const minutes = Math.floor(durationInSeconds / 60);
+                const seconds = durationInSeconds % 60;
+                durationText = seconds > 0 ? `${minutes}分${seconds}秒` : `${minutes}分钟`;
+            } else {
+                durationText = `${durationInSeconds}秒`;
+            }
+            document.getElementById('durationView').textContent = durationText;
+            
+            document.getElementById('summaryView').textContent = sermonData.summary;
+            document.getElementById('summaryEdit').value = sermonData.summary;
+            
+            document.getElementById('speakerNameView').textContent = sermonData.speakerName;
+            document.getElementById('speakerNameEdit').value = sermonData.speakerName;
+            
+            document.getElementById('speakerTitleView').textContent = sermonData.speakerTitle;
+            document.getElementById('speakerTitleEdit').value = sermonData.speakerTitle;
+            
+            document.getElementById('speakerBioView').textContent = sermonData.speakerBio;
+            document.getElementById('speakerBioEdit').value = sermonData.speakerBio;
+            
+            // Update speaker avatar
+            const speakerAvatarView = document.getElementById('speakerAvatarView');
+            if (speakerAvatarView) {
+                if (sermonData.speakerAvatarURL) {
+                    // Show avatar image
+                    speakerAvatarView.innerHTML = `<img src="${sermonData.speakerAvatarURL}" alt="${sermonData.speakerName}" class="w-full h-full object-cover">`;
+                } else {
+                    // Show initials
+                    const initials = sermonData.speakerName ? sermonData.speakerName.substring(0, 2) : '讲';
+                    speakerAvatarView.innerHTML = initials;
+                }
+            }
+            
+            // Update submitter if available
+            if (sermonData.submitter) {
+                const submitterView = document.getElementById('submitterView');
+                if (submitterView) {
+                    submitterView.textContent = sermonData.submitter;
+                }
+            }
+            
+            // Update submitted time (created_at)
+            if (sermonData.createdAt) {
+                const submittedAtView = document.getElementById('submittedAtView');
+                if (submittedAtView) {
+                    const createdDate = new Date(sermonData.createdAt);
+                    const formattedDateTime = `${createdDate.getFullYear()}-${String(createdDate.getMonth() + 1).padStart(2, '0')}-${String(createdDate.getDate()).padStart(2, '0')} ${String(createdDate.getHours()).padStart(2, '0')}:${String(createdDate.getMinutes()).padStart(2, '0')}`;
+                    submittedAtView.textContent = formattedDateTime;
+                }
+            }
+            
+            // Update cover image if saved
+            if (sermonData.coverImage) {
+                document.getElementById('coverPreview').src = sermonData.coverImage;
+            }
+            
+            // Update audio URL for playback
+            if (sermonData.audioUrl) {
+                window.currentSermonAudioUrl = sermonData.audioUrl;
+                // Update duration from sermonData
+                if (sermonData.duration) {
+                    window.duration = parseInt(sermonData.duration);
+                }
+            }
+            
+            // Update audio preview section
+            const audioTitleView = document.getElementById('audioTitleView');
+            const audioMetaView = document.getElementById('audioMetaView');
+            if (audioTitleView) {
+                audioTitleView.textContent = sermonData.title || '未命名讲道';
+            }
+            if (audioMetaView) {
+                const dateParts = sermonData.date.split('-');
+                const dateFormatted = `${dateParts[0]}年${dateParts[1]}月${dateParts[2]}日`;
+                audioMetaView.textContent = `${sermonData.speakerName || '未知讲员'} • ${dateFormatted}`;
+            }
+            
+            // Load scriptures
+            if (sermonData.scriptures && sermonData.scriptures.length > 0) {
+                // Update view
+                const scripturesView = document.getElementById('scripturesView');
+                scripturesView.innerHTML = '';
+                sermonData.scriptures.forEach(scripture => {
+                    const scriptureDiv = document.createElement('div');
+                    scriptureDiv.className = 'flex items-center gap-2 p-3 bg-base-200 rounded-lg';
+                    scriptureDiv.innerHTML = `
+                        <span class="iconify text-primary" data-icon="heroicons:book-open" data-width="16"></span>
+                        <span class="font-medium">${scripture}</span>
+                    `;
+                    scripturesView.appendChild(scriptureDiv);
+                });
+                
+                // Update edit inputs
+                const scripturesEdit = document.getElementById('scripturesEdit');
+                const addButton = document.getElementById('addScriptureBtn');
+                // Remove existing inputs
+                scripturesEdit.querySelectorAll('.flex.items-center.gap-2').forEach(el => el.remove());
+                // Add saved scriptures
+                sermonData.scriptures.forEach(scripture => {
+                    const newScripture = document.createElement('div');
+                    newScripture.className = 'flex items-center gap-2';
+                    newScripture.innerHTML = `
+                        <input type="text" class="input input-bordered input-sm flex-1 scripture-input" value="${scripture}">
+                        <button class="btn btn-ghost btn-sm btn-circle" onclick="removeScripture(this)">
+                            <span class="iconify" data-icon="heroicons:x-mark" data-width="16"></span>
+                        </button>
+                    `;
+                    scripturesEdit.insertBefore(newScripture, addButton);
+                });
+            }
+            
+            // Load tags
+            if (sermonData.tags && sermonData.tags.length > 0) {
+                // Update view
+                const tagsView = document.getElementById('tagsView');
+                tagsView.innerHTML = '';
+                sermonData.tags.forEach(tag => {
+                    const badge = document.createElement('div');
+                    badge.className = 'badge badge-primary badge-lg';
+                    badge.textContent = tag;
+                    tagsView.appendChild(badge);
+                });
+                
+                // Update edit
+                const tagContainerEdit = document.getElementById('tagContainerEdit');
+                tagContainerEdit.innerHTML = '';
+                sermonData.tags.forEach(tag => {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge badge-md gap-1.5 cursor-pointer hover:badge-error';
+                    badge.onclick = function() { removeTag(this); };
+                    badge.innerHTML = `
+                        ${tag}
+                        <span class="iconify" data-icon="heroicons:x-mark" data-width="12"></span>
+                    `;
+                    tagContainerEdit.appendChild(badge);
+                });
+            }
+        }
+
+        // Initialize audio display on load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAudioDisplay();
+            loadSermonStatus();
+            loadSavedSermonData();
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页模块编辑器 - 听道后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .sidebar-wrapper {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-text {
+            white-space: nowrap;
+        }
+
+        /* Module drag and drop */
+        .module-content {
+            transition: all 0.3s ease-in-out;
+            overflow: hidden;
+        }
+
+        .module-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .expand-icon {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .expand-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .drag-handle:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            transform: scale(1.05);
+        }
+
+        .module-dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .drop-zone {
+            border: 2px dashed #3B82F6;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        /* Content item selection */
+        .content-item {
+            transition: all 0.15s ease-in-out;
+            cursor: pointer;
+        }
+
+        .content-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-item.selected {
+            border-color: #3B82F6;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-base-200 flex flex-col min-h-screen">
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside class="sidebar-wrapper bg-base-100 border-r border-base-300">
+            <div class="p-3 border-b border-base-300">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="iconify text-white" data-icon="heroicons:home" data-width="20"></span>
+                    </div>
+                    <span class="sidebar-text text-lg font-semibold">听道后台</span>
+                </div>
+            </div>
+
+            <ul class="menu menu-sm gap-1 p-3">
+                <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span class="sidebar-text">仪表盘</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span class="sidebar-text">讲道内容</span></summary>
+                        <ul>
+                            <li><a href="sermons.html">讲道列表</a></li>
+                            <li><a href="add-sermon.html">添加讲道</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html">讲员列表</a></li>
+                            <li><a href="add-speaker.html">添加讲员</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details open>
+                        <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span class="sidebar-text">内容编排</span></summary>
+                        <ul>
+                            <li><a href="curation.html">编排概览</a></li>
+                            <li><a href="home-editor.html" class="active">首页模块</a></li>
+                            <li><a href="discover-editor.html">发现页模块</a></li>
+                            <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span class="sidebar-text">用户管理</span></summary>
+                        <ul>
+                            <li><a href="users.html">所有用户</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span class="sidebar-text">标签主题</span></summary>
+                        <ul>
+                            <li><a href="tags.html">标签管理</a></li>
+                            <li><a href="tag-edit.html">标签编辑</a></li>
+                            <li><a href="topic-groups.html">主题组</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span class="sidebar-text">数据统计</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span class="sidebar-text">系统设置</span></summary>
+                        <ul>
+                            <li><a href="settings.html">系统概览</a></li>
+                            <li><a href="admins.html">账户管理</a></li>
+                            <li><a href="permissions.html">权限控制</a></li>
+                            <li><a href="api-config.html">API配置</a></li>
+                            <li><a href="logs.html">日志版本</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span class="sidebar-text">帮助中心</span></summary>
+                        <ul>
+                            <li><a href="help.html">帮助文档</a></li>
+                            <li><a href="upload-guide.html">上传指南</a></li>
+                            <li><a href="review-standards.html">审核标准</a></li>
+                            <li><a href="contact.html">联系开发者</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+                <div class="navbar-start gap-2">
+                    <span class="text-xl font-semibold">首页模块编辑器</span>
+                </div>
+                
+                <div class="navbar-center hidden md:flex">
+                    <div class="join">
+                        <input type="text" placeholder="搜索模块..." class="input input-bordered input-sm join-item w-80">
+                        <button class="btn btn-sm join-item btn-primary">
+                            <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="navbar-end gap-3">
+                    <div class="indicator">
+                        <span class="indicator-item badge badge-accent badge-sm">8</span>
+                        <button class="btn btn-ghost btn-circle">
+                            <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                        </button>
+                    </div>
+                    
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                                <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                            </div>
+                        </div>
+                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                            <li class="menu-title"><span>管理员中心</span></li>
+                            <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                            <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                            <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                            <div class="divider my-1"></div>
+                            <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs text-xs py-2 px-6 bg-base-100 border-b border-base-300">
+                <ul>
+                    <li><a href="dashboard.html" class="text-base-content/70 hover:text-primary"><span class="iconify" data-icon="heroicons:home" data-width="14"></span>首页</a></li>
+                    <li><a href="curation.html" class="text-base-content/70 hover:text-primary">内容编排</a></li>
+                    <li><span class="font-medium text-base-content">首页模块编辑器</span></li>
+                </ul>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="max-w-7xl mx-auto space-y-8">
+                    <!-- Page Header -->
+                    <section class="mb-8">
+                        <div class="flex items-start justify-between mb-6">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4 mb-4">
+                                    <button onclick="location.href='curation.html'" class="btn btn-ghost btn-sm gap-2">
+                                        <span class="iconify" data-icon="heroicons:arrow-left" data-width="16"></span>
+                                        返回内容编排
+                                    </button>
+                                </div>
+                                <h1 class="text-3xl font-bold mb-3">首页模块编辑器</h1>
+                                <p class="text-base-content/70 max-w-4xl">管理App首页的各个内容模块，包括每日经文、近期播放、推荐讲道、主题讲道和热门讲员。</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button onclick="openPreviewMode()" class="btn btn-ghost btn-sm gap-2">
+                                    <span class="iconify" data-icon="heroicons:eye" data-width="16"></span>
+                                    预览
+                                </button>
+                                <button onclick="openPublishHistory()" class="btn btn-ghost btn-sm gap-2">
+                                    <span class="iconify" data-icon="heroicons:clock" data-width="16"></span>
+                                    发布历史
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Module Editor Area -->
+                    <section class="mb-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-semibold">内容模块</h2>
+                        </div>
+                        
+                        <div id="module-list" class="space-y-4">
+                            <!-- 1. 每日经文模块 -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300" data-module-id="daily-scripture">
+                                <div class="card-body p-6">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                <span class="iconify text-purple-600" data-icon="heroicons:book-open" data-width="16"></span>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold">每日经文横幅</h3>
+                                                <p class="text-sm text-base-content/60">展示每日精选经文</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <button onclick="toggleModuleExpand(this)" class="btn btn-ghost btn-sm btn-circle">
+                                                <span class="iconify expand-icon" data-icon="heroicons:chevron-down" data-width="16"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="module-content">
+                                        <div class="form-control">
+                                            <label class="label">
+                                                <span class="label-text font-medium">更新频率</span>
+                                            </label>
+                                            <select class="select select-bordered">
+                                                <option value="daily" selected>每日更新</option>
+                                                <option value="weekly">每周更新</option>
+                                                <option value="manual">手动更新</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mt-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <label class="label-text font-medium">经文库管理</label>
+                                                <button onclick="addNewScripture()" class="btn btn-outline btn-sm gap-2">
+                                                    <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
+                                                    添加经文
+                                                </button>
+                                            </div>
+                                            <div class="space-y-2" id="scripture-list">
+                                                <!-- 经文将通过 API 动态加载 -->
+                                            </div>
+                                        </div>
+                                        <div class="alert alert-info mt-4">
+                                            <span class="iconify" data-icon="heroicons:information-circle" data-width="20"></span>
+                                            <span class="text-sm">经文将按照设定的更新频率依次展示</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. 推荐讲道模块 -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300" data-module-id="recommended-sermons">
+                                <div class="card-body p-6">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                                <span class="iconify text-indigo-600" data-icon="heroicons:megaphone" data-width="16"></span>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold">推荐讲道</h3>
+                                                <p class="text-sm text-base-content/60">展示精选的推荐讲道内容</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <button onclick="toggleModuleExpand(this)" class="btn btn-ghost btn-sm btn-circle">
+                                                <span class="iconify expand-icon" data-icon="heroicons:chevron-down" data-width="16"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="module-content">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div class="form-control">
+                                                <label class="label">
+                                                    <span class="label-text font-medium">模块标题</span>
+                                                </label>
+                                                <input type="text" value="推荐讲道" class="input input-bordered">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <label class="label-text font-medium">选择推荐讲道</label>
+                                                <button onclick="openContentSelector('sermons')" class="btn btn-outline btn-sm gap-2">
+                                                    <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
+                                                    选择讲道
+                                                </button>
+                                            </div>
+                                            <div class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-2" id="sermons-grid">
+                                                <!-- 推荐讲道将通过 API 动态加载 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. 更多推荐页Section -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300" data-module-id="more-recommended">
+                                <div class="card-body p-6">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-cyan-100 rounded-lg flex items-center justify-center">
+                                                <span class="iconify text-cyan-600" data-icon="heroicons:list-bullet" data-width="16"></span>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold">更多推荐页</h3>
+                                                <p class="text-sm text-base-content/60">点击"更多推荐"后展示的完整列表</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <button onclick="toggleModuleExpand(this)" class="btn btn-ghost btn-sm btn-circle">
+                                                <span class="iconify expand-icon" data-icon="heroicons:chevron-down" data-width="16"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="module-content">
+                                        <div class="form-control">
+                                            <label class="label">
+                                                <span class="label-text font-medium">页面标题</span>
+                                            </label>
+                                            <input type="text" value="推荐讲道" class="input input-bordered">
+                                        </div>
+                                        
+                                        <div class="mt-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <label class="label-text font-medium">选择要展示的讲道</label>
+                                                <button onclick="openContentSelector('more-sermons')" class="btn btn-outline btn-sm gap-2">
+                                                    <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
+                                                    选择讲道
+                                                </button>
+                                            </div>
+                                            <div class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-2" id="more-sermons-grid">
+                                                <!-- 更多推荐讲道将通过 API 动态加载 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 5. 主题讲道模块 -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300" data-module-id="topic-sermons">
+                                <div class="card-body p-6">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center">
+                                                <span class="iconify text-pink-600" data-icon="heroicons:folder" data-width="16"></span>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold">主题讲道</h3>
+                                                <p class="text-sm text-base-content/60">按主题分类的讲道合集</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <button onclick="toggleModuleExpand(this)" class="btn btn-ghost btn-sm btn-circle">
+                                                <span class="iconify expand-icon" data-icon="heroicons:chevron-down" data-width="16"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="module-content">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div class="form-control">
+                                                <label class="label">
+                                                    <span class="label-text font-medium">模块标题</span>
+                                                </label>
+                                                <input type="text" value="主题讲道" class="input input-bordered">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <label class="label-text font-medium">选择主题</label>
+                                                <button onclick="openContentSelector('topics')" class="btn btn-outline btn-sm gap-2">
+                                                    <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
+                                                    选择主题
+                                                </button>
+                                            </div>
+                                            <div class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-2" id="topics-grid">
+                                                <!-- 主题卡片将通过 API 动态加载 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 6. 浏览主题页Section -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300" data-module-id="browse-topics">
+                                <div class="card-body p-6">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                                <span class="iconify text-orange-600" data-icon="heroicons:squares-2x2" data-width="16"></span>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold">浏览主题页</h3>
+                                                <p class="text-sm text-base-content/60">点击"浏览主题"后展示的主题列表页</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <button onclick="toggleModuleExpand(this)" class="btn btn-ghost btn-sm btn-circle">
+                                                <span class="iconify expand-icon" data-icon="heroicons:chevron-down" data-width="16"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="module-content">
+                                        <div class="form-control">
+                                            <label class="label">
+                                                <span class="label-text font-medium">页面标题</span>
+                                            </label>
+                                            <input type="text" value="主题讲道" class="input input-bordered">
+                                        </div>
+                                        
+                                        <div class="mt-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <label class="label-text font-medium">选择要展示的主题</label>
+                                                <button onclick="openContentSelector('browse-topics')" class="btn btn-outline btn-sm gap-2">
+                                                    <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
+                                                    选择主题
+                                                </button>
+                                            </div>
+                                            <div class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-2" id="browse-topics-grid">
+                                                <!-- 浏览主题将通过 API 动态加载 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 7. 热门讲员模块 -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300" data-module-id="popular-speakers">
+                                <div class="card-body p-6">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                                <span class="iconify text-green-600" data-icon="heroicons:user-group" data-width="16"></span>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold">热门讲员</h3>
+                                                <p class="text-sm text-base-content/60">展示受欢迎的讲员</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <button onclick="toggleModuleExpand(this)" class="btn btn-ghost btn-sm btn-circle">
+                                                <span class="iconify expand-icon" data-icon="heroicons:chevron-down" data-width="16"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="module-content">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div class="form-control">
+                                                <label class="label">
+                                                    <span class="label-text font-medium">模块标题</span>
+                                                </label>
+                                                <input type="text" value="热门讲员" class="input input-bordered">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <label class="label-text font-medium">选择讲员</label>
+                                                <button onclick="openContentSelector('speakers')" class="btn btn-outline btn-sm gap-2">
+                                                    <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
+                                                    选择讲员
+                                                </button>
+                                            </div>
+                                            <div class="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-2" id="speakers-grid">
+                                                <!-- 热门讲员将通过 API 动态加载 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 8. 查看更多讲员页Section -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300" data-module-id="more-speakers">
+                                <div class="card-body p-6">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
+                                                <span class="iconify text-teal-600" data-icon="heroicons:users" data-width="16"></span>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold">查看更多讲员页</h3>
+                                                <p class="text-sm text-base-content/60">点击"查看更多"后展示的讲员列表页</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <button onclick="toggleModuleExpand(this)" class="btn btn-ghost btn-sm btn-circle">
+                                                <span class="iconify expand-icon" data-icon="heroicons:chevron-down" data-width="16"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="module-content">
+                                        <div class="form-control">
+                                            <label class="label">
+                                                <span class="label-text font-medium">页面标题</span>
+                                            </label>
+                                            <input type="text" value="热门讲员" class="input input-bordered">
+                                        </div>
+                                        
+                                        <div class="mt-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <label class="label-text font-medium">选择要展示的讲员</label>
+                                                <button onclick="openContentSelector('more-speakers')" class="btn btn-outline btn-sm gap-2">
+                                                    <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
+                                                    选择讲员
+                                                </button>
+                                            </div>
+                                            <div class="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-2" id="more-speakers-grid">
+                                                <!-- 更多讲员将通过 API 动态加载 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Action Buttons -->
+                    <section class="border-t border-base-300 pt-8">
+                        <div class="flex items-center justify-end gap-4">
+                            <button onclick="location.href='curation.html'" class="btn btn-ghost">
+                                取消
+                            </button>
+                            <button onclick="saveAndPublish()" class="btn btn-primary gap-2">
+                                <span class="iconify" data-icon="heroicons:check" data-width="16"></span>
+                                保存并发布
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Scripture Modal -->
+    <dialog id="add-scripture-modal" class="modal">
+        <div class="modal-box max-w-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-lg">添加每日经文</h3>
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle btn-ghost">
+                        <span class="iconify" data-icon="heroicons:x-mark" data-width="16"></span>
+                    </button>
+                </form>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">经文内容</span>
+                        <span class="label-text-alt text-base-content/60">必填</span>
+                    </label>
+                    <textarea id="scripture-content" class="textarea textarea-bordered h-32" placeholder="输入经文内容，例如：你们要先求他的国和他的义，这些东西都要加给你们了。"></textarea>
+                </div>
+                
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">经文出处</span>
+                        <span class="label-text-alt text-base-content/60">必填</span>
+                    </label>
+                    <input id="scripture-reference" type="text" class="input input-bordered" placeholder="例如：马太福音 6:33">
+                </div>
+                
+                <div class="alert alert-info">
+                    <span class="iconify" data-icon="heroicons:information-circle" data-width="20"></span>
+                    <span class="text-sm">新添加的经文将加入经文库，按照设定的更新频率依次展示给用户。</span>
+                </div>
+            </div>
+            
+            <div class="modal-action">
+                <form method="dialog" class="flex gap-2">
+                    <button class="btn btn-ghost" onclick="resetScriptureModal()">取消</button>
+                    <button type="button" onclick="saveNewScripture()" class="btn btn-primary gap-2">
+                        <span class="iconify" data-icon="heroicons:check" data-width="16"></span>
+                        添加经文
+                    </button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Content Selector Modal -->
+    <dialog id="content-selector-modal" class="modal">
+        <div class="modal-box w-11/12 max-w-4xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-lg" id="modal-title">选择内容</h3>
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle btn-ghost">
+                        <span class="iconify" data-icon="heroicons:x-mark" data-width="16"></span>
+                    </button>
+                </form>
+            </div>
+            
+            <div class="mb-4">
+                <div class="join w-full">
+                    <input id="content-search" class="input input-bordered join-item flex-1" placeholder="搜索内容...">
+                    <button class="btn join-item">
+                        <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="content-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                <!-- Content items will be dynamically loaded here -->
+            </div>
+            
+            <div class="modal-action">
+                <form method="dialog" class="flex gap-2">
+                    <button class="btn btn-ghost">取消</button>
+                    <button onclick="confirmContentSelection()" class="btn btn-primary">确认选择</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
+    <script>
+        // Global functions
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        }
+
+        // Module expansion/collapse
+        function toggleModuleExpand(button) {
+            const card = button.closest('.card');
+            const content = card.querySelector('.module-content');
+            const icon = button.querySelector('.expand-icon');
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                icon.classList.remove('rotated');
+            } else {
+                content.classList.add('collapsed');
+                icon.classList.add('rotated');
+            }
+        }
+
+        // Drag and drop functionality
+        (function initializeDragAndDrop() {
+            const moduleList = document.getElementById('module-list');
+            if (!moduleList) return;
+            
+            let draggedElement = null;
+            
+            const modules = moduleList.querySelectorAll('.card');
+            modules.forEach(module => {
+                const dragHandle = module.querySelector('.drag-handle');
+                if (dragHandle) {
+                    dragHandle.addEventListener('mousedown', function(e) {
+                        module.draggable = true;
+                    });
+                    
+                    module.addEventListener('dragstart', function(e) {
+                        draggedElement = this;
+                        this.classList.add('module-dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                    });
+                    
+                    module.addEventListener('dragend', function(e) {
+                        this.classList.remove('module-dragging');
+                        this.draggable = false;
+                        
+                        const dropZones = moduleList.querySelectorAll('.drop-zone');
+                        dropZones.forEach(zone => zone.classList.remove('drop-zone'));
+                    });
+                    
+                    module.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        
+                        if (this !== draggedElement) {
+                            this.classList.add('drop-zone');
+                        }
+                    });
+                    
+                    module.addEventListener('dragleave', function(e) {
+                        this.classList.remove('drop-zone');
+                    });
+                    
+                    module.addEventListener('drop', function(e) {
+                        e.preventDefault();
+                        this.classList.remove('drop-zone');
+                        
+                        if (this !== draggedElement) {
+                            const rect = this.getBoundingClientRect();
+                            const midpoint = rect.top + rect.height / 2;
+                            
+                            if (e.clientY < midpoint) {
+                                moduleList.insertBefore(draggedElement, this);
+                            } else {
+                                moduleList.insertBefore(draggedElement, this.nextSibling);
+                            }
+                            
+                            showNotification('模块顺序已更新', 'success');
+                        }
+                    });
+                }
+            });
+        })();
+
+        // Content selector
+        let currentSelectorType = '';
+        let selectedItems = [];
+        let targetGrid = null;
+        
+        function openContentSelector(type) {
+            currentSelectorType = type;
+            selectedItems = [];
+            
+            // Map type to target grid
+            const gridMap = {
+                'sermons': 'sermons-grid',
+                'more-sermons': 'more-sermons-grid',
+                'topics': 'topics-grid',
+                'browse-topics': 'browse-topics-grid',
+                'speakers': 'speakers-grid',
+                'more-speakers': 'more-speakers-grid'
+            };
+            
+            targetGrid = gridMap[type];
+            
+            // 获取已存在的 ID 列表
+            const grid = document.getElementById(targetGrid);
+            const existingIds = new Set();
+            if (grid) {
+                const existingCards = grid.querySelectorAll('.card');
+                existingCards.forEach(card => {
+                    if (card.dataset.sermonId) existingIds.add(card.dataset.sermonId);
+                    if (card.dataset.speakerId) existingIds.add(card.dataset.speakerId);
+                    if (card.dataset.topicId) existingIds.add(card.dataset.topicId);
+                });
+            }
+            window.existingIdsInCurrentGrid = existingIds;
+            
+            const modal = document.getElementById('content-selector-modal');
+            const title = document.getElementById('modal-title');
+            const contentGrid = document.getElementById('content-grid');
+            
+            const titles = {
+                'sermons': '选择讲道',
+                'more-sermons': '选择讲道',
+                'speakers': '选择讲员',
+                'more-speakers': '选择讲员',
+                'topics': '选择主题',
+                'browse-topics': '选择主题'
+            };
+            title.textContent = titles[type] || '选择内容';
+            
+            loadContentItems(type, contentGrid);
+            modal.showModal();
+        }
+        
+        async function loadContentItems(type, container) {
+            container.innerHTML = '<div class="col-span-3 flex justify-center items-center h-48"><span class="loading loading-spinner loading-lg text-primary"></span></div>';
+            
+            try {
+                let items = [];
+                
+                const isSermonsType = type.includes('sermons');
+                const isSpeakersType = type.includes('speakers');
+                const isTopicsType = type.includes('topics');
+                
+                if (isSermonsType) {
+                    // 从 API 加载讲道列表
+                    const response = await fetch('http://localhost:3000/v1/sermons?_limit=50');
+                    const result = await response.json();
+                    const sermons = result.data || result;
+                    items = sermons.map(sermon => ({
+                        id: sermon.id,
+                        title: sermon.title,
+                        speaker: sermon.speaker?.name || '未知讲员'
+                    }));
+                } else if (isSpeakersType) {
+                    // 从 API 加载讲员列表
+                    const response = await fetch('http://localhost:3000/v1/speakers?_limit=50');
+                    const result = await response.json();
+                    const speakers = result.data || result;
+                    items = speakers.map(speaker => ({
+                        id: speaker.id,
+                        name: speaker.name,
+                        church: speaker.church || '未知教会'
+                    }));
+                } else if (isTopicsType) {
+                    // 从 API 加载主题列表
+                    const response = await fetch('http://localhost:3000/v1/topics?_limit=50');
+                    const result = await response.json();
+                    const topics = result.data || result;
+                    items = topics.map(topic => ({
+                        id: topic.id,
+                        title: topic.name,
+                        count: topic.sermon_count || 0
+                    }));
+                }
+                
+                renderContentItems(items, type, container);
+            } catch (error) {
+                console.error('加载内容失败:', error);
+                container.innerHTML = '<div class="col-span-3 text-center text-error p-8">加载失败，请刷新重试</div>';
+            }
+        }
+        
+        function renderContentItems(items, type, container) {
+            container.innerHTML = '';
+            
+            const isSermonsType = type.includes('sermons');
+            const isSpeakersType = type.includes('speakers');
+            const isTopicsType = type.includes('topics');
+            const existingIds = window.existingIdsInCurrentGrid || new Set();
+            
+            items.forEach(item => {
+                const isExisting = existingIds.has(item.id);
+                
+                const div = document.createElement('div');
+                div.className = 'content-item card card-compact bg-base-100 border border-base-300';
+                
+                if (isExisting) {
+                    div.className += ' opacity-40 cursor-not-allowed';
+                } else {
+                    div.className += ' cursor-pointer';
+                }
+                
+                div.dataset.itemId = item.id;
+                div.dataset.itemData = JSON.stringify(item);
+                
+                let content = '';
+                if (isSermonsType) {
+                    content = `
+                        <div class="card-body">
+                            <h4 class="card-title text-sm">${item.title}</h4>
+                            <p class="text-xs text-base-content/60">${item.speaker}</p>
+                            ${isExisting ? '<p class="text-xs text-warning mt-1">已添加</p>' : ''}
+                        </div>
+                    `;
+                } else if (isSpeakersType) {
+                    content = `
+                        <div class="card-body">
+                            <h4 class="card-title text-sm text-center">${item.name}</h4>
+                            <p class="text-xs text-base-content/60 text-center">${item.church}</p>
+                            ${isExisting ? '<p class="text-xs text-warning text-center mt-1">已添加</p>' : ''}
+                        </div>
+                    `;
+                } else if (isTopicsType) {
+                    content = `
+                        <div class="card-body">
+                            <h4 class="card-title text-sm">${item.title}</h4>
+                            <p class="text-xs text-base-content/60">${item.count}个讲道</p>
+                            ${isExisting ? '<p class="text-xs text-warning mt-1">已添加</p>' : ''}
+                        </div>
+                    `;
+                }
+                
+                div.innerHTML = content;
+                
+                // 只有未添加的项目才可以点击
+                if (!isExisting) {
+                    div.addEventListener('click', function() {
+                        this.classList.toggle('selected');
+                        const itemId = this.dataset.itemId;  // 保持字符串格式，不转换
+                        const itemData = JSON.parse(this.dataset.itemData);
+                        
+                        if (this.classList.contains('selected')) {
+                            if (!selectedItems.find(i => i.id === itemId)) {
+                                selectedItems.push(itemData);
+                            }
+                        } else {
+                            selectedItems = selectedItems.filter(i => i.id !== itemId);
+                        }
+                    });
+                }
+                
+                container.appendChild(div);
+            });
+        }
+        
+        function confirmContentSelection() {
+            if (selectedItems.length === 0) {
+                showNotification('请至少选择一个项目', 'warning');
+                return;
+            }
+            
+            // Add selected items to target grid
+            const grid = document.getElementById(targetGrid);
+            if (!grid) {
+                showNotification('目标区域未找到', 'error');
+                return;
+            }
+            
+            const isSermonsType = currentSelectorType.includes('sermons');
+            const isSpeakersType = currentSelectorType.includes('speakers');
+            const isTopicsType = currentSelectorType.includes('topics');
+            
+            // 获取已存在的 ID 列表
+            const existingIds = new Set();
+            const existingCards = grid.querySelectorAll('.card');
+            existingCards.forEach(card => {
+                if (isSermonsType && card.dataset.sermonId) {
+                    existingIds.add(card.dataset.sermonId);
+                } else if (isSpeakersType && card.dataset.speakerId) {
+                    existingIds.add(card.dataset.speakerId);
+                } else if (isTopicsType && card.dataset.topicId) {
+                    existingIds.add(card.dataset.topicId);
+                }
+            });
+            
+            let addedCount = 0;
+            let skippedCount = 0;
+            
+            selectedItems.forEach(item => {
+                // 检查是否已存在
+                if (existingIds.has(item.id)) {
+                    skippedCount++;
+                    return; // 跳过已存在的项目
+                }
+                
+                const newCard = document.createElement('div');
+                newCard.className = 'card card-compact bg-base-200';
+                
+                // 设置 data 属性（非常重要！）
+                if (isSermonsType) {
+                    newCard.setAttribute('data-sermon-id', item.id);
+                    newCard.innerHTML = `
+                        <div class="card-body p-2">
+                            <h4 class="text-sm font-medium line-clamp-2">${item.title}</h4>
+                            <p class="text-xs text-base-content/60 mt-1">${item.speaker}</p>
+                            <div class="mt-1">
+                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
+                            </div>
+                        </div>
+                    `;
+                } else if (isSpeakersType) {
+                    newCard.setAttribute('data-speaker-id', item.id);
+                    newCard.innerHTML = `
+                        <div class="card-body p-2">
+                            <h4 class="text-sm font-medium text-center line-clamp-1">${item.name}</h4>
+                            <p class="text-xs text-base-content/60 text-center mt-1">${item.church}</p>
+                            <div class="mt-1">
+                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
+                            </div>
+                        </div>
+                    `;
+                } else if (isTopicsType) {
+                    newCard.setAttribute('data-topic-id', item.id);
+                    newCard.innerHTML = `
+                        <div class="card-body p-2">
+                            <h4 class="text-sm font-medium line-clamp-2">${item.title}</h4>
+                            <p class="text-xs text-base-content/60 mt-1">${item.count}个讲道</p>
+                            <div class="mt-1">
+                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                grid.appendChild(newCard);
+                addedCount++;
+            });
+            
+            // 显示添加结果
+            if (addedCount > 0 && skippedCount > 0) {
+                showNotification(`已添加 ${addedCount} 个项目，跳过 ${skippedCount} 个重复项目`, 'success');
+            } else if (addedCount > 0) {
+                showNotification(`已添加 ${addedCount} 个项目`, 'success');
+            } else if (skippedCount > 0) {
+                showNotification(`所选项目均已存在`, 'warning');
+            }
+            
+            const modal = document.getElementById('content-selector-modal');
+            modal.close();
+        }
+
+        // Add new scripture function
+        function addNewScripture() {
+            // Reset modal state
+            resetScriptureModal();
+            
+            // Open modal
+            const modal = document.getElementById('add-scripture-modal');
+            modal.showModal();
+        }
+        
+        function saveNewScripture() {
+            const content = document.getElementById('scripture-content').value.trim();
+            const reference = document.getElementById('scripture-reference').value.trim();
+            
+            if (!content || !reference) {
+                showNotification('请填写完整的经文内容和出处', 'warning');
+                return;
+            }
+            
+            const modal = document.getElementById('add-scripture-modal');
+            const saveBtn = modal.querySelector('.btn-primary');
+            
+            // Check if we're editing an existing card
+            if (window.editingScriptureCard) {
+                // Update existing card
+                const card = window.editingScriptureCard;
+                const contentEl = card.querySelector('p.text-sm');
+                const referenceEl = card.querySelector('p.text-xs');
+                
+                contentEl.textContent = `"${content}"`;
+                referenceEl.textContent = reference;
+                
+                // Reset editing state
+                window.editingScriptureCard = null;
+                saveBtn.textContent = '添加经文';
+                
+                showNotification('经文更新成功', 'success');
+            } else {
+                // Add new card
+                const scriptureList = document.getElementById('scripture-list');
+                if (!scriptureList) return;
+                
+                const newCard = document.createElement('div');
+                newCard.className = 'card card-compact bg-base-200';
+                newCard.innerHTML = `
+                    <div class="card-body p-2">
+                        <div class="flex items-start gap-2">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium">"${content}"</p>
+                                <p class="text-xs text-base-content/60 mt-1">${reference}</p>
+                            </div>
+                            <div class="flex gap-1">
+                                <button onclick="editScripture(this)" class="btn btn-ghost btn-xs">编辑</button>
+                                <button onclick="deleteScripture(this)" class="btn btn-ghost btn-xs text-error">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                scriptureList.appendChild(newCard);
+                
+                showNotification('经文添加成功', 'success');
+            }
+            
+            // Clear form
+            document.getElementById('scripture-content').value = '';
+            document.getElementById('scripture-reference').value = '';
+            
+            // Close modal
+            modal.close();
+        }
+        
+        function resetScriptureModal() {
+            // Clear form
+            document.getElementById('scripture-content').value = '';
+            document.getElementById('scripture-reference').value = '';
+            
+            // Reset editing state
+            window.editingScriptureCard = null;
+            
+            // Reset button text
+            const modal = document.getElementById('add-scripture-modal');
+            const saveBtn = modal.querySelector('.btn-primary');
+            saveBtn.textContent = '添加经文';
+        }
+        
+        function editScripture(button) {
+            const card = button.closest('.card');
+            const contentEl = card.querySelector('p.text-sm');
+            const referenceEl = card.querySelector('p.text-xs');
+            
+            const content = contentEl.textContent.replace(/^"|"$/g, '');
+            const reference = referenceEl.textContent;
+            
+            // Fill modal with current data
+            document.getElementById('scripture-content').value = content;
+            document.getElementById('scripture-reference').value = reference;
+            
+            // Store the card to update
+            window.editingScriptureCard = card;
+            
+            // Open modal
+            const modal = document.getElementById('add-scripture-modal');
+            modal.showModal();
+            
+            // Change save button behavior temporarily
+            const saveBtn = modal.querySelector('.btn-primary');
+            saveBtn.textContent = '更新经文';
+        }
+        
+        function deleteScripture(button) {
+            if (confirm('确定要删除这条经文吗？')) {
+                button.closest('.card').remove();
+                showNotification('经文已删除', 'success');
+            }
+        }
+        
+        // Remove item from grid
+        function removeItem(button) {
+            button.closest('.card').remove();
+            showNotification('已移除', 'success');
+        }
+        
+        // Utility functions
+        function openPreviewMode() {
+            showNotification('预览模式功能开发中', 'info');
+        }
+        
+        function openPublishHistory() {
+            showNotification('发布历史功能开发中', 'info');
+        }
+        
+        async function saveAndPublish() {
+            // 调用 HomeEditorPage.saveConfig() 来保存配置
+            if (typeof HomeEditorPage !== 'undefined' && HomeEditorPage.saveConfig) {
+                await HomeEditorPage.saveConfig();
+            } else {
+                console.error('HomeEditorPage.saveConfig() not available');
+                showNotification('保存失败：API 未加载', 'error');
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} fixed top-4 right-4 w-96 z-50 shadow-lg`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="iconify" data-icon="heroicons:information-circle" data-width="20"></span>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 150);
+            }, 3000);
+        }
+    </script>
+
+    <!-- API Integration Scripts -->
+    <script src="js/api-config.js?v=20251105v27"></script>
+    <script src="js/api-client.js?v=20251105v27"></script>
+    <script src="js/api-services.js?v=20251105v27"></script>
+    <script src="js/curation-api.js?v=20251105v27"></script>
+
+    <!-- Initialize Home Editor Page -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof HomeEditorPage !== 'undefined') {
+                HomeEditorPage.init();
+            }
+        });
+    </script>
+</body>
+</html>
+

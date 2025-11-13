@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>讲道内容列表 - 听道后台管理系统</title>
+    
+    <!-- DaisyUI + Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    
+    <!-- Iconify -->
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    
+    <link rel="stylesheet" href="assets/css/admin.css">
+
+    <!-- API Client -->
+    <script src="js/api-config.js?v=20251106v1"></script>
+    <script src="js/api-client.js?v=20251106v1"></script>
+    <script src="js/api-services.js?v=20251106v1"></script>
+    <script src="js/sermons-api.js?v=20251106v1"></script>
+    </head>
+<body class="bg-base-100">
+
+<div class="flex h-screen bg-base-200">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-base-100 border-r border-base-300 transition-all duration-300" style="width: 220px;">
+        <div class="h-full flex flex-col">
+            <!-- Sidebar Header -->
+            <div class="p-3 border-b border-base-300">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="iconify text-white" data-icon="heroicons:home" data-width="20"></span>
+                    </div>
+                    <span class="sidebar-text text-lg font-semibold">听道后台</span>
+                </div>
+            </div>
+
+            <!-- Sidebar Menu -->
+            <div class="flex-1 overflow-y-auto p-3">
+                <ul class="menu menu-sm gap-1">
+                    <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span class="sidebar-text">仪表盘</span></a></li>
+                    
+                    <li>
+                        <details open>
+                            <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span class="sidebar-text">讲道内容</span></summary>
+                            <ul>
+                                <li><a href="sermons.html" class="active">讲道列表</a></li>
+                                <li><a href="add-sermon.html">添加讲道</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html">讲员列表</a></li>
+                            <li><a href="add-speaker.html">添加讲员</a></li>
+                        </ul>
+                        </details>
+                    </li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span class="sidebar-text">内容编排</span></summary>
+                            <ul>
+                                <li><a href="curation.html">编排概览</a></li>
+                                <li><a href="home-editor.html">首页模块</a></li>
+                                <li><a href="discover-editor.html">发现页模块</a></li>
+                                <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span class="sidebar-text">用户管理</span></summary>
+                            <ul>
+                                <li><a href="users.html">所有用户</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span class="sidebar-text">标签主题</span></summary>
+                            <ul>
+                                <li><a href="tags.html">标签管理</a></li>
+                                <li><a href="tag-edit.html">标签编辑</a></li>
+                                <li><a href="topic-groups.html">主题组</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                    <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span class="sidebar-text">数据统计</span></a></li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span class="sidebar-text">系统设置</span></summary>
+                            <ul>
+                                <li><a href="settings.html">系统概览</a></li>
+                                <li><a href="admins.html">账户管理</a></li>
+                                <li><a href="permissions.html">权限控制</a></li>
+                                <li><a href="api-config.html">API配置</a></li>
+                                <li><a href="logs.html">日志版本</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span class="sidebar-text">帮助中心</span></summary>
+                            <ul>
+                                <li><a href="help.html">帮助文档</a></li>
+                                <li><a href="upload-guide.html">上传指南</a></li>
+                                <li><a href="review-standards.html">审核标准</a></li>
+                                <li><a href="contact.html">联系开发者</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="p-3 border-t border-base-300">
+                <button class="btn btn-xs btn-ghost w-full justify-start" onclick="location.href='notifications.html'">
+                    <span class="iconify" data-icon="heroicons:bell" data-width="16"></span>
+                    <span class="sidebar-text text-xs">消息通知</span>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+        <!-- Top Navigation -->
+        <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+            <div class="navbar-start">
+                <!-- Sidebar toggle removed -->
+            </div>
+            
+            <div class="navbar-center hidden md:flex">
+                <div class="form-control">
+                    <label class="input input-bordered input-sm flex items-center gap-2 w-80">
+                        <span class="iconify text-base-content/40" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                        <input type="text" placeholder="搜索讲道、讲员..." class="grow text-sm">
+                    </label>
+                </div>
+            </div>
+            
+            <div class="navbar-end gap-3">
+                <button class="btn btn-ghost btn-circle md:hidden">
+                    <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="20"></span>
+                </button>
+                
+                <div class="indicator">
+                    <span class="indicator-item badge badge-accent badge-sm">8</span>
+                    <button class="btn btn-ghost btn-circle" onclick="location.href='notifications.html'">
+                        <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                    </button>
+                </div>
+                
+                <div class="dropdown dropdown-end">
+                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                            <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                        </div>
+                    </div>
+                    <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                        <li class="menu-title"><span>管理员中心</span></li>
+                        <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                        <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                        <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                        <div class="divider my-1"></div>
+                        <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Breadcrumbs -->
+        <div class="breadcrumbs text-xs py-2 px-6 bg-base-100 border-b border-base-300">
+            <ul>
+                <li><a href="dashboard.html" class="text-base-content/70 hover:text-primary"><span class="iconify" data-icon="heroicons:home" data-width="14"></span>首页</a></li>
+                <li><span class="text-base-content/70">讲道内容</span></li>
+                <li><span class="font-medium text-base-content">讲道列表</span></li>
+            </ul>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+            <div class="max-w-screen-2xl mx-auto space-y-5">
+                <!-- Header -->
+                <section>
+                    <h1 class="text-2xl font-bold text-base-content">讲道内容列表</h1>
+                </section>
+
+                <!-- Stats Cards -->
+                <section>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-base-100 border border-base-300 rounded-lg p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                                    <span class="iconify text-blue-500" data-icon="heroicons:archive-box" data-width="24"></span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-sm text-base-content/70">讲道总数</div>
+                                    <div class="text-2xl font-bold text-base-content">1,284</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-base-100 border border-base-300 rounded-lg p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-yellow-50 rounded-lg flex items-center justify-center">
+                                    <span class="iconify text-yellow-500" data-icon="heroicons:clock" data-width="24"></span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-sm text-base-content/70">待审核</div>
+                                    <div class="text-2xl font-bold text-base-content">16</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-base-100 border border-base-300 rounded-lg p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
+                                    <span class="iconify text-green-500" data-icon="heroicons:check-circle" data-width="24"></span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-sm text-base-content/70">已发布</div>
+                                    <div class="text-2xl font-bold text-base-content">1,260</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-base-100 border border-base-300 rounded-lg p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center">
+                                    <span class="iconify text-red-500" data-icon="heroicons:arrow-uturn-left" data-width="24"></span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-sm text-base-content/70">已退回</div>
+                                    <div class="text-2xl font-bold text-base-content">8</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Filter & Actions -->
+                <section class="bg-base-100 border border-base-300 rounded-lg p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                        <input type="text" id="searchInput" placeholder="搜索标题、讲员、提交者" class="input input-sm input-bordered w-full">
+                        <select id="statusFilter" class="select select-sm select-bordered w-full">
+                            <option value="">所有状态</option>
+                            <option value="pending">待审核</option>
+                            <option value="published">已发布</option>
+                            <option value="revision">已退回</option>
+                            <option value="rejected">已拒绝</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <button class="btn btn-sm btn-ghost" onclick="resetFilters()">
+                                <span class="iconify" data-icon="heroicons:arrow-path" data-width="16"></span>
+                                重置
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="applyFilters()">
+                                <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                                搜索
+                            </button>
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="location.href='add-sermon.html'">
+                            <span class="iconify" data-icon="heroicons:plus" data-width="16"></span>
+                            添加讲道
+                        </button>
+                    </div>
+                    
+                    <div class="divider my-3"></div>
+                    
+                    <div class="flex items-center gap-2">
+                        <div class="dropdown">
+                            <button tabindex="0" class="btn btn-sm">
+                                批量操作
+                                <span class="iconify" data-icon="heroicons:chevron-down" data-width="14"></span>
+                            </button>
+                            <ul tabindex="0" class="dropdown-content z-10 menu p-2 shadow-lg bg-base-100 rounded-box w-40 border border-base-300">
+                                <li><a onclick="batchApprove()"><span class="iconify" data-icon="heroicons:check"></span>批量批准</a></li>
+                                <li><a onclick="batchReject()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-uturn-left"></span>批量退回</a></li>
+                            </ul>
+                        </div>
+                        <span class="text-sm text-base-content/70" id="selectedCount">已选择 0 项</span>
+                    </div>
+                </section>
+
+                <!-- Table -->
+                <section class="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="table table-sm" id="sermonsTable">
+                            <thead class="bg-base-200">
+                                <tr>
+                                    <th class="w-12"><input type="checkbox" class="checkbox checkbox-sm" id="selectAll" onchange="toggleSelectAll()"></th>
+                                    <th>标题</th>
+                                    <th>讲员</th>
+                                    <th>提交者</th>
+                                    <th>上传时间</th>
+                                    <th>播放/收藏</th>
+                                    <th class="text-center">状态</th>
+                                    <th class="text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Sermon data will be loaded from API -->
+                                <tr>
+                                    <td colspan="7" class="text-center py-8">
+                                        <span class="loading loading-spinner loading-lg"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Pagination -->
+                <section class="flex flex-col md:flex-row items-center justify-between gap-3">
+                    <div class="text-sm text-base-content/70">
+                        显示第 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">1284</span> 条
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="join">
+                            <button class="join-item btn btn-sm">«</button>
+                            <button class="join-item btn btn-sm btn-primary">1</button>
+                            <button class="join-item btn btn-sm">2</button>
+                            <button class="join-item btn btn-sm">3</button>
+                            <button class="join-item btn btn-sm btn-disabled">...</button>
+                            <button class="join-item btn btn-sm">129</button>
+                            <button class="join-item btn btn-sm">»</button>
+                        </div>
+                        <select class="select select-bordered select-sm" onchange="SermonsPage.pageSize = parseInt(this.value); SermonsPage.currentPage = 1; SermonsPage.loadSermons()">
+                            <option value="10" selected>10条/页</option>
+                            <option value="20">20条/页</option>
+                            <option value="50">50条/页</option>
+                        </select>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer footer-center p-4 bg-base-200 text-base-content border-t border-base-300">
+            <div class="flex flex-wrap justify-center gap-4 text-xs">
+                <a href="help.html" class="link link-hover">帮助文档</a>
+                <a href="contact.html" class="link link-hover">联系我们</a>
+                <a href="review-standards.html" class="link link-hover">审核标准</a>
+                <a class="link link-hover">隐私政策</a>
+                <a class="link link-hover">服务条款</a>
+            </div>
+            <div class="text-xs opacity-60">
+                <p>© 2024 听道后台管理系统 | livingwater.99lamb@gmail.com</p>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<script src="assets/js/common.js"></script>
+<script>
+    // Check authentication
+    if (!localStorage.getItem('admin_token')) {
+        window.location.href = 'login.html';
+    }
+
+    // Handle logout
+    function handleLogout() {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_username');
+        window.location.href = 'login.html';
+    }
+
+    // Toggle select all checkboxes
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.sermon-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+        updateSelectCount();
+    }
+
+    // Update selected count
+    function updateSelectCount() {
+        const checkboxes = document.querySelectorAll('.sermon-checkbox');
+        const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+        document.getElementById('selectedCount').textContent = `已选择 ${checkedCount} 项`;
+        
+        // Update select all checkbox state
+        const selectAll = document.getElementById('selectAll');
+        selectAll.checked = checkedCount === checkboxes.length && checkedCount > 0;
+        selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+    }
+
+    // Delete sermon
+    function deleteSermon() {
+        if (confirm('确认删除此讲道？此操作不可撤销。')) {
+            alert('讲道已删除');
+            // Here would be the actual API call
+        }
+    }
+
+    // Batch operations
+    function batchApprove() {
+        const checkedCount = Array.from(document.querySelectorAll('.sermon-checkbox')).filter(cb => cb.checked).length;
+        if (checkedCount === 0) {
+            alert('请先选择要操作的项目');
+            return;
+        }
+        if (confirm(`确认通过已选择的 ${checkedCount} 个讲道？`)) {
+            alert('批量通过成功');
+        }
+    }
+
+    function batchDelete() {
+        const checkedCount = Array.from(document.querySelectorAll('.sermon-checkbox')).filter(cb => cb.checked).length;
+        if (checkedCount === 0) {
+            alert('请先选择要操作的项目');
+            return;
+        }
+        if (confirm(`确认删除已选择的 ${checkedCount} 个讲道？此操作不可撤销。`)) {
+            alert('批量删除成功');
+        }
+    }
+    // Filter operations
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('statusFilter').value = '';
+        
+        // Reload sermons with no filters
+        if (typeof SermonsPage !== 'undefined') {
+            SermonsPage.filters = { status: '', search: '' };
+            SermonsPage.currentPage = 1;
+            SermonsPage.loadSermons();
+        }
+    }
+
+    function applyFilters() {
+        if (typeof SermonsPage !== 'undefined') {
+            const searchValue = document.getElementById('searchInput').value;
+            const statusValue = document.getElementById('statusFilter').value;
+            
+            SermonsPage.filters = {
+                search: searchValue,
+                status: statusValue
+            };
+            SermonsPage.currentPage = 1;
+            SermonsPage.loadSermons();
+        }
+    }
+    
+    // Batch operations
+    async function batchApprove() {
+        const checkboxes = document.querySelectorAll('.sermon-checkbox:checked');
+        if (checkboxes.length === 0) {
+            alert('请先选择要批准的讲道');
+            return;
+        }
+        
+        if (!confirm(`确定要批准 ${checkboxes.length} 个讲道吗？`)) {
+            return;
+        }
+        
+        const updatedIds = [];
+        let successCount = 0;
+        let failCount = 0;
+        
+        // Update status for each selected sermon
+        for (const checkbox of checkboxes) {
+            const row = checkbox.closest('tr');
+            const sermonId = row.getAttribute('data-sermon-id');
+            if (sermonId) {
+                try {
+                    // Update in backend API
+                    const response = await fetch(`http://localhost:3000/v1/sermons/${sermonId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'published' })
+                    });
+                    
+                    if (response.ok) {
+                        // Update localStorage
+                        const statusKey = `sermon_status_${sermonId}`;
+                        localStorage.setItem(statusKey, 'published');
+                        updatedIds.push(sermonId);
+                        successCount++;
+                        console.log(`✅ ${sermonId} status updated to 'published'`);
+                    } else {
+                        failCount++;
+                        console.error(`❌ Failed to update ${sermonId}`);
+                    }
+                } catch (error) {
+                    failCount++;
+                    console.error(`❌ Error updating ${sermonId}:`, error);
+                }
+            }
+        }
+        
+        console.log(`Batch approve completed: ${successCount} succeeded, ${failCount} failed`);
+        
+        // Reload the page to show updated statuses
+        if (typeof SermonsPage !== 'undefined') {
+            SermonsPage.loadSermons();
+        }
+        
+        alert(`批量批准完成：成功 ${successCount} 个${failCount > 0 ? `，失败 ${failCount} 个` : ''}`);
+    }
+    
+    async function batchReject() {
+        const checkboxes = document.querySelectorAll('.sermon-checkbox:checked');
+        if (checkboxes.length === 0) {
+            alert('请先选择要退回的讲道');
+            return;
+        }
+        
+        if (!confirm(`确定要退回 ${checkboxes.length} 个讲道吗？`)) {
+            return;
+        }
+        
+        const updatedIds = [];
+        let successCount = 0;
+        let failCount = 0;
+        
+        // Update status for each selected sermon
+        for (const checkbox of checkboxes) {
+            const row = checkbox.closest('tr');
+            const sermonId = row.getAttribute('data-sermon-id');
+            if (sermonId) {
+                try {
+                    // Update in backend API
+                    const response = await fetch(`http://localhost:3000/v1/sermons/${sermonId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'revision' })
+                    });
+                    
+                    if (response.ok) {
+                        // Update localStorage
+                        const statusKey = `sermon_status_${sermonId}`;
+                        localStorage.setItem(statusKey, 'revision');
+                        updatedIds.push(sermonId);
+                        successCount++;
+                        console.log(`✅ ${sermonId} status updated to 'revision'`);
+                    } else {
+                        failCount++;
+                        console.error(`❌ Failed to update ${sermonId}`);
+                    }
+                } catch (error) {
+                    failCount++;
+                    console.error(`❌ Error updating ${sermonId}:`, error);
+                }
+            }
+        }
+        
+        console.log(`Batch reject completed: ${successCount} succeeded, ${failCount} failed`);
+        
+        // Reload the page to show updated statuses
+        if (typeof SermonsPage !== 'undefined') {
+            SermonsPage.loadSermons();
+        }
+        
+        alert(`批量退回完成：成功 ${successCount} 个${failCount > 0 ? `，失败 ${failCount} 个` : ''}`);
+    }
+    
+
+    // Default sermon titles (matching seed.json)
+    const defaultSermonTitles = {
+        'sermon-001': '信心的力量：在困境中寻找希望',
+        'sermon-002': '祷告的深度：与神建立更深关系',
+        'sermon-003': '神的恩典：超越我们的理解'
+    };
+
+    // Function to update sermon status and titles from localStorage
+    function updateSermonStatusesFromLocalStorage() {
+        const rows = document.querySelectorAll('tr[data-sermon-id]');
+        
+        rows.forEach(row => {
+            const sermonId = row.getAttribute('data-sermon-id');
+            
+            // Update status
+            const statusIndicator = row.querySelector('.status-indicator[data-sermon-id]');
+            if (statusIndicator) {
+                const statusKey = `sermon_status_${sermonId}`;
+                const savedStatus = localStorage.getItem(statusKey);
+                
+                if (savedStatus) {
+                    const statusConfig = {
+                        'pending': {
+                            className: 'status-pending',
+                            text: '待审核'
+                        },
+                        'published': {
+                            className: 'status-published',
+                            text: '已发布'
+                        },
+                        'approved': {  // Keep for backwards compatibility
+                            className: 'status-published',
+                            text: '已发布'
+                        },
+                        'revision': {
+                            className: 'status-revision',
+                            text: '已退回'
+                        },
+                        'rejected': {
+                            className: 'status-rejected',
+                            text: '已拒绝'
+                        }
+                    };
+                    
+                    const config = statusConfig[savedStatus] || statusConfig['pending'];
+                    statusIndicator.className = `status-indicator ${config.className}`;
+                    statusIndicator.textContent = config.text;
+                }
+            }
+            
+            // Update title
+            const titleElement = row.querySelector('td:nth-child(2) .font-medium');
+            if (titleElement) {
+                const sermonDataKey = `sermon_data_${sermonId}`;
+                const savedData = localStorage.getItem(sermonDataKey);
+                
+                if (savedData) {
+                    try {
+                        const sermonData = JSON.parse(savedData);
+                        if (sermonData.title) {
+                            titleElement.textContent = sermonData.title;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing saved sermon data:', e);
+                    }
+                } else {
+                    // Use default title if no saved data
+                    const defaultTitle = defaultSermonTitles[sermonId];
+                    if (defaultTitle) {
+                        titleElement.textContent = defaultTitle;
+                    }
+                }
+            }
+        });
+        
+        console.log('Updated sermon statuses and titles from localStorage');
+    }
+
+    // Initialize page when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize the sermons page with API data
+        if (typeof SermonsPage !== 'undefined') {
+            SermonsPage.init();
+            console.log('Loading sermon data from API');
+        } else {
+            // Fallback to using static data if API not available
+            updateSermonStatusesFromLocalStorage();
+            console.log('Using static sermon data from HTML');
+        }
+    });
+</script>
+</body>
+</html>
+

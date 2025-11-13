@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>讲员详情与审核 - 听道后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: rgba(5, 150, 105, 1);
+        }
+
+        .status-pending {
+            background-color: rgba(251, 191, 36, 0.1);
+            color: rgba(180, 83, 9, 1);
+        }
+
+        .status-inactive {
+            background-color: rgba(156, 163, 175, 0.1);
+            color: rgba(75, 85, 99, 1);
+        }
+
+        .card-minimal {
+            border: 1px solid #E5E7EB;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-wrapper {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-wrapper .menu li > a {
+            padding: 0.6rem 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .transition-smooth {
+            transition: all 0.15s ease-in-out;
+        }
+
+        /* Hide empty fields in view mode */
+        .hide-when-empty:not(.hidden) {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="bg-base-200">
+    <!-- Header -->
+    <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+        <div class="navbar-start gap-2">
+            <img src="https://spark-builder.s3.cn-north-1.amazonaws.com.cn/image/2025/10/22/523fba63-3739-42ea-876b-c02f6da135ee.png" alt="Logo" class="w-10 h-10 rounded-lg">
+            <span class="text-xl font-semibold hidden lg:inline">听道后台</span>
+        </div>
+        
+        <div class="navbar-center hidden md:flex">
+            <div class="join">
+                <input type="text" placeholder="搜索讲员..." class="input input-bordered input-sm join-item w-80">
+                <button class="btn btn-sm join-item btn-primary">
+                    <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="navbar-end gap-3">
+            <div class="indicator">
+                <span class="indicator-item badge badge-accent badge-sm">8</span>
+                <button class="btn btn-ghost btn-circle">
+                    <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                </button>
+            </div>
+            
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                        <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                    </div>
+                </div>
+                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                    <li class="menu-title"><span>管理员中心</span></li>
+                    <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                    <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                    <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                    <div class="divider my-1"></div>
+                    <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="sidebar-wrapper bg-base-100 border-r border-base-300 min-h-screen">
+            <!-- Sidebar Menu -->
+            <ul class="menu p-3 gap-1 menu-sm pt-4">
+                <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span>仪表盘</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span>讲道内容</span></summary>
+                        <ul>
+                            <li><a href="sermons.html">讲道列表</a></li>
+                            <li><a href="add-sermon.html">添加讲道</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details open>
+                        <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span>讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html">讲员列表</a></li>
+                            <li><a href="add-speaker.html">添加讲员</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span>内容编排</span></summary>
+                        <ul>
+                            <li><a href="curation.html">编排概览</a></li>
+                            <li><a href="home-editor.html">首页模块</a></li>
+                            <li><a href="discover-editor.html">发现页模块</a></li>
+                            <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span>用户管理</span></summary>
+                        <ul>
+                            <li><a href="users.html">所有用户</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span>标签主题</span></summary>
+                        <ul>
+                            <li><a href="tags.html">标签管理</a></li>
+                            <li><a href="tag-edit.html">标签编辑</a></li>
+                            <li><a href="topic-groups.html">主题组</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span>数据统计</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span>系统设置</span></summary>
+                        <ul>
+                            <li><a href="settings.html">系统概览</a></li>
+                            <li><a href="admins.html">账户管理</a></li>
+                            <li><a href="permissions.html">权限控制</a></li>
+                            <li><a href="api-config.html">API配置</a></li>
+                            <li><a href="logs.html">日志版本</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span>帮助中心</span></summary>
+                        <ul>
+                            <li><a href="help.html">帮助文档</a></li>
+                            <li><a href="upload-guide.html">上传指南</a></li>
+                            <li><a href="review-standards.html">审核标准</a></li>
+                            <li><a href="contact.html">联系开发者</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col">
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs text-sm py-3 px-6 bg-base-100 border-b border-base-300">
+                <ul>
+                    <li><a href="dashboard.html">首页</a></li>
+                    <li><a href="speakers.html">讲员管理</a></li>
+                    <li>讲员详情与审核</li>
+                </ul>
+            </div>
+
+            <!-- Page Header -->
+            <div class="px-8 py-6 bg-base-100 border-b border-base-300">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <button class="btn btn-ghost btn-circle" onclick="location.href='speakers.html'">
+                            <span class="iconify" data-icon="heroicons:arrow-left" data-width="20"></span>
+                        </button>
+                        <div>
+                            <h1 class="text-2xl font-semibold">讲员详情审核</h1>
+                            <p class="text-sm text-base-content/70 mt-1">查看讲员详细信息并进行审核操作</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="editBtn" class="btn btn-primary" onclick="toggleEditMode()">
+                            <span class="iconify" data-icon="heroicons:pencil-square" data-width="20"></span>
+                            编辑
+                        </button>
+                        <button id="saveBtn" class="btn btn-success hidden" onclick="saveChanges()">
+                            <span class="iconify" data-icon="heroicons:check" data-width="20"></span>
+                            保存
+                        </button>
+                        <button id="cancelBtn" class="btn btn-ghost hidden" onclick="cancelEdit()">
+                            取消
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                    <!-- Left Column: Speaker Details -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Main Info Card -->
+                        <div class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body p-6">
+                                <div class="flex items-start gap-6 mb-6">
+                                    <!-- Avatar -->
+                                    <div class="avatar">
+                                        <div class="w-32 h-32 rounded-full">
+                                            <img id="avatarPreview" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200" alt="讲员头像">
+                                        </div>
+                                    </div>
+                                    <input type="file" id="avatarUpload" class="file-input file-input-bordered file-input-sm w-full max-w-xs mt-2 hidden" data-mode="edit" accept="image/*" onchange="previewAvatar(event)">
+                                    
+                                    <div class="flex-1">
+                                        <!-- Name View -->
+                                        <h2 class="text-2xl font-semibold mb-2" data-mode="view" id="nameView">加载中...</h2>
+                                        <!-- Name Edit -->
+                                        <input type="text" id="nameEdit" class="input input-bordered w-full mb-2 hidden" data-mode="edit" value="">
+                                        
+                                        <!-- English Name View -->
+                                        <p class="text-base-content/70 mb-2" data-mode="view" id="nameEnView"></p>
+                                        <!-- English Name Edit -->
+                                        <input type="text" id="nameEnEdit" class="input input-bordered input-sm w-full mb-2 hidden" data-mode="edit" value="">
+                                        
+                                        <!-- Title View -->
+                                        <p class="text-lg font-medium text-primary mb-3" data-mode="view" id="titleView">-</p>
+                                        <!-- Title Edit -->
+                                        <input type="text" id="titleEdit" class="input input-bordered input-sm w-full mb-3 hidden" data-mode="edit" value="">
+                                        
+                                        <div class="flex items-center gap-4 text-sm">
+                                            <!-- Church View -->
+                                            <span class="flex items-center gap-1" data-mode="view">
+                                                <span class="iconify" data-icon="heroicons:building-office" data-width="16"></span>
+                                                <span id="churchView">-</span>
+                                            </span>
+                                            <!-- Church Edit -->
+                                            <div class="flex items-center gap-1 hidden" data-mode="edit">
+                                                <span class="iconify" data-icon="heroicons:building-office" data-width="16"></span>
+                                                <input type="text" id="churchEdit" class="input input-bordered input-sm w-48" value="">
+                                            </div>
+                                            
+                                            <span class="status-indicator status-active" id="statusIndicatorTop">加载中...</span>
+                                            
+                                            <!-- Verified View -->
+                                            <span class="flex items-center gap-1 text-success" data-mode="view" id="verifiedView">
+                                                <span class="iconify" data-icon="heroicons:check-badge" data-width="16"></span>
+                                                已认证
+                                            </span>
+                                            <!-- Verified Edit -->
+                                            <label class="label cursor-pointer gap-2 hidden" data-mode="edit">
+                                                <input type="checkbox" id="verifiedEdit" class="checkbox checkbox-sm" checked>
+                                                <span class="label-text">已认证</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Short Bio -->
+                                <div class="mb-6">
+                                    <h3 class="text-lg font-medium mb-3">简短介绍</h3>
+                                    <!-- Bio View -->
+                                    <p class="text-base-content/80 leading-relaxed" data-mode="view" id="bioView">-</p>
+                                    <!-- Bio Edit -->
+                                    <textarea id="bioEdit" class="textarea textarea-bordered w-full h-24 hidden" data-mode="edit"></textarea>
+                                </div>
+
+                                <!-- Long Bio -->
+                                <div class="mb-6">
+                                    <h3 class="text-lg font-medium mb-3">详细介绍</h3>
+                                    <!-- Long Bio View -->
+                                    <p class="text-base-content/80 leading-relaxed" data-mode="view" id="bioLongView">-</p>
+                                    <!-- Long Bio Edit -->
+                                    <textarea id="bioLongEdit" class="textarea textarea-bordered w-full h-32 hidden" data-mode="edit"></textarea>
+                                </div>
+
+                                <!-- Stats -->
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="text-center p-4 bg-base-200 rounded-lg">
+                                        <div class="text-2xl font-bold text-primary">45</div>
+                                        <div class="text-sm text-base-content/70">讲道数量</div>
+                                    </div>
+                                    <div class="text-center p-4 bg-base-200 rounded-lg">
+                                        <div class="text-2xl font-bold text-success">1.3K</div>
+                                        <div class="text-sm text-base-content/70">关注人数</div>
+                                    </div>
+                                    <div class="text-center p-4 bg-base-200 rounded-lg">
+                                        <div class="text-2xl font-bold text-info">56.8K</div>
+                                        <div class="text-sm text-base-content/70">总播放量</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Info Card -->
+                        <div class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body p-6">
+                                <h3 class="text-lg font-medium mb-4">联系方式</h3>
+                                
+                                <div class="space-y-3">
+                                    <!-- Email -->
+                                    <div class="flex items-center gap-3" id="emailRow">
+                                        <span class="iconify text-base-content/70" data-icon="heroicons:envelope" data-width="20"></span>
+                                        <!-- Email View -->
+                                        <span data-mode="view" id="emailView">-</span>
+                                        <!-- Email Edit -->
+                                        <input type="email" id="emailEdit" class="input input-bordered input-sm flex-1 hidden" data-mode="edit" value="">
+                                    </div>
+                                    
+                                    <!-- Website -->
+                                    <div class="flex items-center gap-3" id="websiteRow">
+                                        <span class="iconify text-base-content/70" data-icon="heroicons:globe-alt" data-width="20"></span>
+                                        <!-- Website View -->
+                                        <a href="#" class="link link-primary" data-mode="view" id="websiteView">-</a>
+                                        <!-- Website Edit -->
+                                        <input type="url" id="websiteEdit" class="input input-bordered input-sm flex-1 hidden" data-mode="edit" value="" placeholder="https://example.com">
+                                    </div>
+                                    
+                                    <!-- WeChat -->
+                                    <div class="flex items-center gap-3" id="wechatRow">
+                                        <span class="iconify text-base-content/70" data-icon="simple-icons:wechat" data-width="20"></span>
+                                        <!-- WeChat View -->
+                                        <span data-mode="view" id="wechatView">-</span>
+                                        <!-- WeChat Edit -->
+                                        <input type="text" id="wechatEdit" class="input input-bordered input-sm flex-1 hidden" data-mode="edit" value="" placeholder="微信号">
+                                    </div>
+                                    
+                                    <!-- YouTube -->
+                                    <div class="flex items-center gap-3" id="youtubeRow">
+                                        <span class="iconify text-base-content/70" data-icon="simple-icons:youtube" data-width="20"></span>
+                                        <!-- YouTube View -->
+                                        <span data-mode="view" id="youtubeView">-</span>
+                                        <!-- YouTube Edit -->
+                                        <input type="text" id="youtubeEdit" class="input input-bordered input-sm flex-1 hidden" data-mode="edit" value="" placeholder="@YourChannel">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Sermons Card -->
+                        <div class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-medium">近期讲道</h3>
+                                    <a href="#" id="viewAllSermonsLink" class="link link-primary text-sm">查看全部</a>
+                                </div>
+                                
+                                <div class="space-y-3" id="recentSermonsList">
+                                    <div class="text-center py-8 text-base-content/70">加载中...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Actions & Status -->
+                    <div class="space-y-6">
+                        <!-- Status Card -->
+                        <div class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body p-6">
+                                <h3 class="text-lg font-medium mb-4">审核状态</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-base-content/70">当前状态</span>
+                                        <div class="status-indicator status-active" id="statusIndicator">加载中...</div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-base-content/70">认证状态</span>
+                                        <!-- Verified Status View -->
+                                        <span class="text-sm text-success" data-mode="view" id="verifiedStatusView">已认证</span>
+                                        <!-- Verified Status Edit -->
+                                        <label class="label cursor-pointer gap-2 hidden" data-mode="edit">
+                                            <input type="checkbox" id="verifiedStatusEdit" class="checkbox checkbox-xs" checked>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-base-content/70">讲道数量</span>
+                                        <span class="text-sm" id="sermonCountView">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-base-content/70">关注数</span>
+                                        <span class="text-sm" id="followerCountView">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-base-content/70">创建时间</span>
+                                        <span class="text-sm" id="createdAtView">-</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-base-content/70">最后更新</span>
+                                        <span class="text-sm" id="updatedAtView">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions Card -->
+                        <div class="card bg-base-100 shadow-sm border border-base-300">
+                            <div class="card-body p-6">
+                                <h3 class="text-lg font-medium mb-4">状态操作</h3>
+                                <div class="space-y-3">
+                                    <button class="btn btn-success w-full" id="activateBtn" onclick="activateSpeaker()" style="display:none;">
+                                        <span class="iconify" data-icon="heroicons:check-circle" data-width="20"></span>
+                                        激活讲员
+                                    </button>
+                                    <button class="btn btn-warning w-full" id="deactivateBtn" onclick="deactivateSpeaker()" style="display:none;">
+                                        <span class="iconify" data-icon="heroicons:no-symbol" data-width="20"></span>
+                                        停用讲员
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Reject Modal -->
+    <dialog id="rejectModal" class="modal">
+        <div class="modal-box max-w-md">
+            <h3 class="font-bold text-lg mb-4">拒绝申请</h3>
+            <div class="space-y-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">拒绝理由</span>
+                    </label>
+                    <textarea class="textarea textarea-bordered h-24 resize-none" placeholder="请输入拒绝理由..." id="rejectReason"></textarea>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">常用理由</span>
+                    </label>
+                    <select class="select select-bordered" onchange="fillRejectReason(this.value)">
+                        <option value="">选择常用理由</option>
+                        <option value="资质不符合要求">资质不符合要求</option>
+                        <option value="信息不完整">信息不完整</option>
+                        <option value="教会背景需要核实">教会背景需要核实</option>
+                        <option value="其他原因">其他原因</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-action">
+                <button class="btn btn-ghost" onclick="closeRejectModal()">取消</button>
+                <button class="btn btn-error" onclick="confirmReject()">确认拒绝</button>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <script>
+        let isEditMode = false;
+        let currentSpeaker = null;
+
+        // Get speaker ID from URL
+        function getSpeakerId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // Load speaker data from API
+        async function loadSpeaker() {
+            const speakerId = getSpeakerId();
+            if (!speakerId) {
+                alert('未指定讲员 ID');
+                location.href = 'speakers.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/v1/speakers/${speakerId}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    currentSpeaker = result.data;
+                    populateSpeakerData(currentSpeaker);
+                    updateActionButtons(currentSpeaker.status);
+                    loadRecentSermons(speakerId);
+                } else {
+                    alert('无法加载讲员数据');
+                    location.href = 'speakers.html';
+                }
+            } catch (error) {
+                console.error('Error loading speaker:', error);
+                alert('加载讲员数据失败');
+                location.href = 'speakers.html';
+            }
+        }
+
+        // Populate speaker data into page
+        function populateSpeakerData(speaker) {
+            // Basic info
+            document.getElementById('nameView').textContent = speaker.name;
+            document.getElementById('nameEdit').value = speaker.name;
+            
+            // English name (only show view if exists, but always allow editing)
+            const nameEnView = document.getElementById('nameEnView');
+            const nameEnEdit = document.getElementById('nameEnEdit');
+            nameEnEdit.value = speaker.name_en || '';
+            
+            if (speaker.name_en) {
+                nameEnView.textContent = speaker.name_en;
+                nameEnView.classList.remove('hide-when-empty');
+            } else {
+                nameEnView.textContent = '';
+                nameEnView.classList.add('hide-when-empty');
+            }
+            
+            document.getElementById('titleView').textContent = speaker.title || '-';
+            document.getElementById('titleEdit').value = speaker.title || '';
+            
+            // Avatar
+            if (speaker.avatar_url) {
+                document.getElementById('avatarPreview').src = speaker.avatar_url;
+            }
+            
+            // Bio
+            document.getElementById('bioView').textContent = speaker.bio || '-';
+            document.getElementById('bioEdit').value = speaker.bio || '';
+            document.getElementById('bioLongView').textContent = speaker.bio_long || '-';
+            document.getElementById('bioLongEdit').value = speaker.bio_long || '';
+            
+            // Contact info
+            document.getElementById('emailView').textContent = speaker.email || '-';
+            document.getElementById('emailEdit').value = speaker.email || '';
+            document.getElementById('churchView').textContent = speaker.church || '-';
+            document.getElementById('churchEdit').value = speaker.church || '';
+            
+            // Website (always show, display "-" if empty)
+            const websiteView = document.getElementById('websiteView');
+            const websiteEdit = document.getElementById('websiteEdit');
+            if (speaker.website) {
+                websiteView.textContent = speaker.website;
+                websiteView.href = speaker.website;
+                websiteEdit.value = speaker.website;
+            } else {
+                websiteView.textContent = '-';
+                websiteView.removeAttribute('href');
+                websiteEdit.value = '';
+            }
+            
+            // WeChat (always show, display "-" if empty)
+            const wechatView = document.getElementById('wechatView');
+            const wechatEdit = document.getElementById('wechatEdit');
+            if (speaker.social_media && speaker.social_media.wechat) {
+                wechatView.textContent = speaker.social_media.wechat;
+                wechatEdit.value = speaker.social_media.wechat;
+            } else {
+                wechatView.textContent = '-';
+                wechatEdit.value = '';
+            }
+            
+            // YouTube (always show, display "-" if empty)
+            const youtubeView = document.getElementById('youtubeView');
+            const youtubeEdit = document.getElementById('youtubeEdit');
+            if (speaker.social_media && speaker.social_media.youtube) {
+                youtubeView.textContent = speaker.social_media.youtube;
+                youtubeEdit.value = speaker.social_media.youtube;
+            } else {
+                youtubeView.textContent = '-';
+                youtubeEdit.value = '';
+            }
+            
+            // Status
+            updateStatusIndicator(speaker.status);
+            
+            // Verified status (only show if verified)
+            const verifiedView = document.getElementById('verifiedView');
+            const verifiedEdit = document.getElementById('verifiedEdit');
+            if (speaker.is_verified) {
+                verifiedView.style.display = 'flex';
+                verifiedEdit.checked = true;
+            } else {
+                verifiedView.style.display = 'none';
+                verifiedEdit.checked = false;
+            }
+            
+            // Stats
+            document.getElementById('sermonCountView').textContent = speaker.sermon_count || 0;
+            document.getElementById('followerCountView').textContent = speaker.follower_count || 0;
+            
+            // Dates
+            if (speaker.created_at) {
+                document.getElementById('createdAtView').textContent = new Date(speaker.created_at).toLocaleDateString('zh-CN');
+            }
+            if (speaker.updated_at) {
+                document.getElementById('updatedAtView').textContent = new Date(speaker.updated_at).toLocaleDateString('zh-CN');
+            }
+        }
+
+        // Update status indicator
+        function updateStatusIndicator(status) {
+            const indicators = [
+                document.getElementById('statusIndicator'),
+                document.getElementById('statusIndicatorTop')
+            ];
+            
+            indicators.forEach(indicator => {
+                if (!indicator) return;
+                
+                indicator.className = 'status-indicator';
+                
+                if (status === 'active') {
+                    indicator.classList.add('status-active');
+                    indicator.textContent = '活跃';
+                } else if (status === 'inactive') {
+                    indicator.classList.add('status-inactive');
+                    indicator.textContent = '停用';
+                } else {
+                    indicator.classList.add('status-pending');
+                    indicator.textContent = '待审核';
+                }
+            });
+        }
+
+        // Update action buttons based on status
+        function updateActionButtons(status) {
+            const activateBtn = document.getElementById('activateBtn');
+            const deactivateBtn = document.getElementById('deactivateBtn');
+            
+            if (status === 'active') {
+                activateBtn.style.display = 'none';
+                deactivateBtn.style.display = 'block';
+            } else {
+                activateBtn.style.display = 'block';
+                deactivateBtn.style.display = 'none';
+            }
+        }
+
+        // Load recent sermons for this speaker
+        async function loadRecentSermons(speakerId) {
+            try {
+                const response = await fetch(`http://localhost:3000/v1/sermons?speaker_id=${speakerId}&_limit=3&_sort=date&_order=desc`);
+                const result = await response.json();
+                
+                const sermonsList = document.getElementById('recentSermonsList');
+                
+                if (result.data && result.data.length > 0) {
+                    sermonsList.innerHTML = result.data.map(sermon => {
+                        const date = new Date(sermon.date).toLocaleDateString('zh-CN');
+                        const duration = Math.floor(sermon.duration / 60);
+                        const plays = sermon.play_count || 0;
+                        
+                        // Skip sermons with base64 images (too large)
+                        const coverImage = sermon.cover_image_url && sermon.cover_image_url.startsWith('http') 
+                            ? sermon.cover_image_url 
+                            : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100';
+                        
+                        return `
+                            <div class="flex items-center gap-3 p-3 bg-base-200 rounded-lg hover:bg-base-300 cursor-pointer" onclick="window.location.href='sermon-detail.html?id=${sermon.id}'">
+                                <img src="${coverImage}" alt="讲道封面" class="w-16 h-16 rounded-lg object-cover">
+                                <div class="flex-1">
+                                    <div class="font-medium">${sermon.title}</div>
+                                    <div class="text-xs text-base-content/70">${date} · ${duration}分钟</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-medium">${plays >= 1000 ? (plays/1000).toFixed(1) + 'K' : plays}</div>
+                                    <div class="text-xs text-base-content/70">播放</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    // Update "查看全部" link
+                    document.getElementById('viewAllSermonsLink').href = `sermons.html?speaker_id=${speakerId}`;
+                } else {
+                    sermonsList.innerHTML = '<div class="text-center py-8 text-base-content/70">暂无讲道</div>';
+                }
+            } catch (error) {
+                console.error('Error loading recent sermons:', error);
+                document.getElementById('recentSermonsList').innerHTML = '<div class="text-center py-8 text-error">加载失败</div>';
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSpeaker();
+        });
+        let originalData = {};
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            
+            if (isEditMode) {
+                saveOriginalData();
+                document.querySelectorAll('[data-mode="view"]').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('[data-mode="edit"]').forEach(el => el.classList.remove('hidden'));
+                document.getElementById('editBtn').classList.add('hidden');
+                document.getElementById('saveBtn').classList.remove('hidden');
+                document.getElementById('cancelBtn').classList.remove('hidden');
+            } else {
+                document.querySelectorAll('[data-mode="view"]').forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('[data-mode="edit"]').forEach(el => el.classList.add('hidden'));
+                document.getElementById('editBtn').classList.remove('hidden');
+                document.getElementById('saveBtn').classList.add('hidden');
+                document.getElementById('cancelBtn').classList.add('hidden');
+            }
+        }
+
+        function saveOriginalData() {
+            originalData = {
+                name: document.getElementById('nameEdit').value,
+                nameEn: document.getElementById('nameEnEdit').value,
+                title: document.getElementById('titleEdit').value,
+                church: document.getElementById('churchEdit').value,
+                bio: document.getElementById('bioEdit').value,
+                bioLong: document.getElementById('bioLongEdit').value,
+                email: document.getElementById('emailEdit').value,
+                website: document.getElementById('websiteEdit').value,
+                wechat: document.getElementById('wechatEdit').value,
+                youtube: document.getElementById('youtubeEdit').value,
+                verified: document.getElementById('verifiedEdit').checked
+            };
+        }
+
+        async function saveChanges() {
+            if (!confirm('确认保存所有修改？')) {
+                return;
+            }
+
+            try {
+                const speakerId = getSpeakerId();
+                
+                // Collect updated data from edit fields
+                const updatedData = {
+                    name: document.getElementById('nameEdit').value,
+                    name_en: document.getElementById('nameEnEdit').value || null,
+                    title: document.getElementById('titleEdit').value,
+                    church: document.getElementById('churchEdit').value,
+                    bio: document.getElementById('bioEdit').value,
+                    bio_long: document.getElementById('bioLongEdit').value,
+                    email: document.getElementById('emailEdit').value,
+                    website: document.getElementById('websiteEdit').value || null,
+                    social_media: {
+                        wechat: document.getElementById('wechatEdit').value || null,
+                        youtube: document.getElementById('youtubeEdit').value || null
+                    },
+                    is_verified: document.getElementById('verifiedEdit').checked,
+                    updated_at: new Date().toISOString()
+                };
+                
+                // Include avatar if changed (from preview)
+                const avatarPreview = document.getElementById('avatarPreview');
+                if (avatarPreview.src && avatarPreview.src.startsWith('data:')) {
+                    updatedData.avatar_url = avatarPreview.src;
+                }
+
+                // Send PUT request to update speaker
+                const response = await fetch(`http://localhost:3000/v1/speakers/${speakerId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                const result = await response.json();
+
+                if (result.success || response.ok) {
+                    // Update view with new data
+                    document.getElementById('nameView').textContent = updatedData.name;
+                    
+                    const nameEnView = document.getElementById('nameEnView');
+                    if (updatedData.name_en) {
+                        nameEnView.textContent = updatedData.name_en;
+                        nameEnView.classList.remove('hide-when-empty');
+                    } else {
+                        nameEnView.textContent = '';
+                        nameEnView.classList.add('hide-when-empty');
+                    }
+                    
+                    document.getElementById('titleView').textContent = updatedData.title || '-';
+                    document.getElementById('churchView').textContent = updatedData.church || '-';
+                    document.getElementById('bioView').textContent = updatedData.bio || '-';
+                    document.getElementById('bioLongView').textContent = updatedData.bio_long || '-';
+                    document.getElementById('emailView').textContent = updatedData.email || '-';
+                    
+                    // Update website
+                    const websiteView = document.getElementById('websiteView');
+                    if (updatedData.website) {
+                        websiteView.textContent = updatedData.website;
+                        websiteView.href = updatedData.website;
+                    } else {
+                        websiteView.textContent = '-';
+                        websiteView.removeAttribute('href');
+                    }
+                    
+                    // Update social media
+                    document.getElementById('wechatView').textContent = updatedData.social_media.wechat || '-';
+                    document.getElementById('youtubeView').textContent = updatedData.social_media.youtube || '-';
+                    
+                    // Update verified status
+                    const verifiedView = document.getElementById('verifiedView');
+                    if (updatedData.is_verified) {
+                        verifiedView.style.display = 'flex';
+                    } else {
+                        verifiedView.style.display = 'none';
+                    }
+
+                    // Exit edit mode
+                    document.querySelectorAll('[data-mode="view"]').forEach(el => el.classList.remove('hidden'));
+                    document.querySelectorAll('[data-mode="edit"]').forEach(el => el.classList.add('hidden'));
+                    document.getElementById('editBtn').classList.remove('hidden');
+                    document.getElementById('saveBtn').classList.add('hidden');
+                    document.getElementById('cancelBtn').classList.add('hidden');
+                    isEditMode = false;
+                    
+                    alert('修改已保存');
+                } else {
+                    throw new Error(result.error?.message || '保存失败');
+                }
+            } catch (error) {
+                console.error('Error saving changes:', error);
+                alert('保存失败：' + error.message);
+            }
+        }
+
+        function cancelEdit() {
+            if (!confirm('确认取消编辑？未保存的修改将丢失。')) {
+                return;
+            }
+
+            document.getElementById('nameEdit').value = originalData.name;
+            document.getElementById('nameEnEdit').value = originalData.nameEn;
+            document.getElementById('titleEdit').value = originalData.title;
+            document.getElementById('churchEdit').value = originalData.church;
+            document.getElementById('bioEdit').value = originalData.bio;
+            document.getElementById('bioLongEdit').value = originalData.bioLong;
+            document.getElementById('emailEdit').value = originalData.email;
+            document.getElementById('websiteEdit').value = originalData.website;
+            document.getElementById('wechatEdit').value = originalData.wechat;
+            document.getElementById('youtubeEdit').value = originalData.youtube;
+            document.getElementById('verifiedEdit').checked = originalData.verified;
+            document.getElementById('verifiedStatusEdit').checked = originalData.verified;
+
+            document.querySelectorAll('[data-mode="view"]').forEach(el => el.classList.remove('hidden'));
+            document.querySelectorAll('[data-mode="edit"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('editBtn').classList.remove('hidden');
+            document.getElementById('saveBtn').classList.add('hidden');
+            document.getElementById('cancelBtn').classList.add('hidden');
+            isEditMode = false;
+        }
+
+        function previewAvatar(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function approveSpeaker() {
+            if (confirm('确认通过此讲员审核？')) {
+                alert('讲员审核已通过');
+                setTimeout(() => {
+                    location.href = 'speakers.html';
+                }, 1000);
+            }
+        }
+
+        function requestRevision() {
+            if (confirm('确认退回此讲员要求修改？')) {
+                alert('已退回要求修改');
+                setTimeout(() => {
+                    location.href = 'speakers.html';
+                }, 1000);
+            }
+        }
+
+        // Activate speaker
+        async function activateSpeaker() {
+            if (!currentSpeaker) return;
+            
+            if (confirm('确认激活此讲员？')) {
+                try {
+                    const response = await fetch(`http://localhost:3000/v1/speakers/${currentSpeaker.id}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ status: 'active' })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert('讲员已激活');
+                        currentSpeaker.status = 'active';
+                        updateStatusIndicator('active');
+                        updateActionButtons('active');
+                    } else {
+                        alert('激活失败，请重试');
+                    }
+                } catch (error) {
+                    console.error('Activate error:', error);
+                    alert('激活失败：' + error.message);
+                }
+            }
+        }
+
+        // Deactivate speaker
+        async function deactivateSpeaker() {
+            if (!currentSpeaker) return;
+            
+            if (confirm('确认停用此讲员？')) {
+                try {
+                    const response = await fetch(`http://localhost:3000/v1/speakers/${currentSpeaker.id}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ status: 'inactive' })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert('讲员已停用');
+                        currentSpeaker.status = 'inactive';
+                        updateStatusIndicator('inactive');
+                        updateActionButtons('inactive');
+                    } else {
+                        alert('停用失败，请重试');
+                    }
+                } catch (error) {
+                    console.error('Deactivate error:', error);
+                    alert('停用失败：' + error.message);
+                }
+            }
+        }
+
+        function showRejectModal() {
+            const modal = document.getElementById('rejectModal');
+            if (modal) {
+                modal.showModal();
+            }
+        }
+
+        function closeRejectModal() {
+            const modal = document.getElementById('rejectModal');
+            const textarea = document.getElementById('rejectReason');
+            const select = modal.querySelector('select');
+            
+            if (modal) {
+                modal.close();
+            }
+            if (textarea) {
+                textarea.value = '';
+            }
+            if (select) {
+                select.value = '';
+            }
+        }
+
+        function fillRejectReason(reason) {
+            const textarea = document.getElementById('rejectReason');
+            if (textarea && reason) {
+                textarea.value = reason;
+            }
+        }
+
+        function confirmReject() {
+            const textarea = document.getElementById('rejectReason');
+            const reason = textarea ? textarea.value.trim() : '';
+            
+            if (!reason) {
+                alert('请输入拒绝理由');
+                return;
+            }
+            
+            if (confirm('确认拒绝此讲员申请？')) {
+                alert('已拒绝申请');
+                closeRejectModal();
+                setTimeout(() => {
+                    location.href = 'speakers.html';
+                }, 1000);
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
+

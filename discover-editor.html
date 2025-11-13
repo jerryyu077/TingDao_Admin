@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发现页模块编辑器 - 听道后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .sidebar-wrapper {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-text {
+            white-space: nowrap;
+        }
+
+        /* Module drag and drop */
+        .module-content {
+            transition: all 0.3s ease-in-out;
+            overflow: hidden;
+        }
+
+        .module-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .expand-icon {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .expand-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .drag-handle:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            transform: scale(1.05);
+        }
+
+        .module-dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .drop-zone {
+            border: 2px dashed #3B82F6;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        /* Content item selection */
+        .content-item {
+            transition: all 0.15s ease-in-out;
+            cursor: pointer;
+        }
+
+        .content-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-item.selected {
+            border-color: #3B82F6;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        /* Tag item */
+        .tag-item {
+            cursor: move;
+        }
+
+        .tag-item:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+    </style>
+
+    <!-- API Client -->
+    <script src="js/api-config.js?v=20251104v5"></script>
+    <script src="js/api-client.js?v=20251104v5"></script>
+    <script src="js/api-services.js?v=20251104v5"></script>
+    <script src="js/curation-api.js?v=20251104v5"></script>
+    </head>
+<body class="bg-base-200 flex flex-col min-h-screen">
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside class="sidebar-wrapper bg-base-100 border-r border-base-300">
+            <div class="p-3 border-b border-base-300">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="iconify text-white" data-icon="heroicons:home" data-width="20"></span>
+                    </div>
+                    <span class="sidebar-text text-lg font-semibold">听道后台</span>
+                </div>
+            </div>
+
+            <ul class="menu menu-sm gap-1 p-3">
+                <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span class="sidebar-text">仪表盘</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span class="sidebar-text">讲道内容</span></summary>
+                        <ul>
+                            <li><a href="sermons.html">讲道列表</a></li>
+                            <li><a href="add-sermon.html">添加讲道</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html">讲员列表</a></li>
+                            <li><a href="add-speaker.html">添加讲员</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details open>
+                        <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span class="sidebar-text">内容编排</span></summary>
+                        <ul>
+                            <li><a href="curation.html">编排概览</a></li>
+                            <li><a href="home-editor.html">首页模块</a></li>
+                            <li><a href="discover-editor.html" class="active">发现页模块</a></li>
+                            <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span class="sidebar-text">用户管理</span></summary>
+                        <ul>
+                            <li><a href="users.html">所有用户</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span class="sidebar-text">标签主题</span></summary>
+                        <ul>
+                            <li><a href="tags.html">标签管理</a></li>
+                            <li><a href="tag-edit.html">标签编辑</a></li>
+                            <li><a href="topic-groups.html">主题组</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span class="sidebar-text">数据统计</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span class="sidebar-text">系统设置</span></summary>
+                        <ul>
+                            <li><a href="settings.html">系统概览</a></li>
+                            <li><a href="admins.html">账户管理</a></li>
+                            <li><a href="permissions.html">权限控制</a></li>
+                            <li><a href="api-config.html">API配置</a></li>
+                            <li><a href="logs.html">日志版本</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span class="sidebar-text">帮助中心</span></summary>
+                        <ul>
+                            <li><a href="help.html">帮助文档</a></li>
+                            <li><a href="upload-guide.html">上传指南</a></li>
+                            <li><a href="review-standards.html">审核标准</a></li>
+                            <li><a href="contact.html">联系开发者</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+                <div class="navbar-start gap-2">
+                    <span class="text-xl font-semibold">发现页模块编辑器</span>
+                </div>
+                
+                <div class="navbar-center hidden md:flex">
+                    <div class="join">
+                        <input type="text" placeholder="搜索模块..." class="input input-bordered input-sm join-item w-80">
+                        <button class="btn btn-sm join-item btn-primary">
+                            <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="navbar-end gap-3">
+                    <div class="indicator">
+                        <span class="indicator-item badge badge-accent badge-sm">8</span>
+                        <button class="btn btn-ghost btn-circle">
+                            <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                        </button>
+                    </div>
+                    
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                                <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                            </div>
+                        </div>
+                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                            <li class="menu-title"><span>管理员中心</span></li>
+                            <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                            <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                            <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                            <div class="divider my-1"></div>
+                            <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs text-xs py-2 px-6 bg-base-100 border-b border-base-300">
+                <ul>
+                    <li><a href="dashboard.html" class="text-base-content/70 hover:text-primary"><span class="iconify" data-icon="heroicons:home" data-width="14"></span>首页</a></li>
+                    <li><a href="curation.html" class="text-base-content/70 hover:text-primary">内容编排</a></li>
+                    <li><span class="font-medium text-base-content">发现页模块编辑器</span></li>
+                </ul>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="max-w-7xl mx-auto space-y-8">
+                    <!-- Page Header -->
+                    <section class="mb-8">
+                        <div class="flex items-start justify-between mb-6">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4 mb-4">
+                                    <button onclick="location.href='curation.html'" class="btn btn-ghost btn-sm gap-2">
+                                        <span class="iconify" data-icon="heroicons:arrow-left" data-width="16"></span>
+                                        返回内容编排
+                                    </button>
+                                </div>
+                                <h1 class="text-3xl font-bold mb-3">发现页模块编辑器</h1>
+                                <p class="text-base-content/70 max-w-4xl">管理发现页的顶部标签和内容模块。可设置每日推荐、最新上传、最受欢迎讲道、热门讲员等板块。</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button onclick="openPreviewMode()" class="btn btn-ghost btn-sm gap-2">
+                                    <span class="iconify" data-icon="heroicons:eye" data-width="16"></span>
+                                    预览
+                                </button>
+                                <button onclick="openPublishHistory()" class="btn btn-ghost btn-sm gap-2">
+                                    <span class="iconify" data-icon="heroicons:clock" data-width="16"></span>
+                                    发布历史
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 1. Top Filter Tags Management -->
+                    <section class="card bg-base-100 shadow-sm border border-base-300">
+                        <div class="card-body p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h2 class="text-xl font-semibold">顶部筛选标签</h2>
+                                    <p class="text-sm text-base-content/60 mt-1">拖拽调整5个固定标签的显示顺序</p>
+                                </div>
+                            </div>
+                            
+                            <div id="tags-container" class="flex flex-wrap gap-2">
+                                <div class="badge badge-lg bg-blue-600 text-white border-0 tag-item gap-2 cursor-move" draggable="true">
+                                    <span class="iconify" data-icon="heroicons:bars-3" data-width="14"></span>
+                                    每日推荐
+                                </div>
+                                <div class="badge badge-lg bg-gray-700 text-gray-300 border-0 tag-item gap-2 cursor-move" draggable="true">
+                                    <span class="iconify" data-icon="heroicons:bars-3" data-width="14"></span>
+                                    最新上传
+                                </div>
+                                <div class="badge badge-lg bg-gray-700 text-gray-300 border-0 tag-item gap-2 cursor-move" draggable="true">
+                                    <span class="iconify" data-icon="heroicons:bars-3" data-width="14"></span>
+                                    最受欢迎
+                                </div>
+                                <div class="badge badge-lg bg-gray-700 text-gray-300 border-0 tag-item gap-2 cursor-move" draggable="true">
+                                    <span class="iconify" data-icon="heroicons:bars-3" data-width="14"></span>
+                                    热门讲员
+                                </div>
+                                <div class="badge badge-lg bg-gray-700 text-gray-300 border-0 tag-item gap-2 cursor-move" draggable="true">
+                                    <span class="iconify" data-icon="heroicons:bars-3" data-width="14"></span>
+                                    热门主题
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info mt-4">
+                                <span class="iconify" data-icon="heroicons:information-circle" data-width="20"></span>
+                                <span class="text-sm">第一个标签将作为默认选中项。拖拽标签可调整显示顺序。</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Module Editor Area -->
+                    <section class="mb-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-semibold">内容模块</h2>
+                        </div>
+                        
+                        <div id="module-list" class="space-y-4">
+                            <!-- 1. 每日推荐模块 -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300" data-module-id="daily-recommended">
+                                <div class="card-body p-6">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                <span class="iconify text-blue-600" data-icon="heroicons:star" data-width="16"></span>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold">每日推荐</h3>
+                                                <p class="text-sm text-base-content/60">手动选择每日推荐的精选讲道</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <button onclick="toggleModuleExpand(this)" class="btn btn-ghost btn-sm btn-circle">
+                                                <span class="iconify expand-icon" data-icon="heroicons:chevron-down" data-width="16"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="module-content">
+                                        <div class="mt-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <label class="label-text font-medium">选择推荐讲道</label>
+                                                <button onclick="openContentSelector('daily-sermons')" class="btn btn-outline btn-sm gap-2">
+                                                    <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
+                                                    选择讲道
+                                                </button>
+                                            </div>
+                                            <div class="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-2" id="daily-sermons-grid">
+                                                <div class="card card-compact bg-base-200">
+                                                    <div class="card-body p-2">
+                                                        <h4 class="text-sm font-medium line-clamp-2">神的恩典</h4>
+                                                        <p class="text-xs text-base-content/60 mt-1">李牧师</p>
+                                                        <div class="mt-1">
+                                                            <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. 最新上传模块 -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300" data-module-id="latest-uploads">
+                                <div class="card-body p-6">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                                <span class="iconify text-green-600" data-icon="heroicons:arrow-up-tray" data-width="16"></span>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold">最新上传</h3>
+                                                <p class="text-sm text-base-content/60">自动获取最新批准的讲道，最多10条</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-auto flex gap-2">
+                                            <button onclick="autoLoadLatestSermons()" class="btn btn-sm btn-outline gap-2">
+                                                <span class="iconify" data-icon="heroicons:arrow-path" data-width="16"></span>
+                                                刷新最新
+                                            </button>
+                                            <button onclick="toggleModuleExpand(this)" class="btn btn-ghost btn-sm btn-circle">
+                                                <span class="iconify expand-icon" data-icon="heroicons:chevron-down" data-width="16"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="module-content">
+                                        <div class="alert alert-info mb-4">
+                                            <span class="iconify" data-icon="heroicons:information-circle" data-width="20"></span>
+                                            <span class="text-sm">此模块自动展示最新批准的讲道（最多10条），您可以移除不想展示的内容。</span>
+                                        </div>
+                                        
+                                        <!-- 讲道网格 -->
+                                        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
+                                            <!-- 动态加载 -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. 最受欢迎模块 -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300" data-module-id="most-popular">
+                                <div class="card-body p-6">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                                                <span class="iconify text-red-600" data-icon="heroicons:fire" data-width="16"></span>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold">最受欢迎</h3>
+                                                <p class="text-sm text-base-content/60">选择讲道并显示收藏次数</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <button onclick="toggleModuleExpand(this)" class="btn btn-ghost btn-sm btn-circle">
+                                                <span class="iconify expand-icon" data-icon="heroicons:chevron-down" data-width="16"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="module-content">
+                                        
+                                        <div class="mt-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <label class="label-text font-medium">选择热门讲道</label>
+                                                <button onclick="openContentSelector('most-popular')" class="btn btn-outline btn-sm gap-2">
+                                                    <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
+                                                    选择讲道
+                                                </button>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                                                <!-- 动态加载 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. 热门讲员模块 -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300" data-module-id="popular-speakers">
+                                <div class="card-body p-6">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                <span class="iconify text-purple-600" data-icon="heroicons:user-group" data-width="16"></span>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold">热门讲员</h3>
+                                                <p class="text-sm text-base-content/60">选择讲员并显示订阅次数</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <button onclick="toggleModuleExpand(this)" class="btn btn-ghost btn-sm btn-circle">
+                                                <span class="iconify expand-icon" data-icon="heroicons:chevron-down" data-width="16"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="module-content">
+                                        
+                                        <div class="mt-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <label class="label-text font-medium">选择热门讲员</label>
+                                                <button onclick="openContentSelector('popular-speakers')" class="btn btn-outline btn-sm gap-2">
+                                                    <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
+                                                    选择讲员
+                                                </button>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                                                <!-- 动态加载 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 5. 热门主题模块 -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300" data-module-id="popular-topics">
+                                <div class="card-body p-6">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                                <span class="iconify text-orange-600" data-icon="heroicons:tag" data-width="16"></span>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold">热门主题</h3>
+                                                <p class="text-sm text-base-content/60">选择热门主题并展示</p>
+                                            </div>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <button onclick="toggleModuleExpand(this)" class="btn btn-ghost btn-sm btn-circle">
+                                                <span class="iconify expand-icon" data-icon="heroicons:chevron-down" data-width="16"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="module-content">
+                                        <div class="mt-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <label class="label-text font-medium">选择热门主题</label>
+                                                <button onclick="openContentSelector('popular-topics')" class="btn btn-outline btn-sm gap-2">
+                                                    <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
+                                                    选择主题
+                                                </button>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                                                <!-- 动态加载 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Action Buttons -->
+                    <section class="border-t border-base-300 pt-8">
+                        <div class="flex items-center justify-end gap-4">
+                            <button onclick="location.href='curation.html'" class="btn btn-ghost">
+                                取消
+                            </button>
+                            <button onclick="saveAndPublish()" class="btn btn-primary gap-2">
+                                <span class="iconify" data-icon="heroicons:check" data-width="16"></span>
+                                保存并发布
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Content Selector Modal -->
+    <dialog id="content-selector-modal" class="modal">
+        <div class="modal-box w-11/12 max-w-4xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-lg" id="modal-title">选择内容</h3>
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle btn-ghost">
+                        <span class="iconify" data-icon="heroicons:x-mark" data-width="16"></span>
+                    </button>
+                </form>
+            </div>
+            
+            <div class="mb-4">
+                <div class="join w-full">
+                    <input id="content-search" class="input input-bordered join-item flex-1" placeholder="搜索内容...">
+                    <button class="btn join-item">
+                        <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="content-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                <!-- Content items will be dynamically loaded here -->
+            </div>
+            
+            <div class="modal-action">
+                <form method="dialog" class="flex gap-2">
+                    <button class="btn btn-ghost">取消</button>
+                    <button onclick="confirmContentSelection()" class="btn btn-primary">确认选择</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
+    <script>
+        // Global functions
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        }
+
+        // Module expansion/collapse
+        function toggleModuleExpand(button) {
+            const card = button.closest('.card');
+            const content = card.querySelector('.module-content');
+            const icon = button.querySelector('.expand-icon');
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                icon.classList.remove('rotated');
+            } else {
+                content.classList.add('collapsed');
+                icon.classList.add('rotated');
+            }
+        }
+
+        // Tag drag and drop (5 fixed tags, no add/remove)
+        function initTagDragDrop() {
+            const container = document.getElementById('tags-container');
+            let draggedElement = null;
+            
+            const tags = container.querySelectorAll('.tag-item');
+            tags.forEach(tag => {
+                tag.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.style.opacity = '0.5';
+                });
+                
+                tag.addEventListener('dragend', function(e) {
+                    this.style.opacity = '1';
+                });
+                
+                tag.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    if (this !== draggedElement) {
+                        const rect = this.getBoundingClientRect();
+                        const midpoint = rect.left + rect.width / 2;
+                        
+                        if (e.clientX < midpoint) {
+                            container.insertBefore(draggedElement, this);
+                        } else {
+                            container.insertBefore(draggedElement, this.nextSibling);
+                        }
+                    }
+                });
+            });
+        }
+        
+        // 加载发现页配置
+        async function loadDiscoverConfig() {
+            try {
+                console.log('🔄 加载发现页配置...');
+                const response = await fetch('http://localhost:3000/v1/curation/discover-config');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                const config = result.data.config;
+                console.log('✅ 加载成功:', config);
+                
+                // 渲染标签顺序
+                renderFilterTags(config.filterTags);
+                
+                // 渲染每个模块的讲道
+                await renderModuleSermons(config.filterTags);
+                
+                // 特别处理：为"最新上传"模块自动加载最新讲道
+                const latestUploadsTag = config.filterTags.find(tag => tag.id === 'latest-uploads');
+                if (latestUploadsTag && (!latestUploadsTag.sermonIds || latestUploadsTag.sermonIds.length === 0)) {
+                    console.log('🔄 "最新上传"模块无内容，自动加载最新讲道...');
+                    await autoLoadLatestSermons();
+                }
+                
+            } catch (error) {
+                console.error('❌ 加载配置失败:', error);
+                showNotification('加载配置失败，使用默认配置', 'warning');
+            }
+        }
+        
+        // 渲染筛选标签
+        function renderFilterTags(filterTags) {
+            const container = document.getElementById('tags-container');
+            container.innerHTML = '';
+            
+            filterTags.forEach((tag, index) => {
+                const tagEl = document.createElement('div');
+                tagEl.className = `badge badge-lg ${index === 0 ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'} border-0 tag-item gap-2 cursor-move`;
+                tagEl.draggable = true;
+                tagEl.innerHTML = `
+                    <span class="iconify" data-icon="heroicons:bars-3" data-width="14"></span>
+                    ${tag.title}
+                `;
+                container.appendChild(tagEl);
+            });
+            
+            // 重新初始化拖拽
+            initTagDragDrop();
+        }
+        
+        // 渲染模块讲道/讲员/主题
+        async function renderModuleSermons(filterTags) {
+            const tagMapping = {
+                'daily-recommended': 'daily-recommended',
+                'latest-uploads': 'latest-uploads',
+                'most-popular': 'most-popular',
+                'popular-speakers': 'popular-speakers',
+                'popular-topics': 'popular-topics'
+            };
+            
+            for (const tag of filterTags) {
+                const moduleId = tagMapping[tag.id];
+                const grid = document.querySelector(`[data-module-id="${moduleId}"] .grid`);
+                if (!grid) continue;
+                
+                grid.innerHTML = ''; // 清空
+                
+                // 特殊处理：热门讲员模块使用 speakerIds
+                if (moduleId === 'popular-speakers') {
+                    const speakerIds = tag.speakerIds || tag.sermonIds || []; // 兼容旧数据
+                    if (speakerIds.length === 0) continue;
+                    
+                    for (const speakerId of speakerIds) {
+                        try {
+                            const response = await fetch(`http://localhost:3000/v1/speakers/${speakerId}`);
+                            if (!response.ok) continue;
+                            
+                            const result = await response.json();
+                            const speaker = result.data || result;
+                            
+                            const card = document.createElement('div');
+                            card.className = 'card card-compact bg-base-200';
+                            card.setAttribute('data-speaker-id', speaker.id);
+                            
+                            card.innerHTML = `
+                                <div class="card-body p-2">
+                                    <h4 class="text-sm font-medium text-center line-clamp-1">${speaker.name}</h4>
+                                    <p class="text-xs text-base-content/60 text-center mt-1">${speaker.church || '未知教会'}</p>
+                                    <div class="badge badge-sm badge-secondary mt-1 w-full">${speaker.follower_count || 0} 订阅</div>
+                                    <div class="mt-1">
+                                        <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
+                                    </div>
+                                </div>
+                            `;
+                            grid.appendChild(card);
+                        } catch (error) {
+                            console.error(`加载讲员 ${speakerId} 失败:`, error);
+                        }
+                    }
+                } else if (moduleId === 'popular-topics') {
+                    // 热门主题模块：加载主题
+                    const topicIds = tag.topicIds || tag.sermonIds || [];
+                    if (topicIds.length === 0) continue;
+                    
+                    for (const topicId of topicIds) {
+                        try {
+                            const response = await fetch(`http://localhost:3000/v1/topics/${topicId}`);
+                            if (!response.ok) continue;
+                            
+                            const result = await response.json();
+                            const topic = result.data || result;
+                            
+                            const card = document.createElement('div');
+                            card.className = 'card card-compact bg-base-200';
+                            card.setAttribute('data-topic-id', topic.id);
+                            
+                            card.innerHTML = `
+                                <div class="card-body p-2">
+                                    <h4 class="text-sm font-medium line-clamp-2">${topic.name}</h4>
+                                    <p class="text-xs text-base-content/60 mt-1">${topic.sermon_count || 0} 篇讲道</p>
+                                    <div class="mt-1">
+                                        <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
+                                    </div>
+                                </div>
+                            `;
+                            grid.appendChild(card);
+                        } catch (error) {
+                            console.error(`加载主题 ${topicId} 失败:`, error);
+                        }
+                    }
+                } else {
+                    // 其他模块：加载讲道
+                    const sermonIds = tag.sermonIds || [];
+                    if (sermonIds.length === 0) continue;
+                    
+                    for (const sermonId of sermonIds) {
+                        try {
+                            const response = await fetch(`http://localhost:3000/v1/sermons/${sermonId}`);
+                            if (!response.ok) continue;
+                            
+                            const result = await response.json();
+                            const sermon = result.data || result;
+                            
+                            const card = document.createElement('div');
+                            card.className = 'card card-compact bg-base-200';
+                            card.setAttribute('data-sermon-id', sermon.id);
+                            
+                            // 为"最受欢迎"模块显示收藏次数
+                            const favoriteCountBadge = moduleId === 'most-popular' 
+                                ? `<div class="badge badge-sm badge-error mt-1">${sermon.favorite_count || 0} 收藏</div>`
+                                : '';
+                            
+                            card.innerHTML = `
+                                <div class="card-body p-2">
+                                    <h4 class="text-sm font-medium line-clamp-2">${sermon.title}</h4>
+                                    <p class="text-xs text-base-content/60 mt-1">${sermon.speaker?.name || '未知讲员'}</p>
+                                    ${favoriteCountBadge}
+                                    <div class="mt-1">
+                                        <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
+                                    </div>
+                                </div>
+                            `;
+                            grid.appendChild(card);
+                        } catch (error) {
+                            console.error(`加载讲道 ${sermonId} 失败:`, error);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 自动加载最新上传的讲道（最多10条）
+        async function autoLoadLatestSermons() {
+            try {
+                console.log('🔄 自动加载最新批准的讲道...');
+                
+                // 获取最新已发布的讲道，按更新时间排序，限制10条
+                const response = await fetch('http://localhost:3000/v1/sermons?status=published&_sort=updated_at&_order=desc&_limit=10');
+                if (!response.ok) throw new Error('获取讲道失败');
+                
+                const result = await response.json();
+                const sermons = result.data || result;
+                
+                console.log(`✅ 获取到 ${sermons.length} 条最新讲道`);
+                
+                // 渲染到 latest-uploads 模块
+                const grid = document.querySelector('[data-module-id="latest-uploads"] .grid');
+                if (!grid) {
+                    console.error('❌ 找不到最新上传模块的 grid');
+                    return;
+                }
+                
+                grid.innerHTML = ''; // 清空现有内容
+                
+                // 渲染每个讲道卡片
+                sermons.forEach(sermon => {
+                    const card = document.createElement('div');
+                    card.className = 'card card-compact bg-base-200';
+                    card.setAttribute('data-sermon-id', sermon.id);
+                    card.innerHTML = `
+                        <div class="card-body p-2">
+                            <h4 class="text-sm font-medium line-clamp-2">${sermon.title}</h4>
+                            <p class="text-xs text-base-content/60 mt-1">${sermon.speaker?.name || '未知讲员'}</p>
+                            <div class="mt-1">
+                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+                
+                showNotification('success', `已加载 ${sermons.length} 条最新讲道`);
+            } catch (error) {
+                console.error('❌ 自动加载最新讲道失败:', error);
+                showNotification('error', '加载失败: ' + error.message);
+            }
+        }
+        
+        // Initialize tag drag drop on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initTagDragDrop();
+            loadDiscoverConfig(); // 加载配置
+        });
+
+        // Module drag and drop
+        (function initializeDragAndDrop() {
+            const moduleList = document.getElementById('module-list');
+            if (!moduleList) return;
+            
+            let draggedElement = null;
+            
+            const modules = moduleList.querySelectorAll('.card');
+            modules.forEach(module => {
+                const dragHandle = module.querySelector('.drag-handle');
+                if (dragHandle) {
+                    dragHandle.addEventListener('mousedown', function(e) {
+                        module.draggable = true;
+                    });
+                    
+                    module.addEventListener('dragstart', function(e) {
+                        draggedElement = this;
+                        this.classList.add('module-dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                    });
+                    
+                    module.addEventListener('dragend', function(e) {
+                        this.classList.remove('module-dragging');
+                        this.draggable = false;
+                        
+                        const dropZones = moduleList.querySelectorAll('.drop-zone');
+                        dropZones.forEach(zone => zone.classList.remove('drop-zone'));
+                    });
+                    
+                    module.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        
+                        if (this !== draggedElement) {
+                            this.classList.add('drop-zone');
+                        }
+                    });
+                    
+                    module.addEventListener('dragleave', function(e) {
+                        this.classList.remove('drop-zone');
+                    });
+                    
+                    module.addEventListener('drop', function(e) {
+                        e.preventDefault();
+                        this.classList.remove('drop-zone');
+                        
+                        if (this !== draggedElement) {
+                            const rect = this.getBoundingClientRect();
+                            const midpoint = rect.top + rect.height / 2;
+                            
+                            if (e.clientY < midpoint) {
+                                moduleList.insertBefore(draggedElement, this);
+                            } else {
+                                moduleList.insertBefore(draggedElement, this.nextSibling);
+                            }
+                            
+                            showNotification('模块顺序已更新', 'success');
+                        }
+                    });
+                }
+            });
+        })();
+
+        // Content selector
+        let currentSelectorType = '';
+        let selectedItems = [];
+        let targetGrid = null;
+        
+        function openContentSelector(type) {
+            currentSelectorType = type;
+            selectedItems = [];
+            
+            // 使用 data-module-id 来查找对应的 grid
+            const moduleMap = {
+                'daily-recommended': 'daily-recommended',
+                'most-popular': 'most-popular',
+                'popular-speakers': 'popular-speakers',
+                'popular-topics': 'popular-topics'
+            };
+            
+            const moduleId = moduleMap[type];
+            targetGrid = type; // 保存类型用于后续处理
+            
+            // 获取已存在的 ID 列表
+            const grid = document.querySelector(`[data-module-id="${moduleId}"] .grid`);
+            const existingIds = new Set();
+            if (grid) {
+                const existingCards = grid.querySelectorAll('.card[data-sermon-id], .card[data-speaker-id], .card[data-topic-id]');
+                existingCards.forEach(card => {
+                    const itemId = card.dataset.sermonId || card.dataset.speakerId || card.dataset.topicId;
+                    if (itemId) existingIds.add(itemId);
+                });
+            }
+            window.existingIdsInCurrentGrid = existingIds;
+            
+            console.log('🔍 打开内容选择器:', type, '已有项目:', existingIds);
+            
+            const modal = document.getElementById('content-selector-modal');
+            const title = document.getElementById('modal-title');
+            const contentGrid = document.getElementById('content-grid');
+            
+            const titles = {
+                'daily-recommended': '选择每日推荐讲道',
+                'most-popular': '选择热门讲道',
+                'popular-speakers': '选择热门讲员',
+                'popular-topics': '选择热门主题'
+            };
+            title.textContent = titles[type] || '选择内容';
+            
+            loadContentItems(type, contentGrid);
+            modal.showModal();
+        }
+        
+        async function loadContentItems(type, container) {
+            container.innerHTML = '<div class="col-span-3 flex justify-center items-center h-48"><span class="loading loading-spinner loading-lg text-primary"></span></div>';
+            
+            try {
+                let items = [];
+                
+                const isSpeakersType = type === 'popular-speakers';
+                const isTopicsType = type === 'popular-topics';
+                
+                if (isSpeakersType) {
+                    // 从 API 加载讲员列表（包含完整数据）
+                    const response = await fetch('http://localhost:3000/v1/speakers?_limit=50');
+                    const result = await response.json();
+                    const speakers = result.data || result;
+                    items = speakers.map(speaker => ({
+                        id: speaker.id,
+                        name: speaker.name,
+                        church: speaker.church || '未知教会',
+                        follower_count: speaker.follower_count || 0
+                    }));
+                } else if (isTopicsType) {
+                    // 从 API 加载主题列表（包含完整数据）
+                    const response = await fetch('http://localhost:3000/v1/topics?_limit=50');
+                    const result = await response.json();
+                    const topics = result.data || result;
+                    items = topics.map(topic => ({
+                        id: topic.id,
+                        name: topic.name,
+                        description: topic.description || '',
+                        sermon_count: topic.sermon_count || 0
+                    }));
+                } else {
+                    // 从 API 加载讲道列表（包含完整数据）
+                    const response = await fetch('http://localhost:3000/v1/sermons?_limit=50');
+                    const result = await response.json();
+                    const sermons = result.data || result;
+                    items = sermons.map(sermon => ({
+                        id: sermon.id,
+                        title: sermon.title,
+                        speaker: sermon.speaker?.name || '未知讲员',
+                        favorite_count: sermon.favorite_count || 0
+                    }));
+                }
+                
+                renderContentItems(items, type, container);
+            } catch (error) {
+                console.error('加载内容失败:', error);
+                container.innerHTML = '<div class="col-span-3 text-center text-error p-8">加载失败，请刷新重试</div>';
+            }
+        }
+        
+        function renderContentItems(items, type, container) {
+            container.innerHTML = '';
+            
+            const isSpeakersType = type === 'popular-speakers';
+            const isTopicsType = type === 'popular-topics';
+            const showFavorites = type === 'most-popular'; // 只有"最受欢迎"显示收藏数
+            const existingIds = window.existingIdsInCurrentGrid || new Set();
+            
+            items.forEach(item => {
+                const isExisting = existingIds.has(item.id);
+                
+                const div = document.createElement('div');
+                div.className = 'content-item card card-compact bg-base-100 border border-base-300';
+                
+                if (isExisting) {
+                    div.className += ' opacity-40 cursor-not-allowed';
+                } else {
+                    div.className += ' cursor-pointer';
+                }
+                
+                div.dataset.itemId = item.id;
+                div.dataset.itemData = JSON.stringify(item);
+                
+                let content = '';
+                if (isSpeakersType) {
+                    // 讲员类型 - 显示订阅次数
+                    content = `
+                        <div class="card-body">
+                            <h4 class="card-title text-sm text-center">${item.name}</h4>
+                            <p class="text-xs text-base-content/60 text-center">${item.church}</p>
+                            <div class="badge badge-sm badge-secondary mt-1 w-full">${item.follower_count} 订阅</div>
+                            ${isExisting ? '<p class="text-xs text-warning text-center mt-1">已添加</p>' : ''}
+                        </div>
+                    `;
+                } else if (isTopicsType) {
+                    // 主题类型 - 显示讲道数量
+                    content = `
+                        <div class="card-body">
+                            <h4 class="card-title text-sm">${item.name}</h4>
+                            <p class="text-xs text-base-content/60">${item.sermon_count} 篇讲道</p>
+                            ${isExisting ? '<p class="text-xs text-warning mt-1">已添加</p>' : ''}
+                        </div>
+                    `;
+                } else {
+                    // 讲道类型
+                    const favoriteBadge = showFavorites 
+                        ? `<div class="badge badge-sm badge-error mt-1">${item.favorite_count} 收藏</div>`
+                        : '';
+                    
+                    content = `
+                        <div class="card-body">
+                            <h4 class="card-title text-sm">${item.title}</h4>
+                            <p class="text-xs text-base-content/60">${item.speaker}</p>
+                            ${favoriteBadge}
+                            ${isExisting ? '<p class="text-xs text-warning mt-1">已添加</p>' : ''}
+                        </div>
+                    `;
+                }
+                
+                div.innerHTML = content;
+                
+                // 只有未添加的项目才可以点击
+                if (!isExisting) {
+                    div.addEventListener('click', function() {
+                        this.classList.toggle('selected');
+                        const itemId = this.dataset.itemId; // 保持字符串格式
+                        const itemData = JSON.parse(this.dataset.itemData);
+                        
+                        if (this.classList.contains('selected')) {
+                            if (!selectedItems.find(i => i.id === itemId)) {
+                                selectedItems.push(itemData);
+                            }
+                        } else {
+                            selectedItems = selectedItems.filter(i => i.id !== itemId);
+                        }
+                    });
+                }
+                
+                container.appendChild(div);
+            });
+        }
+        
+        function confirmContentSelection() {
+            if (selectedItems.length === 0) {
+                showNotification('请至少选择一个项目', 'warning');
+                return;
+            }
+            
+            // 使用 data-module-id 来查找目标 grid
+            const moduleMap = {
+                'daily-recommended': 'daily-recommended',
+                'most-popular': 'most-popular',
+                'popular-speakers': 'popular-speakers',
+                'popular-topics': 'popular-topics'
+            };
+            
+            const moduleId = moduleMap[currentSelectorType];
+            const grid = document.querySelector(`[data-module-id="${moduleId}"] .grid`);
+            
+            if (!grid) {
+                console.error('❌ 找不到目标 grid:', currentSelectorType, moduleId);
+                showNotification('目标区域未找到', 'error');
+                return;
+            }
+            
+            const isSpeakersType = currentSelectorType === 'popular-speakers';
+            const isTopicsType = currentSelectorType === 'popular-topics';
+            const showFavorites = currentSelectorType === 'most-popular';
+            
+            // 获取已存在的 ID，避免重复添加
+            const existingIds = new Set();
+            const existingCards = grid.querySelectorAll('.card[data-sermon-id], .card[data-speaker-id], .card[data-topic-id]');
+            existingCards.forEach(card => {
+                if (card.dataset.sermonId) existingIds.add(card.dataset.sermonId);
+                if (card.dataset.speakerId) existingIds.add(card.dataset.speakerId);
+                if (card.dataset.topicId) existingIds.add(card.dataset.topicId);
+            });
+            
+            let addedCount = 0;
+            let skippedCount = 0;
+            
+            selectedItems.forEach(item => {
+                // 检查是否已存在
+                if (existingIds.has(item.id)) {
+                    skippedCount++;
+                    console.log('⏭️ 跳过重复项:', item.id);
+                    return;
+                }
+                
+                const newCard = document.createElement('div');
+                newCard.className = 'card card-compact bg-base-200';
+                
+                // 设置 data 属性（重要！）
+                if (isSpeakersType) {
+                    newCard.setAttribute('data-speaker-id', item.id);
+                } else if (isTopicsType) {
+                    newCard.setAttribute('data-topic-id', item.id);
+                } else {
+                    newCard.setAttribute('data-sermon-id', item.id);
+                }
+                
+                let cardContent = '';
+                if (isSpeakersType) {
+                    cardContent = `
+                        <div class="card-body p-2">
+                            <h4 class="text-sm font-medium text-center line-clamp-1">${item.name}</h4>
+                            <p class="text-xs text-base-content/60 text-center mt-1">${item.church}</p>
+                            <div class="badge badge-sm badge-secondary mt-1 w-full">${item.follower_count || 0} 订阅</div>
+                            <div class="mt-1">
+                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
+                            </div>
+                        </div>
+                    `;
+                } else if (isTopicsType) {
+                    cardContent = `
+                        <div class="card-body p-2">
+                            <h4 class="text-sm font-medium line-clamp-2">${item.name}</h4>
+                            <p class="text-xs text-base-content/60 mt-1">${item.sermon_count || 0} 篇讲道</p>
+                            <div class="mt-1">
+                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // 讲道类型 - 为"最受欢迎"显示收藏次数
+                    const favoriteBadge = showFavorites 
+                        ? `<div class="badge badge-sm badge-error mt-1">${item.favorite_count || 0} 收藏</div>`
+                        : '';
+                    
+                    cardContent = `
+                        <div class="card-body p-2">
+                            <h4 class="text-sm font-medium line-clamp-2">${item.title}</h4>
+                            <p class="text-xs text-base-content/60 mt-1">${item.speaker}</p>
+                            ${favoriteBadge}
+                            <div class="mt-1">
+                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                newCard.innerHTML = cardContent;
+                grid.appendChild(newCard);
+                addedCount++;
+                console.log('✅ 添加项目:', item.id, item.title || item.name);
+            });
+            
+            // 显示添加结果
+            if (addedCount > 0 && skippedCount > 0) {
+                showNotification(`已添加 ${addedCount} 个项目，跳过 ${skippedCount} 个重复项目`, 'success');
+            } else if (addedCount > 0) {
+                showNotification(`已添加 ${addedCount} 个项目`, 'success');
+            } else if (skippedCount > 0) {
+                showNotification(`所选项目均已存在`, 'warning');
+            }
+            
+            const modal = document.getElementById('content-selector-modal');
+            modal.close();
+            selectedItems = [];
+        }
+
+        // Remove item from grid
+        function removeItem(button) {
+            button.closest('.card').remove();
+            showNotification('已移除', 'success');
+        }
+        
+        // Utility functions
+        function openPreviewMode() {
+            showNotification('预览模式功能开发中', 'info');
+        }
+        
+        function openPublishHistory() {
+            showNotification('发布历史功能开发中', 'info');
+        }
+        
+        async function saveAndPublish() {
+            const button = event.target;
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<span class="loading loading-spinner loading-sm"></span> 保存中...';
+            button.disabled = true;
+            
+            try {
+                // 收集配置数据
+                const configData = collectDiscoverConfig();
+                console.log('📦 准备保存配置:', configData);
+                
+                // 保存到 API
+                const response = await fetch('http://localhost:3000/v1/curation/discover-config', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(configData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                console.log('✅ 保存成功:', result);
+                
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+                showNotification('发现页配置已保存并发布到 App', 'success');
+                
+                setTimeout(() => {
+                    location.href = 'curation.html';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('❌ 保存失败:', error);
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+                showNotification(`保存失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 收集发现页配置
+        function collectDiscoverConfig() {
+            // 1. 收集标签顺序
+            const filterTags = [];
+            const tagContainer = document.getElementById('tags-container');
+            const tagElements = tagContainer.querySelectorAll('.tag-item');
+            
+            const tagMapping = {
+                '每日推荐': { id: 'daily-recommended', moduleId: 'daily-recommended' },
+                '最新上传': { id: 'latest-uploads', moduleId: 'latest-uploads' },
+                '最受欢迎': { id: 'most-popular', moduleId: 'most-popular' },
+                '热门讲员': { id: 'popular-speakers', moduleId: 'popular-speakers' },
+                '热门主题': { id: 'popular-topics', moduleId: 'popular-topics' }
+            };
+            
+            tagElements.forEach(tagEl => {
+                const title = tagEl.textContent.trim();
+                const mapping = tagMapping[title];
+                if (mapping) {
+                    const moduleGrid = document.querySelector(`[data-module-id="${mapping.moduleId}"] .grid`);
+                    
+                    // 特殊处理：热门讲员模块收集 speakerIds
+                    if (mapping.id === 'popular-speakers') {
+                        const speakerIds = [];
+                        if (moduleGrid) {
+                            const speakerCards = moduleGrid.querySelectorAll('.card[data-speaker-id]');
+                            speakerCards.forEach(card => {
+                                const speakerId = card.dataset.speakerId;
+                                if (speakerId) speakerIds.push(speakerId);
+                            });
+                        }
+                        
+                        filterTags.push({
+                            id: mapping.id,
+                            title: title,
+                            speakerIds: speakerIds,
+                            sermonIds: [] // 保留空的 sermonIds 以兼容
+                        });
+                    } else if (mapping.id === 'popular-topics') {
+                        // 特殊处理：热门主题模块收集 topicIds
+                        const topicIds = [];
+                        if (moduleGrid) {
+                            const topicCards = moduleGrid.querySelectorAll('.card[data-topic-id]');
+                            topicCards.forEach(card => {
+                                const topicId = card.dataset.topicId;
+                                if (topicId) topicIds.push(topicId);
+                            });
+                        }
+                        
+                        filterTags.push({
+                            id: mapping.id,
+                            title: title,
+                            topicIds: topicIds,
+                            sermonIds: [] // 保留空的 sermonIds 以兼容
+                        });
+                    } else {
+                        // 其他模块：收集讲道
+                        const sermonIds = [];
+                        if (moduleGrid) {
+                            const sermonCards = moduleGrid.querySelectorAll('.card[data-sermon-id]');
+                            sermonCards.forEach(card => {
+                                const sermonId = card.dataset.sermonId;
+                                if (sermonId) sermonIds.push(sermonId);
+                            });
+                        }
+                        
+                        filterTags.push({
+                            id: mapping.id,
+                            title: title,
+                            sermonIds: sermonIds
+                        });
+                    }
+                }
+            });
+            
+            console.log('✅ 收集到标签配置:', filterTags);
+            
+            return {
+                config: {
+                    filterTags: filterTags
+                },
+                updated_at: new Date().toISOString()
+            };
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} fixed top-4 right-4 w-96 z-50 shadow-lg`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="iconify" data-icon="heroicons:information-circle" data-width="20"></span>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 150);
+            }, 3000);
+        }
+
+        // Initialize page when DOM is ready
+        if (typeof DiscoverEditorPage !== 'undefined') {
+            document.addEventListener('DOMContentLoaded', () => {
+                DiscoverEditorPage.init();
+            });
+        }
+    </script>
+</body>
+</html>
+

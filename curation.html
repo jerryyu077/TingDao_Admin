@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>内容编排 - 听道后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .sidebar-wrapper {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-text {
+            white-space: nowrap;
+        }
+
+        .preview-page {
+            display: none;
+        }
+
+        .preview-page.active {
+            display: block;
+        }
+
+        #previewContent::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #previewContent::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #previewContent::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 2px;
+        }
+
+        .nav-btn {
+            transition: color 0.2s ease;
+        }
+    </style>
+
+    <!-- API Client -->
+    <script src="js/api-config.js?v=20251104"></script>
+    <script src="js/api-client.js?v=20251104"></script>
+    <script src="js/api-services.js?v=20251104"></script>
+    <script src="js/curation-api.js?v=20251104"></script>
+    </head>
+<body class="bg-base-200 flex flex-col min-h-screen">
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside class="sidebar-wrapper bg-base-100 border-r border-base-300">
+            <div class="p-3 border-b border-base-300">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="iconify text-white" data-icon="heroicons:home" data-width="20"></span>
+                    </div>
+                    <span class="sidebar-text text-lg font-semibold">听道后台</span>
+                </div>
+            </div>
+
+            <ul class="menu menu-sm gap-1 p-3">
+                <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span class="sidebar-text">仪表盘</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span class="sidebar-text">讲道内容</span></summary>
+                        <ul>
+                            <li><a href="sermons.html">讲道列表</a></li>
+                            <li><a href="add-sermon.html">添加讲道</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html">讲员列表</a></li>
+                            <li><a href="add-speaker.html">添加讲员</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details open>
+                        <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span class="sidebar-text">内容编排</span></summary>
+                        <ul>
+                            <li><a href="curation.html" class="active">编排概览</a></li>
+                            <li><a href="home-editor.html">首页模块</a></li>
+                            <li><a href="discover-editor.html">发现页模块</a></li>
+                            <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span class="sidebar-text">用户管理</span></summary>
+                        <ul>
+                            <li><a href="users.html">所有用户</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span class="sidebar-text">标签主题</span></summary>
+                        <ul>
+                            <li><a href="tags.html">标签管理</a></li>
+                            <li><a href="tag-edit.html">标签编辑</a></li>
+                            <li><a href="topic-groups.html">主题组</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span class="sidebar-text">数据统计</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span class="sidebar-text">系统设置</span></summary>
+                        <ul>
+                            <li><a href="settings.html">系统概览</a></li>
+                            <li><a href="admins.html">账户管理</a></li>
+                            <li><a href="permissions.html">权限控制</a></li>
+                            <li><a href="api-config.html">API配置</a></li>
+                            <li><a href="logs.html">日志版本</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span class="sidebar-text">帮助中心</span></summary>
+                        <ul>
+                            <li><a href="help.html">帮助文档</a></li>
+                            <li><a href="upload-guide.html">上传指南</a></li>
+                            <li><a href="review-standards.html">审核标准</a></li>
+                            <li><a href="contact.html">联系开发者</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+                <div class="navbar-start gap-2">
+                    <span class="text-xl font-semibold">内容编排</span>
+                </div>
+                
+                <div class="navbar-center hidden md:flex">
+                    <div class="join">
+                        <input type="text" placeholder="搜索模块..." class="input input-bordered input-sm join-item w-80">
+                        <button class="btn btn-sm join-item btn-primary">
+                            <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="navbar-end gap-3">
+                    <div class="indicator">
+                        <span class="indicator-item badge badge-accent badge-sm">8</span>
+                        <button class="btn btn-ghost btn-circle">
+                            <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                        </button>
+                    </div>
+                    
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                                <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                            </div>
+                        </div>
+                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                            <li class="menu-title"><span>管理员中心</span></li>
+                            <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                            <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                            <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                            <div class="divider my-1"></div>
+                            <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs text-xs py-2 px-6 bg-base-100 border-b border-base-300">
+                <ul>
+                    <li><a href="dashboard.html" class="text-base-content/70 hover:text-primary"><span class="iconify" data-icon="heroicons:home" data-width="14"></span>首页</a></li>
+                    <li><span class="text-base-content/70">内容编排</span></li>
+                    <li><span class="font-medium text-base-content">编排概览</span></li>
+                </ul>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="max-w-7xl mx-auto space-y-8">
+                    <!-- Overview Section -->
+                    <section class="flex flex-col md:flex-row items-center justify-between gap-8 bg-base-100 p-8 rounded-lg shadow-sm border border-base-300">
+                        <div class="flex-1 text-center md:text-left">
+                            <h1 class="text-4xl font-bold tracking-wide">内容编排</h1>
+                            <p class="mt-2 text-lg text-base-content/70 leading-relaxed">模拟应用界面，所见即所得管理首页、发现页的内容模块。</p>
+                            <div class="mt-8 flex flex-wrap justify-center md:justify-start items-center gap-4">
+                                <button class="btn btn-primary btn-md" onclick="saveLayout()">
+                                    <span class="iconify" data-icon="heroicons:cloud-arrow-up" data-width="20"></span>
+                                    保存并发布布局
+                                </button>
+                                <button class="btn btn-ghost btn-md" onclick="resetDraft()">
+                                    <span class="iconify" data-icon="heroicons:arrow-uturn-left" data-width="20"></span>
+                                    重置草稿
+                                </button>
+                            </div>
+                        </div>
+                        <div class="hidden md:flex justify-center items-center flex-shrink-0">
+                            <div class="w-72 h-[580px] p-2 bg-gray-800 rounded-3xl shadow-2xl relative">
+                                <!-- Phone Frame -->
+                                <div class="w-full h-full bg-white rounded-2xl overflow-hidden flex flex-col">
+                                    <!-- Status Bar -->
+                                    <div class="bg-white px-4 py-2 flex items-center justify-between text-xs">
+                                        <span>9:41</span>
+                                        <div class="flex items-center gap-1">
+                                            <span class="iconify" data-icon="heroicons:signal" data-width="12"></span>
+                                            <span class="iconify" data-icon="heroicons:wifi" data-width="12"></span>
+                                            <span class="iconify" data-icon="heroicons:battery-100" data-width="12"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tab Bar -->
+                                    <div class="tabs tabs-boxed bg-base-200 m-2 p-1">
+                                        <a class="tab tab-xs tab-active" onclick="switchPreview('home')">首页</a>
+                                        <a class="tab tab-xs" onclick="switchPreview('discover')">发现</a>
+                                        <a class="tab tab-xs" onclick="switchPreview('search')">搜索</a>
+                                    </div>
+                                    
+                                    <!-- Content Area -->
+                                    <div class="flex-1 overflow-y-auto bg-base-100" id="previewContent">
+                                        <!-- Home Preview -->
+                                        <div class="preview-page active" data-page="home">
+                                            <div class="p-2 space-y-3" style="background: #0f0f0f;">
+                                                <!-- Daily Scripture -->
+                                                <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-3 text-white shadow-lg">
+                                                    <div class="text-xs mb-1 opacity-90">每日金句</div>
+                                                    <div class="text-sm font-medium leading-snug">"你们要先求他的国和他的义"</div>
+                                                    <div class="text-xs mt-1 opacity-80">马太福音 6:33</div>
+                                                </div>
+                                                
+                                                <!-- Recent Played Section -->
+                                                <div class="space-y-2">
+                                                    <div class="flex items-center justify-between px-1">
+                                                        <div class="text-xs font-semibold text-white">近期播放</div>
+                                                        <div class="text-xs text-blue-400">查看全部</div>
+                                                    </div>
+                                                    <div class="flex gap-2 overflow-x-auto pb-1" style="scrollbar-width: none;">
+                                                        <div class="flex-shrink-0 w-24 space-y-1">
+                                                            <div class="w-24 h-24 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg"></div>
+                                                            <div class="text-xs text-white font-medium line-clamp-2 leading-tight">神的恩典</div>
+                                                            <div class="text-xs text-gray-400">李牧师</div>
+                                                        </div>
+                                                        <div class="flex-shrink-0 w-24 space-y-1">
+                                                            <div class="w-24 h-24 bg-gradient-to-br from-green-500 to-teal-500 rounded-lg"></div>
+                                                            <div class="text-xs text-white font-medium line-clamp-2 leading-tight">信心之旅</div>
+                                                            <div class="text-xs text-gray-400">王牧师</div>
+                                                        </div>
+                                                        <div class="flex-shrink-0 w-24 space-y-1">
+                                                            <div class="w-24 h-24 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg"></div>
+                                                            <div class="text-xs text-white font-medium line-clamp-2 leading-tight">爱的真谛</div>
+                                                            <div class="text-xs text-gray-400">张牧师</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Recommended Section -->
+                                                <div class="space-y-2">
+                                                    <div class="flex items-center justify-between px-1">
+                                                        <div class="text-xs font-semibold text-white">推荐讲道</div>
+                                                        <div class="text-xs text-blue-400">更多推荐</div>
+                                                    </div>
+                                                    <div class="flex gap-2 overflow-x-auto pb-1" style="scrollbar-width: none;">
+                                                        <div class="flex-shrink-0 w-28 space-y-1">
+                                                            <div class="w-28 h-28 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl shadow-lg"></div>
+                                                            <div class="text-xs text-white font-medium line-clamp-2 leading-tight">神的救赎计划</div>
+                                                            <div class="text-xs text-gray-400">赵牧师 · 42分钟</div>
+                                                        </div>
+                                                        <div class="flex-shrink-0 w-28 space-y-1">
+                                                            <div class="w-28 h-28 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl shadow-lg"></div>
+                                                            <div class="text-xs text-white font-medium line-clamp-2 leading-tight">爱的诫命</div>
+                                                            <div class="text-xs text-gray-400">钱牧师 · 35分钟</div>
+                                                        </div>
+                                                        <div class="flex-shrink-0 w-28 space-y-1">
+                                                            <div class="w-28 h-28 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl shadow-lg"></div>
+                                                            <div class="text-xs text-white font-medium line-clamp-2 leading-tight">永恒的盼望</div>
+                                                            <div class="text-xs text-gray-400">孙牧师 · 48分钟</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Topics Section -->
+                                                <div class="space-y-2">
+                                                    <div class="flex items-center justify-between px-1">
+                                                        <div class="text-xs font-semibold text-white">主题讲道</div>
+                                                        <div class="text-xs text-blue-400">浏览主题</div>
+                                                    </div>
+                                                    <div class="flex gap-2 overflow-x-auto pb-1" style="scrollbar-width: none;">
+                                                        <div class="flex-shrink-0 w-32 h-20 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-2 flex flex-col justify-between shadow-lg">
+                                                            <div class="text-xs text-white font-medium">信仰与生活</div>
+                                                            <div class="text-xs text-white/70">12个讲道</div>
+                                                        </div>
+                                                        <div class="flex-shrink-0 w-32 h-20 bg-gradient-to-r from-green-600 to-teal-600 rounded-xl p-2 flex flex-col justify-between shadow-lg">
+                                                            <div class="text-xs text-white font-medium">祷告的力量</div>
+                                                            <div class="text-xs text-white/70">8个讲道</div>
+                                                        </div>
+                                                        <div class="flex-shrink-0 w-32 h-20 bg-gradient-to-r from-orange-600 to-red-600 rounded-xl p-2 flex flex-col justify-between shadow-lg">
+                                                            <div class="text-xs text-white font-medium">恩典之路</div>
+                                                            <div class="text-xs text-white/70">15个讲道</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Popular Speakers Section -->
+                                                <div class="space-y-2">
+                                                    <div class="flex items-center justify-between px-1">
+                                                        <div class="text-xs font-semibold text-white">热门讲员</div>
+                                                        <div class="text-xs text-blue-400">查看更多</div>
+                                                    </div>
+                                                    <div class="flex gap-3 overflow-x-auto pb-1" style="scrollbar-width: none;">
+                                                        <div class="flex-shrink-0 text-center">
+                                                            <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full mb-1 shadow-lg"></div>
+                                                            <div class="text-xs text-white">李牧师</div>
+                                                        </div>
+                                                        <div class="flex-shrink-0 text-center">
+                                                            <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-teal-500 rounded-full mb-1 shadow-lg"></div>
+                                                            <div class="text-xs text-white">王牧师</div>
+                                                        </div>
+                                                        <div class="flex-shrink-0 text-center">
+                                                            <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-full mb-1 shadow-lg"></div>
+                                                            <div class="text-xs text-white">张牧师</div>
+                                                        </div>
+                                                        <div class="flex-shrink-0 text-center">
+                                                            <div class="w-16 h-16 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full mb-1 shadow-lg"></div>
+                                                            <div class="text-xs text-white">赵牧师</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Discover Preview -->
+                                        <div class="preview-page" data-page="discover">
+                                            <div class="space-y-0" style="background: #0f0f0f;">
+                                                <!-- Filter Tags -->
+                                                <div class="px-2 py-2 border-b border-gray-800">
+                                                    <div class="flex gap-2 overflow-x-auto pb-1" style="scrollbar-width: none;">
+                                                        <div class="badge badge-sm bg-blue-600 text-white border-0 flex-shrink-0">每日推荐</div>
+                                                        <div class="badge badge-sm bg-gray-700 text-gray-300 border-0 flex-shrink-0">最新讲道</div>
+                                                        <div class="badge badge-sm bg-gray-700 text-gray-300 border-0 flex-shrink-0">热门推荐</div>
+                                                        <div class="badge badge-sm bg-gray-700 text-gray-300 border-0 flex-shrink-0">专题系列</div>
+                                                        <div class="badge badge-sm bg-gray-700 text-gray-300 border-0 flex-shrink-0">经典回顾</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Full-width Sermon Cards -->
+                                                <div class="space-y-0">
+                                                    <div class="flex gap-2 p-2 bg-gray-900/50 border-b border-gray-800">
+                                                        <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex-shrink-0 shadow-md"></div>
+                                                        <div class="flex-1 flex flex-col justify-between py-1">
+                                                            <div>
+                                                                <div class="text-xs text-white font-medium line-clamp-2 leading-tight mb-1">神的恩典与我们的回应</div>
+                                                                <div class="text-xs text-gray-400">李牧师 · 创世纪教会</div>
+                                                            </div>
+                                                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                                                <span>45分钟</span>
+                                                                <span>·</span>
+                                                                <span>3.2k播放</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="flex gap-2 p-2 bg-gray-900/50 border-b border-gray-800">
+                                                        <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-teal-500 rounded-lg flex-shrink-0 shadow-md"></div>
+                                                        <div class="flex-1 flex flex-col justify-between py-1">
+                                                            <div>
+                                                                <div class="text-xs text-white font-medium line-clamp-2 leading-tight mb-1">信心的旅程：从疑惑到确信</div>
+                                                                <div class="text-xs text-gray-400">王牧师 · 恩典教会</div>
+                                                            </div>
+                                                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                                                <span>52分钟</span>
+                                                                <span>·</span>
+                                                                <span>2.8k播放</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="flex gap-2 p-2 bg-gray-900/50 border-b border-gray-800">
+                                                        <div class="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex-shrink-0 shadow-md"></div>
+                                                        <div class="flex-1 flex flex-col justify-between py-1">
+                                                            <div>
+                                                                <div class="text-xs text-white font-medium line-clamp-2 leading-tight mb-1">爱的真谛：哥林多前书13章</div>
+                                                                <div class="text-xs text-gray-400">张牧师 · 磐石教会</div>
+                                                            </div>
+                                                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                                                <span>38分钟</span>
+                                                                <span>·</span>
+                                                                <span>4.1k播放</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="flex gap-2 p-2 bg-gray-900/50 border-b border-gray-800">
+                                                        <div class="w-20 h-20 bg-gradient-to-br from-pink-500 to-rose-500 rounded-lg flex-shrink-0 shadow-md"></div>
+                                                        <div class="flex-1 flex flex-col justify-between py-1">
+                                                            <div>
+                                                                <div class="text-xs text-white font-medium line-clamp-2 leading-tight mb-1">在基督里的新生命</div>
+                                                                <div class="text-xs text-gray-400">赵牧师 · 活水教会</div>
+                                                            </div>
+                                                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                                                <span>41分钟</span>
+                                                                <span>·</span>
+                                                                <span>1.9k播放</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Search Preview -->
+                                        <div class="preview-page" data-page="search">
+                                            <div class="p-2 space-y-3" style="background: #0f0f0f;">
+                                                <!-- Search Input -->
+                                                <div class="relative">
+                                                    <div class="flex items-center gap-2 bg-gray-800 rounded-full px-3 py-2">
+                                                        <span class="iconify text-blue-400" data-icon="heroicons:magnifying-glass" data-width="14"></span>
+                                                        <input type="text" placeholder="搜索讲道、讲员、主题..." class="bg-transparent text-xs text-gray-300 outline-none flex-1 placeholder-gray-500" disabled>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Search History -->
+                                                <div class="space-y-2">
+                                                    <div class="text-xs font-semibold text-white px-1">搜索历史</div>
+                                                    <div class="flex flex-wrap gap-2">
+                                                        <div class="badge badge-md bg-gray-800 text-gray-300 border-gray-700">恩典</div>
+                                                        <div class="badge badge-md bg-gray-800 text-gray-300 border-gray-700">信心</div>
+                                                        <div class="badge badge-md bg-gray-800 text-gray-300 border-gray-700">祷告</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Hot Search -->
+                                                <div class="space-y-2">
+                                                    <div class="text-xs font-semibold text-white px-1">热门搜索</div>
+                                                    <div class="flex flex-wrap gap-2">
+                                                        <div class="badge badge-md bg-blue-600 text-white border-0">救赎</div>
+                                                        <div class="badge badge-md bg-blue-600 text-white border-0">盼望</div>
+                                                        <div class="badge badge-md bg-blue-600 text-white border-0">生命成长</div>
+                                                        <div class="badge badge-md bg-blue-600 text-white border-0">圣经研读</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Recommended -->
+                                                <div class="space-y-2">
+                                                    <div class="text-xs font-semibold text-white px-1">推荐内容</div>
+                                                    <div class="bg-gray-900/50 rounded-lg p-2">
+                                                        <div class="flex gap-2">
+                                                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded flex-shrink-0"></div>
+                                                            <div class="flex-1">
+                                                                <div class="text-xs text-white font-medium">热门讲道合集</div>
+                                                                <div class="text-xs text-gray-400 mt-1">20个讲道</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Bottom Nav Bar -->
+                                    <div class="border-t border-gray-800 flex justify-around py-2" style="background: #1a1a1a;">
+                                        <button class="flex flex-col items-center nav-btn" data-page="home">
+                                            <span class="iconify" data-icon="heroicons:home-solid" data-width="22"></span>
+                                            <span class="text-xs mt-1">首页</span>
+                                        </button>
+                                        <button class="flex flex-col items-center nav-btn" data-page="discover">
+                                            <span class="iconify" data-icon="heroicons:squares-2x2" data-width="22"></span>
+                                            <span class="text-xs mt-1">发现</span>
+                                        </button>
+                                        <button class="flex flex-col items-center nav-btn" data-page="search">
+                                            <span class="iconify" data-icon="heroicons:user" data-width="22"></span>
+                                            <span class="text-xs mt-1">我的</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Home Button -->
+                                <div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/30 rounded-full"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Modules Section -->
+                    <section>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            <!-- Home Module Card -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                                <figure class="h-48">
+                                    <img src="https://spark-builder.s3.cn-north-1.amazonaws.com.cn/image/2025/10/22/0fdafeda-c15c-428a-883c-2e914b68e478.png" alt="首页截图" class="w-full h-full object-cover">
+                                </figure>
+                                <div class="card-body p-6">
+                                    <h2 class="card-title flex items-center gap-2">
+                                        首页模块管理
+                                        <div class="tooltip tooltip-top" data-tip="管理App首页展示的内容模块">
+                                            <span class="iconify text-base-content/40 cursor-help" data-icon="heroicons:information-circle" data-width="18"></span>
+                                        </div>
+                                    </h2>
+                                    <p class="text-sm text-base-content/60">拖拽模块、修改内容，实时预览首页布局。</p>
+                                    <div class="card-actions justify-end mt-4">
+                                        <button class="btn btn-primary btn-sm" onclick="location.href='home-editor.html'">
+                                            <span class="iconify" data-icon="heroicons:pencil-square" data-width="18"></span>
+                                            编辑
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Discover Module Card -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                                <figure class="h-48">
+                                    <img src="https://spark-builder.s3.cn-north-1.amazonaws.com.cn/image/2025/10/22/1dc6c13b-04d0-4e64-be00-0c5719303dc6.png" alt="发现页截图" class="w-full h-full object-cover">
+                                </figure>
+                                <div class="card-body p-6">
+                                    <h2 class="card-title flex items-center gap-2">
+                                        发现页模块管理
+                                        <div class="tooltip tooltip-top" data-tip="配置发现页的推荐内容">
+                                            <span class="iconify text-base-content/40 cursor-help" data-icon="heroicons:information-circle" data-width="18"></span>
+                                        </div>
+                                    </h2>
+                                    <p class="text-sm text-base-content/60">灵活组合不同内容模块，打造丰富的发现体验。</p>
+                                    <div class="card-actions justify-end mt-4">
+                                        <button class="btn btn-primary btn-sm" onclick="location.href='discover-editor.html'">
+                                            <span class="iconify" data-icon="heroicons:pencil-square" data-width="18"></span>
+                                            编辑
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Search Module Card -->
+                            <div class="card bg-base-100 shadow-sm border border-base-300 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                                <figure class="h-48">
+                                    <img src="https://spark-builder.s3.cn-north-1.amazonaws.com.cn/image/2025/10/22/15b40a69-eaff-447b-ab28-0f9637f1a91c.png" alt="搜索页截图" class="w-full h-full object-cover">
+                                </figure>
+                                <div class="card-body p-6">
+                                    <h2 class="card-title flex items-center gap-2">
+                                        开屏页模块管理
+                                        <div class="tooltip tooltip-top" data-tip="管理搜索页的热门搜索词">
+                                            <span class="iconify text-base-content/40 cursor-help" data-icon="heroicons:information-circle" data-width="18"></span>
+                                        </div>
+                                    </h2>
+                                    <p class="text-sm text-base-content/60">优化搜索页默认展示，引导用户发现优质内容。</p>
+                                    <div class="card-actions justify-end mt-4">
+                                        <button class="btn btn-primary btn-sm" onclick="location.href='launch-screen-editor.html'">
+                                            <span class="iconify" data-icon="heroicons:pencil-square" data-width="18"></span>
+                                            编辑
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        }
+
+        function saveLayout() {
+            if (confirm('确认保存并发布当前布局？')) {
+                alert('布局已保存并发布');
+            }
+        }
+
+        function resetDraft() {
+            if (confirm('确认重置草稿？未保存的修改将丢失。')) {
+                alert('草稿已重置');
+            }
+        }
+
+        function switchPreview(page) {
+            // Update tabs
+            document.querySelectorAll('.tabs .tab').forEach(tab => {
+                tab.classList.remove('tab-active');
+            });
+            event.target.classList.add('tab-active');
+            
+            // Update preview pages
+            document.querySelectorAll('.preview-page').forEach(p => {
+                p.classList.remove('active');
+            });
+            document.querySelector(`.preview-page[data-page="${page}"]`).classList.add('active');
+            
+            // Update bottom nav
+            updateBottomNav(page);
+        }
+        
+        function updateBottomNav(activePage) {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach((btn) => {
+                const btnPage = btn.getAttribute('data-page');
+                if (btnPage === activePage) {
+                    btn.classList.remove('text-gray-500');
+                    btn.classList.add('text-blue-400');
+                } else {
+                    btn.classList.remove('text-blue-400');
+                    btn.classList.add('text-gray-500');
+                }
+            });
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateBottomNav('home');
+            
+            // Add click listeners to bottom nav
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const page = this.getAttribute('data-page');
+                    switchPreview(page);
+                    
+                    // Update tabs
+                    document.querySelectorAll('.tabs .tab').forEach((tab, idx) => {
+                        tab.classList.remove('tab-active');
+                        if ((page === 'home' && idx === 0) || 
+                            (page === 'discover' && idx === 1) || 
+                            (page === 'search' && idx === 2)) {
+                            tab.classList.add('tab-active');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仪表盘 - 听道后台管理系统</title>
+    
+    <!-- DaisyUI + Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    
+    <!-- Iconify -->
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    
+    <!-- API Client -->
+    <script src="js/api-config.js?v=20251104"></script>
+    <script src="js/api-client.js?v=20251104"></script>
+    <script src="js/api-services.js?v=20251104"></script>
+    
+    <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="bg-base-100">
+
+<div class="flex h-screen bg-base-200">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-base-100 border-r border-base-300 transition-all duration-300" style="width: 220px;">
+        <div class="h-full flex flex-col">
+            <!-- Sidebar Header -->
+            <div class="p-3 border-b border-base-300">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="iconify text-white" data-icon="heroicons:home" data-width="20"></span>
+                    </div>
+                    <span class="sidebar-text text-lg font-semibold">听道后台</span>
+                </div>
+            </div>
+
+            <!-- Sidebar Menu -->
+            <div class="flex-1 overflow-y-auto p-3">
+                <ul class="menu menu-sm gap-1">
+                    <li><a href="dashboard.html" class="active"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span class="sidebar-text">仪表盘</span></a></li>
+                    
+                    <li>
+                        <details open>
+                            <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span class="sidebar-text">讲道内容</span></summary>
+                            <ul>
+                                <li><a href="sermons.html">讲道列表</a></li>
+                                <li><a href="add-sermon.html">添加讲道</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html">讲员列表</a></li>
+                            <li><a href="add-speaker.html">添加讲员</a></li>
+                        </ul>
+                        </details>
+                    </li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span class="sidebar-text">内容编排</span></summary>
+                            <ul>
+                                <li><a href="curation.html">编排概览</a></li>
+                                <li><a href="home-editor.html">首页模块</a></li>
+                                <li><a href="discover-editor.html">发现页模块</a></li>
+                                <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                <li>
+                    <details>
+                        <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span class="sidebar-text">用户管理</span></summary>
+                        <ul>
+                            <li><a href="users.html">所有用户</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span class="sidebar-text">标签主题</span></summary>
+                        <ul>
+                            <li><a href="tags.html">标签管理</a></li>
+                            <li><a href="tag-edit.html">标签编辑</a></li>
+                            <li><a href="topic-groups.html">主题组</a></li>
+                        </ul>
+                    </details>
+                </li>
+                    
+                    <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span class="sidebar-text">数据统计</span></a></li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span class="sidebar-text">系统设置</span></summary>
+                            <ul>
+                                <li><a href="settings.html">系统概览</a></li>
+                                <li><a href="admins.html">账户管理</a></li>
+                                <li><a href="permissions.html">权限控制</a></li>
+                                <li><a href="api-config.html">API配置</a></li>
+                                <li><a href="logs.html">日志版本</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span class="sidebar-text">帮助中心</span></summary>
+                            <ul>
+                                <li><a href="help.html">帮助文档</a></li>
+                                <li><a href="upload-guide.html">上传指南</a></li>
+                                <li><a href="review-standards.html">审核标准</a></li>
+                                <li><a href="contact.html">联系开发者</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="p-3 border-t border-base-300">
+                <button class="btn btn-xs btn-ghost w-full justify-start" onclick="location.href='notifications.html'">
+                    <span class="iconify" data-icon="heroicons:bell" data-width="16"></span>
+                    <span class="sidebar-text text-xs">消息通知</span>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+        <!-- Top Navigation -->
+        <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+            <div class="navbar-start">
+                <!-- Sidebar toggle removed -->
+            </div>
+            
+            <div class="navbar-center hidden md:flex">
+                <div class="form-control">
+                    <label class="input input-bordered input-sm flex items-center gap-2 w-80">
+                        <span class="iconify text-base-content/40" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                        <input type="text" placeholder="搜索讲道、讲员..." class="grow text-sm">
+                    </label>
+                </div>
+            </div>
+            
+            <div class="navbar-end gap-3">
+                <button class="btn btn-ghost btn-circle md:hidden">
+                    <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="20"></span>
+                </button>
+                
+                <div class="indicator">
+                    <span class="indicator-item badge badge-accent badge-sm">8</span>
+                    <button class="btn btn-ghost btn-circle" onclick="location.href='notifications.html'">
+                        <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                    </button>
+                </div>
+                
+                <div class="dropdown dropdown-end">
+                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                            <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                        </div>
+                    </div>
+                    <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                        <li class="menu-title"><span>管理员中心</span></li>
+                        <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                        <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                        <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                        <div class="divider my-1"></div>
+                        <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Breadcrumbs -->
+        <div class="breadcrumbs text-xs py-2 px-6 bg-base-100 border-b border-base-300">
+            <ul>
+                <li><a href="dashboard.html" class="text-base-content/70 hover:text-primary"><span class="iconify" data-icon="heroicons:home" data-width="14"></span>首页</a></li>
+                <li><span class="font-medium text-base-content">仪表盘</span></li>
+            </ul>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+            <div class="max-w-screen-2xl mx-auto space-y-5">
+                <!-- Header -->
+                <section class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-base-content">仪表盘</h1>
+                        <p class="text-sm text-base-content/60 mt-1">您好，<span id="adminName">管理员</span> | <span id="currentDate"></span></p>
+                    </div>
+                </section>
+
+                <!-- Pending Tasks -->
+                <section>
+                    <h2 class="text-lg font-semibold mb-3">待处理任务</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <a href="sermons.html" class="bg-base-100 border border-base-300 rounded-lg p-4 hover:border-primary hover:shadow-md transition-all cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
+                                    <span class="iconify text-warning" data-icon="heroicons:document-text" data-width="24"></span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-2xl font-bold text-base-content">12</div>
+                                    <div class="text-sm text-base-content/70">待审核讲道</div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="speakers.html" class="bg-base-100 border border-base-300 rounded-lg p-4 hover:border-primary hover:shadow-md transition-all cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-info/10 rounded-lg flex items-center justify-center">
+                                    <span class="iconify text-info" data-icon="heroicons:user-group" data-width="24"></span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-2xl font-bold text-base-content">5</div>
+                                    <div class="text-sm text-base-content/70">待审核讲员</div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="uploads.html" class="bg-base-100 border border-base-300 rounded-lg p-4 hover:border-primary hover:shadow-md transition-all cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-error/10 rounded-lg flex items-center justify-center">
+                                    <span class="iconify text-error" data-icon="heroicons:arrow-up-tray" data-width="24"></span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-2xl font-bold text-base-content">8</div>
+                                    <div class="text-sm text-base-content/70">待处理上传</div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Data Overview -->
+                <section>
+                    <h2 class="text-lg font-semibold mb-3">核心数据概览</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-base-100 border border-base-300 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm text-base-content/70">已发布讲道</span>
+                                <span class="iconify text-secondary" data-icon="heroicons:clipboard-document-list" data-width="20"></span>
+                            </div>
+                            <div class="text-2xl font-bold text-base-content">1,204</div>
+                            <div class="text-xs text-success mt-1">↗︎ 15%</div>
+                        </div>
+                        <a href="analytics.html" class="bg-base-100 border border-base-300 rounded-lg p-4 hover:border-primary hover:shadow-md transition-all cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm text-base-content/70">总下载量</span>
+                                <span class="iconify text-primary" data-icon="heroicons:arrow-down-tray" data-width="20"></span>
+                            </div>
+                            <div class="text-2xl font-bold text-base-content">89,400</div>
+                            <div class="text-xs text-success mt-1">↗︎ 22%</div>
+                        </a>
+                        <a href="analytics.html" class="bg-base-100 border border-base-300 rounded-lg p-4 hover:border-primary hover:shadow-md transition-all cursor-pointer">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm text-base-content/70">总播放量</span>
+                                <span class="iconify text-accent" data-icon="heroicons:play-circle" data-width="20"></span>
+                            </div>
+                            <div class="text-2xl font-bold text-base-content">1.2M</div>
+                            <div class="text-xs text-success mt-1">↗︎ 18%</div>
+                        </a>
+                        <div class="bg-base-100 border border-base-300 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm text-base-content/70">总用户数</span>
+                                <span class="iconify text-error" data-icon="heroicons:users" data-width="20"></span>
+                            </div>
+                            <div class="text-2xl font-bold text-base-content">45,230</div>
+                            <div class="text-xs text-error mt-1">↘︎ 3%</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quick Access -->
+                <section>
+                    <h2 class="text-lg font-semibold mb-3">快捷入口</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <a href="sermons.html" class="bg-base-100 border border-base-300 rounded-lg p-4 hover:bg-primary/5 hover:border-primary transition-all cursor-pointer">
+                            <div class="flex flex-col items-center text-center gap-2">
+                                <span class="iconify text-primary" data-icon="heroicons:document-check" data-width="28"></span>
+                                <p class="text-sm font-medium">审核讲道</p>
+                            </div>
+                        </a>
+                        <a href="speakers.html" class="bg-base-100 border border-base-300 rounded-lg p-4 hover:bg-primary/5 hover:border-primary transition-all cursor-pointer">
+                            <div class="flex flex-col items-center text-center gap-2">
+                                <span class="iconify text-primary" data-icon="heroicons:user-circle" data-width="28"></span>
+                                <p class="text-sm font-medium">审核讲员</p>
+                            </div>
+                        </a>
+                        <a href="curation.html" class="bg-base-100 border border-base-300 rounded-lg p-4 hover:bg-primary/5 hover:border-primary transition-all cursor-pointer">
+                            <div class="flex flex-col items-center text-center gap-2">
+                                <span class="iconify text-primary" data-icon="heroicons:star" data-width="28"></span>
+                                <p class="text-sm font-medium">首页推荐</p>
+                            </div>
+                        </a>
+                        <a href="analytics.html" class="bg-base-100 border border-base-300 rounded-lg p-4 hover:bg-primary/5 hover:border-primary transition-all cursor-pointer">
+                            <div class="flex flex-col items-center text-center gap-2">
+                                <span class="iconify text-primary" data-icon="heroicons:chart-bar-square" data-width="28"></span>
+                                <p class="text-sm font-medium">数据报表</p>
+                            </div>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Charts -->
+                <section>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="bg-base-100 border border-base-300 rounded-lg p-4">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="text-base font-semibold">讲道发布趋势</h3>
+                                <div class="join">
+                                    <button class="btn btn-xs btn-active join-item">7天</button>
+                                    <button class="btn btn-xs btn-ghost join-item">30天</button>
+                                    <button class="btn btn-xs btn-ghost join-item">1年</button>
+                                </div>
+                            </div>
+                            <div class="h-48 bg-base-200 rounded-lg flex items-center justify-center">
+                                <p class="text-sm text-base-content/40">图表占位符</p>
+                            </div>
+                        </div>
+                        <div class="bg-base-100 border border-base-300 rounded-lg p-4">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="text-base font-semibold">新讲员增长趋势</h3>
+                                <div class="join">
+                                    <button class="btn btn-xs btn-active join-item">7天</button>
+                                    <button class="btn btn-xs btn-ghost join-item">30天</button>
+                                    <button class="btn btn-xs btn-ghost join-item">1年</button>
+                                </div>
+                            </div>
+                            <div class="h-48 bg-base-200 rounded-lg flex items-center justify-center">
+                                <p class="text-sm text-base-content/40">图表占位符</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer footer-center p-4 bg-base-200 text-base-content border-t border-base-300">
+            <div class="flex flex-wrap justify-center gap-4 text-xs">
+                <a href="help.html" class="link link-hover">帮助文档</a>
+                <a href="contact.html" class="link link-hover">联系我们</a>
+                <a href="review-standards.html" class="link link-hover">审核标准</a>
+                <a class="link link-hover">隐私政策</a>
+                <a class="link link-hover">服务条款</a>
+            </div>
+            <div class="text-xs opacity-60">
+                <p>© 2024 听道后台管理系统 | support@tingdao.com</p>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<script>
+    // Check authentication
+    AuthService.checkAuth();
+
+    // Set current date
+    const today = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+    document.getElementById('currentDate').textContent = today.toLocaleDateString('zh-CN', options);
+
+    // Set admin name
+    const currentUser = api.getCurrentUser();
+    const adminName = currentUser?.username || localStorage.getItem('admin_username') || '管理员';
+    document.getElementById('adminName').textContent = adminName;
+
+    // Handle logout
+    function handleLogout() {
+        if (confirm('确定要退出登录吗？')) {
+            AuthService.logout();
+        }
+    }
+    
+    // Load dashboard data
+    async function loadDashboardData() {
+        try {
+            // Load statistics
+            const statsResponse = await DashboardService.getStats();
+            if (statsResponse.success && statsResponse.data) {
+                updateStatsCards(statsResponse.data);
+            }
+            
+            // Load pending tasks
+            const sermonsResponse = await SermonService.getSermons({ status: 'reviewing', limit: 100 });
+            if (sermonsResponse.success) {
+                updatePendingTasks(sermonsResponse);
+            }
+            
+            // Load recent activity
+            const activityResponse = await DashboardService.getRecentActivity(10);
+            if (activityResponse.success && activityResponse.data) {
+                updateRecentActivity(activityResponse.data);
+            }
+        } catch (error) {
+            console.error('Failed to load dashboard data:', error);
+            // Optionally show error to user
+            // api.showError(error);
+        }
+    }
+    
+    // Update statistics cards
+    function updateStatsCards(stats) {
+        // Update sermon stats
+        const totalSermons = document.querySelector('[data-stat="total-sermons"]');
+        if (totalSermons) totalSermons.textContent = stats.totalSermons || 0;
+        
+        const pendingSermons = document.querySelector('[data-stat="pending-sermons"]');
+        if (pendingSermons) pendingSermons.textContent = stats.pendingSermons || 0;
+        
+        const publishedToday = document.querySelector('[data-stat="published-today"]');
+        if (publishedToday) publishedToday.textContent = stats.publishedToday || 0;
+        
+        // Update speaker stats
+        const totalSpeakers = document.querySelector('[data-stat="total-speakers"]');
+        if (totalSpeakers) totalSpeakers.textContent = stats.totalSpeakers || 0;
+        
+        // Update user stats
+        const totalUsers = document.querySelector('[data-stat="total-users"]');
+        if (totalUsers) totalUsers.textContent = stats.totalUsers || 0;
+        
+        // Update play stats
+        const totalPlays = document.querySelector('[data-stat="total-plays"]');
+        if (totalPlays) totalPlays.textContent = stats.totalPlays || 0;
+    }
+    
+    // Update pending tasks
+    function updatePendingTasks(response) {
+        const reviewingCount = response.pagination?.total || 0;
+        const reviewingBadge = document.querySelector('[data-task="reviewing"]');
+        if (reviewingBadge) {
+            reviewingBadge.textContent = reviewingCount;
+            reviewingBadge.classList.toggle('badge-error', reviewingCount > 0);
+        }
+    }
+    
+    // Update recent activity
+    function updateRecentActivity(activities) {
+        const activityList = document.querySelector('[data-activity-list]');
+        if (!activityList || !activities.length) return;
+        
+        activityList.innerHTML = activities.map(activity => `
+            <div class="flex justify-between items-center py-2 border-b border-base-300 last:border-0">
+                <div>
+                    <p class="text-sm font-medium">${activity.title}</p>
+                    <p class="text-xs text-base-content/60">${activity.description}</p>
+                </div>
+                <span class="text-xs text-base-content/40">${formatDate(activity.created_at, 'MM-DD HH:mm')}</span>
+            </div>
+        `).join('');
+    }
+    
+    // Initialize dashboard with API
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (typeof DashboardPage !== 'undefined') {
+            await DashboardPage.init();
+        } else {
+            loadDashboardData();
+        }
+    });
+</script>
+</body>
+</html>
+

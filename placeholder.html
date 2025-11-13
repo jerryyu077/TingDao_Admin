@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">功能开发中 - 听道后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .sidebar-wrapper {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-text {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="bg-base-200 flex flex-col min-h-screen">
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside class="sidebar-wrapper bg-base-100 border-r border-base-300">
+            <div class="p-3 border-b border-base-300">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="iconify text-white" data-icon="heroicons:home" data-width="20"></span>
+                    </div>
+                    <span class="sidebar-text text-lg font-semibold">听道后台</span>
+                </div>
+            </div>
+
+            <ul class="menu menu-sm gap-1 p-3">
+                <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span class="sidebar-text">仪表盘</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span class="sidebar-text">讲道内容</span></summary>
+                        <ul>
+                            <li><a href="sermons.html">讲道列表</a></li>
+                            <li><a href="add-sermon.html">添加讲道</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html">讲员列表</a></li>
+                            <li><a href="add-speaker.html">添加讲员</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span class="sidebar-text">内容编排</span></summary>
+                        <ul>
+                            <li><a href="curation.html">编排概览</a></li>
+                            <li><a href="home-editor.html">首页模块</a></li>
+                            <li><a href="discover-editor.html">发现页模块</a></li>
+                            <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span class="sidebar-text">用户管理</span></summary>
+                        <ul>
+                            <li><a href="users.html">所有用户</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span class="sidebar-text">标签主题</span></summary>
+                        <ul>
+                            <li><a href="tags.html">标签管理</a></li>
+                            <li><a href="tag-edit.html">标签编辑</a></li>
+                            <li><a href="topic-groups.html">主题组</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span class="sidebar-text">数据统计</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span class="sidebar-text">系统设置</span></summary>
+                        <ul>
+                            <li><a href="settings.html">系统概览</a></li>
+                            <li><a href="admins.html">账户管理</a></li>
+                            <li><a href="permissions.html">权限控制</a></li>
+                            <li><a href="api-config.html">API配置</a></li>
+                            <li><a href="logs.html">日志版本</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span class="sidebar-text">帮助中心</span></summary>
+                        <ul>
+                            <li><a href="help.html">帮助文档</a></li>
+                            <li><a href="upload-guide.html">上传指南</a></li>
+                            <li><a href="review-standards.html">审核标准</a></li>
+                            <li><a href="contact.html">联系开发者</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+                <div class="navbar-start gap-2">
+                    <button onclick="history.back()" class="btn btn-ghost btn-sm gap-2">
+                        <span class="iconify" data-icon="heroicons:arrow-left" data-width="16"></span>
+                        返回
+                    </button>
+                </div>
+                
+                <div class="navbar-center hidden md:flex">
+                    <span class="text-xl font-semibold" id="header-title">功能开发中</span>
+                </div>
+                
+                <div class="navbar-end gap-3">
+                    <div class="indicator">
+                        <span class="indicator-item badge badge-accent badge-sm">8</span>
+                        <button class="btn btn-ghost btn-circle">
+                            <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                        </button>
+                    </div>
+                    
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                                <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                            </div>
+                        </div>
+                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                            <li class="menu-title"><span>管理员中心</span></li>
+                            <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                            <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                            <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                            <div class="divider my-1"></div>
+                            <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs text-xs py-2 px-6 bg-base-100 border-b border-base-300">
+                <ul id="breadcrumbs-list">
+                    <li><a href="dashboard.html" class="text-base-content/70 hover:text-primary"><span class="iconify" data-icon="heroicons:home" data-width="14"></span>首页</a></li>
+                    <li><span class="font-medium text-base-content" id="breadcrumb-current">功能开发中</span></li>
+                </ul>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="max-w-7xl mx-auto">
+                    <!-- Placeholder Content -->
+                    <div class="card bg-base-100 shadow-sm border border-base-300">
+                        <div class="card-body p-12">
+                            <div class="flex flex-col items-center justify-center text-center py-16">
+                                <div class="w-24 h-24 bg-base-200 rounded-full flex items-center justify-center mb-6">
+                                    <span class="iconify text-base-content/40" id="icon-placeholder" data-icon="heroicons:wrench-screwdriver" data-width="48"></span>
+                                </div>
+                                <h2 class="text-2xl font-semibold mb-3" id="main-title">功能开发中</h2>
+                                <p class="text-base-content/60 max-w-md mb-8" id="main-description">
+                                    该功能正在开发中，敬请期待。
+                                </p>
+                                <div class="alert alert-info max-w-xl">
+                                    <span class="iconify" data-icon="heroicons:information-circle" data-width="20"></span>
+                                    <div class="text-left">
+                                        <div class="font-medium mb-2">开发进度</div>
+                                        <p class="text-sm">
+                                            我们正在努力开发这个功能，预计将在后续版本中推出。如有紧急需求，请联系技术支持团队：
+                                            <a href="mailto:support@tingdao.com" class="link link-primary">support@tingdao.com</a>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3 mt-8">
+                                    <button onclick="history.back()" class="btn btn-primary gap-2">
+                                        <span class="iconify" data-icon="heroicons:arrow-left" data-width="16"></span>
+                                        返回上一页
+                                    </button>
+                                    <button onclick="location.href='dashboard.html'" class="btn btn-ghost gap-2">
+                                        <span class="iconify" data-icon="heroicons:home" data-width="16"></span>
+                                        返回首页
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        }
+
+        // Page configurations
+        const pageConfigs = {
+            'notifications.html': {
+                title: '消息通知',
+                icon: 'heroicons:bell',
+                description: '查看和管理系统通知消息，包括审核提醒、用户反馈和系统公告。',
+                breadcrumb: '消息通知'
+            },
+            'analytics.html': {
+                title: '数据统计',
+                icon: 'heroicons:chart-bar',
+                description: '查看和分析系统的各项数据指标，包括用户统计、内容统计和访问分析。',
+                breadcrumb: '数据统计'
+            },
+            'settings.html': {
+                title: '系统概览',
+                icon: 'heroicons:cog-6-tooth',
+                description: '查看和管理系统的基本设置和配置信息。',
+                breadcrumb: '系统设置',
+                breadcrumb2: '系统概览'
+            },
+            'admins.html': {
+                title: '账户管理',
+                icon: 'heroicons:user-circle',
+                description: '管理系统管理员账户，包括添加、编辑和删除管理员。',
+                breadcrumb: '系统设置',
+                breadcrumb2: '账户管理'
+            },
+            'permissions.html': {
+                title: '权限控制',
+                icon: 'heroicons:shield-check',
+                description: '配置和管理系统的权限规则，控制不同角色的访问权限。',
+                breadcrumb: '系统设置',
+                breadcrumb2: '权限控制'
+            },
+            'api-config.html': {
+                title: 'API配置',
+                icon: 'heroicons:code-bracket',
+                description: '配置系统的API接口设置，包括CDN、存储和第三方服务。',
+                breadcrumb: '系统设置',
+                breadcrumb2: 'API配置'
+            },
+            'logs.html': {
+                title: '日志版本',
+                icon: 'heroicons:document-text',
+                description: '查看系统操作日志和版本更新记录。',
+                breadcrumb: '系统设置',
+                breadcrumb2: '日志版本'
+            },
+            'help.html': {
+                title: '帮助文档',
+                icon: 'heroicons:book-open',
+                description: '查看系统使用帮助和操作指南文档。',
+                breadcrumb: '帮助中心',
+                breadcrumb2: '帮助文档'
+            },
+            'upload-guide.html': {
+                title: '上传指南',
+                icon: 'heroicons:cloud-arrow-up',
+                description: '了解如何正确上传讲道内容，包括格式要求和注意事项。',
+                breadcrumb: '帮助中心',
+                breadcrumb2: '上传指南'
+            },
+            'review-standards.html': {
+                title: '审核标准',
+                icon: 'heroicons:clipboard-document-check',
+                description: '了解内容审核的标准和流程，确保上传内容符合要求。',
+                breadcrumb: '帮助中心',
+                breadcrumb2: '审核标准'
+            },
+            'contact.html': {
+                title: '联系开发者',
+                icon: 'heroicons:chat-bubble-left-right',
+                description: '获取开发者联系方式，反馈问题或提出建议。',
+                breadcrumb: '帮助中心',
+                breadcrumb2: '联系开发者'
+            }
+        };
+
+        // Initialize page based on URL parameter or current file
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const page = urlParams.get('page') || window.location.pathname.split('/').pop();
+            
+            const config = pageConfigs[page];
+            if (config) {
+                document.getElementById('page-title').textContent = `${config.title} - 听道后台管理系统`;
+                document.getElementById('header-title').textContent = config.title;
+                document.getElementById('main-title').textContent = config.title;
+                document.getElementById('main-description').textContent = config.description;
+                document.getElementById('icon-placeholder').setAttribute('data-icon', config.icon);
+                
+                // Update breadcrumbs
+                const breadcrumbsList = document.getElementById('breadcrumbs-list');
+                const homeLink = breadcrumbsList.querySelector('li:first-child');
+                breadcrumbsList.innerHTML = '';
+                breadcrumbsList.appendChild(homeLink);
+                
+                if (config.breadcrumb2) {
+                    const li1 = document.createElement('li');
+                    li1.innerHTML = `<span class="text-base-content/70">${config.breadcrumb}</span>`;
+                    breadcrumbsList.appendChild(li1);
+                    
+                    const li2 = document.createElement('li');
+                    li2.innerHTML = `<span class="font-medium text-base-content">${config.breadcrumb2}</span>`;
+                    breadcrumbsList.appendChild(li2);
+                } else {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span class="font-medium text-base-content">${config.breadcrumb}</span>`;
+                    breadcrumbsList.appendChild(li);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+

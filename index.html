@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>听道后台管理系统</title>
+    <script>
+        // 自动重定向到登录页或仪表盘
+        const token = localStorage.getItem('admin_token');
+        if (token) {
+            window.location.href = 'dashboard.html';
+        } else {
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+<body>
+    <p style="text-align: center; margin-top: 100px;">正在跳转...</p>
+</body>
+</html>
+

@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加讲道 - 听道后台管理系统</title>
+    
+    <!-- DaisyUI + Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    
+    <!-- Iconify -->
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    
+    <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="bg-base-100">
+
+<div class="flex h-screen bg-base-200">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-base-100 border-r border-base-300 transition-all duration-300" style="width: 220px;">
+        <div class="h-full flex flex-col">
+            <!-- Sidebar Header -->
+            <div class="p-3 border-b border-base-300">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="iconify text-white" data-icon="heroicons:home" data-width="20"></span>
+                    </div>
+                    <span class="sidebar-text text-lg font-semibold">听道后台</span>
+                </div>
+            </div>
+
+            <!-- Sidebar Menu -->
+            <div class="flex-1 overflow-y-auto p-3">
+                <ul class="menu menu-sm gap-1">
+                    <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span class="sidebar-text">仪表盘</span></a></li>
+                    
+                    <li>
+                        <details open>
+                            <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span class="sidebar-text">讲道内容</span></summary>
+                            <ul>
+                                <li><a href="sermons.html">讲道列表</a></li>
+                                <li><a href="add-sermon.html" class="active">添加讲道</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
+                            <ul>
+                                <li><a href="speakers.html">讲员列表</a></li>
+                                <li><a href="speaker-detail.html">讲员审核</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span class="sidebar-text">内容编排</span></summary>
+                            <ul>
+                                <li><a href="curation.html">编排概览</a></li>
+                                <li><a href="home-editor.html">首页模块</a></li>
+                                <li><a href="discover-editor.html">发现页模块</a></li>
+                                <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span class="sidebar-text">用户管理</span></summary>
+                            <ul>
+                                <li><a href="users.html">所有用户</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span class="sidebar-text">标签主题</span></summary>
+                            <ul>
+                                <li><a href="tags.html">标签管理</a></li>
+                                <li><a href="tag-edit.html">标签编辑</a></li>
+                                <li><a href="topic-groups.html">主题组</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                    <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span class="sidebar-text">数据统计</span></a></li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span class="sidebar-text">系统设置</span></summary>
+                            <ul>
+                                <li><a href="settings.html">系统概览</a></li>
+                                <li><a href="admins.html">账户管理</a></li>
+                                <li><a href="permissions.html">权限控制</a></li>
+                                <li><a href="api-config.html">API配置</a></li>
+                                <li><a href="logs.html">日志版本</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                    
+                    <li>
+                        <details>
+                            <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span class="sidebar-text">帮助中心</span></summary>
+                            <ul>
+                                <li><a href="help.html">帮助文档</a></li>
+                                <li><a href="upload-guide.html">上传指南</a></li>
+                                <li><a href="review-standards.html">审核标准</a></li>
+                                <li><a href="contact.html">联系开发者</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="p-3 border-t border-base-300">
+                <button class="btn btn-xs btn-ghost w-full justify-start" onclick="location.href='notifications.html'">
+                    <span class="iconify" data-icon="heroicons:bell" data-width="16"></span>
+                    <span class="sidebar-text text-xs">消息通知</span>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+        <!-- Top Navigation -->
+        <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+            <div class="navbar-start">
+                <!-- Sidebar toggle removed -->
+            </div>
+            
+            <div class="navbar-center hidden md:flex">
+                <div class="form-control">
+                    <label class="input input-bordered input-sm flex items-center gap-2 w-80">
+                        <span class="iconify text-base-content/40" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                        <input type="text" placeholder="搜索讲道、讲员..." class="grow text-sm">
+                    </label>
+                </div>
+            </div>
+            
+            <div class="navbar-end gap-3">
+                <button class="btn btn-ghost btn-circle md:hidden">
+                    <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="20"></span>
+                </button>
+                
+                <div class="indicator">
+                    <span class="indicator-item badge badge-accent badge-sm">8</span>
+                    <button class="btn btn-ghost btn-circle" onclick="location.href='notifications.html'">
+                        <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                    </button>
+                </div>
+                
+                <div class="dropdown dropdown-end">
+                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                            <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                        </div>
+                    </div>
+                    <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                        <li class="menu-title"><span>管理员中心</span></li>
+                        <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                        <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                        <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                        <div class="divider my-1"></div>
+                        <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Breadcrumbs -->
+        <div class="breadcrumbs text-xs py-2 px-6 bg-base-100 border-b border-base-300">
+            <ul>
+                <li><a href="dashboard.html" class="text-base-content/70 hover:text-primary"><span class="iconify" data-icon="heroicons:home" data-width="14"></span>首页</a></li>
+                <li><a href="sermons.html" class="text-base-content/70 hover:text-primary">讲道内容</a></li>
+                <li><span class="font-medium text-base-content">添加讲道</span></li>
+            </ul>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+            <div class="max-w-4xl mx-auto">
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-5">
+                    <h1 class="text-2xl font-bold text-base-content">添加讲道</h1>
+                    <button class="btn btn-sm btn-ghost" onclick="location.href='sermons.html'">
+                        <span class="iconify" data-icon="heroicons:x-mark" data-width="16"></span>
+                        取消
+                    </button>
+                </div>
+
+                <!-- Form -->
+                <form id="sermonForm" class="space-y-5">
+                    <!-- Basic Info -->
+                    <section class="bg-base-100 border border-base-300 rounded-lg p-5">
+                        <h2 class="text-lg font-semibold mb-4">基本信息</h2>
+                        
+                        <div class="space-y-4">
+                            <!-- Title -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">讲道标题 <span class="text-error">*</span></span>
+                                </label>
+                                <input type="text" name="title" placeholder="例如：信心的力量：在困境中寻找希望" class="input input-sm input-bordered w-full" required>
+                            </div>
+
+                            <!-- Speaker -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">讲员 <span class="text-error">*</span></span>
+                                    <span class="label-text-alt">输入关键词搜索，无结果时可添加新讲员</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" id="speakerInput" placeholder="输入讲员名称搜索..." class="input input-sm input-bordered w-full" oninput="searchSpeaker(event)" onfocus="showSpeakerDropdown()" autocomplete="off" required>
+                                    <input type="hidden" name="speaker_id" id="speakerIdHidden">
+                                    <input type="hidden" name="speaker_name" id="speakerNameHidden">
+                                    <div id="speakerDropdown" class="absolute z-10 w-full bg-base-100 border border-base-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden">
+                                        <!-- Dropdown items will be inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submitter -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">提交者 <span class="text-error">*</span></span>
+                                    <span class="label-text-alt">输入用户名或邮箱搜索</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" id="submitterInput" placeholder="输入用户名或邮箱搜索..." class="input input-sm input-bordered w-full" oninput="searchSubmitter(event)" onfocus="showSubmitterDropdown()" autocomplete="off" required>
+                                    <input type="hidden" name="submitter_id" id="submitterIdHidden">
+                                    <input type="hidden" name="submitter_name" id="submitterNameHidden">
+                                    <div id="submitterDropdown" class="absolute z-10 w-full bg-base-100 border border-base-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden">
+                                        <!-- Dropdown items will be inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Scripture References -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">经文引用 <span class="text-error">*</span></span>
+                                    <span class="label-text-alt">至少添加一条经文引用</span>
+                                </label>
+                                <div id="scripturesList" class="space-y-2 mb-3">
+                                    <!-- Scripture items will be added here -->
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline btn-primary" onclick="addScriptureField()">
+                                    <span class="iconify" data-icon="heroicons:plus" data-width="16"></span>
+                                    添加经文
+                                </button>
+                                <input type="hidden" name="scripture" id="scriptureHidden" required>
+                            </div>
+
+                            <!-- Date -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">讲道日期 <span class="text-error">*</span></span>
+                                </label>
+                                <input type="date" name="date" class="input input-sm input-bordered w-full" required>
+                            </div>
+
+                        </div>
+                    </section>
+
+                    <!-- Content -->
+                    <section class="bg-base-100 border border-base-300 rounded-lg p-5">
+                        <h2 class="text-lg font-semibold mb-4">内容描述</h2>
+                        
+                        <div class="space-y-4">
+                            <!-- Summary -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">讲道摘要 <span class="text-error">*</span></span>
+                                    <span class="label-text-alt">建议200字以内，简短介绍讲道的核心内容</span>
+                                </label>
+                                <textarea name="summary" rows="4" placeholder="简短介绍讲道的核心内容..." class="textarea textarea-sm textarea-bordered w-full" required></textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Media -->
+                    <section class="bg-base-100 border border-base-300 rounded-lg p-5">
+                        <h2 class="text-lg font-semibold mb-4">媒体文件</h2>
+                        
+                        <div class="space-y-4">
+                            <!-- Audio File -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">音频文件 <span class="text-error">*</span></span>
+                                </label>
+                                <div id="audioDropZone" class="border-2 border-dashed border-base-300 rounded-lg p-6 text-center hover:border-primary hover:bg-base-200/50 transition-all cursor-pointer">
+                                    <input type="file" id="audioFile" name="audio" accept=".mp3,.wav" class="hidden" required onchange="handleAudioFileSelect(event)">
+                                    <div id="audioDropContent">
+                                        <span class="iconify text-base-content/40 mb-2" data-icon="heroicons:musical-note" data-width="48"></span>
+                                        <p class="text-sm font-medium text-base-content/70 mb-1">点击选择文件或拖拽文件到此处</p>
+                                        <p class="text-xs text-base-content/50">仅支持 MP3、WAV 格式，文件大小不超过 100MB</p>
+                                    </div>
+                                    <div id="audioFileInfo" class="hidden">
+                                        <span class="iconify text-success mb-2" data-icon="heroicons:check-circle" data-width="48"></span>
+                                        <p class="text-sm font-medium text-base-content" id="audioFileName"></p>
+                                        <p class="text-xs text-base-content/50" id="audioFileSize"></p>
+                                        <button type="button" onclick="removeAudioFile()" class="btn btn-xs btn-ghost text-error mt-2">
+                                            <span class="iconify" data-icon="heroicons:trash" data-width="14"></span>
+                                            移除文件
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="audioFileError" class="text-error text-xs mt-1 hidden"></div>
+                            </div>
+
+                            <!-- Cover Image -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">封面图片 <span class="text-error">*</span></span>
+                                </label>
+                                <div id="coverDropZone" class="border-2 border-dashed border-base-300 rounded-lg p-6 text-center hover:border-primary hover:bg-base-200/50 transition-all cursor-pointer">
+                                    <input type="file" id="coverImage" name="cover" accept=".jpg,.jpeg,.png" class="hidden" required onchange="handleCoverImageSelect(event)">
+                                    <div id="coverDropContent">
+                                        <span class="iconify text-base-content/40 mb-2" data-icon="heroicons:photo" data-width="48"></span>
+                                        <p class="text-sm font-medium text-base-content/70 mb-1">点击选择图片或拖拽图片到此处</p>
+                                        <p class="text-xs text-base-content/50">仅支持 JPG、PNG 格式，推荐尺寸 1200x675，文件大小不超过 10MB</p>
+                                    </div>
+                                    <div id="coverImageInfo" class="hidden">
+                                        <img id="coverImagePreview" src="" alt="Cover preview" class="max-h-32 mx-auto rounded mb-2">
+                                        <p class="text-sm font-medium text-base-content" id="coverImageName"></p>
+                                        <p class="text-xs text-base-content/50" id="coverImageSize"></p>
+                                        <button type="button" onclick="removeCoverImage()" class="btn btn-xs btn-ghost text-error mt-2">
+                                            <span class="iconify" data-icon="heroicons:trash" data-width="14"></span>
+                                            移除图片
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="coverImageError" class="text-error text-xs mt-1 hidden"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Tags & Topics -->
+                    <section class="bg-base-100 border border-base-300 rounded-lg p-5">
+                        <h2 class="text-lg font-semibold mb-4">分类标签</h2>
+                        
+                        <div class="space-y-4">
+                            <!-- Tags -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">标签</span>
+                                    <span class="label-text-alt">按回车添加，点击标签删除</span>
+                                </label>
+                                <div class="flex flex-wrap gap-2 mb-2 p-2 border border-base-300 rounded-lg min-h-12" id="tagContainer">
+                                    <!-- Tags will be displayed here -->
+                                </div>
+                                <input type="text" id="tagInput" placeholder="输入标签后按回车添加..." class="input input-sm input-bordered w-full mb-3" onkeydown="handleTagInput(event)">
+                                <div>
+                                    <div class="text-xs text-base-content/70 mb-2">热门标签（点击添加）:</div>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button type="button" class="badge badge-outline badge-md hover:badge-primary transition-colors" style="font-size: 0.8rem;" onclick="addHotTag('信心')">信心</button>
+                                        <button type="button" class="badge badge-outline badge-md hover:badge-primary transition-colors" style="font-size: 0.8rem;" onclick="addHotTag('祷告')">祷告</button>
+                                        <button type="button" class="badge badge-outline badge-md hover:badge-primary transition-colors" style="font-size: 0.8rem;" onclick="addHotTag('恩典')">恩典</button>
+                                        <button type="button" class="badge badge-outline badge-md hover:badge-primary transition-colors" style="font-size: 0.8rem;" onclick="addHotTag('救赎')">救赎</button>
+                                        <button type="button" class="badge badge-outline badge-md hover:badge-primary transition-colors" style="font-size: 0.8rem;" onclick="addHotTag('爱心')">爱心</button>
+                                        <button type="button" class="badge badge-outline badge-md hover:badge-primary transition-colors" style="font-size: 0.8rem;" onclick="addHotTag('盼望')">盼望</button>
+                                        <button type="button" class="badge badge-outline badge-md hover:badge-primary transition-colors" style="font-size: 0.8rem;" onclick="addHotTag('智慧')">智慧</button>
+                                        <button type="button" class="badge badge-outline badge-md hover:badge-primary transition-colors" style="font-size: 0.8rem;" onclick="addHotTag('顺服')">顺服</button>
+                                        <button type="button" class="badge badge-outline badge-md hover:badge-primary transition-colors" style="font-size: 0.8rem;" onclick="addHotTag('圣洁')">圣洁</button>
+                                        <button type="button" class="badge badge-outline badge-md hover:badge-primary transition-colors" style="font-size: 0.8rem;" onclick="addHotTag('悔改')">悔改</button>
+                                        <button type="button" class="badge badge-outline badge-md hover:badge-primary transition-colors" style="font-size: 0.8rem;" onclick="addHotTag('门徒训练')">门徒训练</button>
+                                        <button type="button" class="badge badge-outline badge-md hover:badge-primary transition-colors" style="font-size: 0.8rem;" onclick="addHotTag('福音')">福音</button>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="tags" id="tagsHidden">
+                            </div>
+
+                            <!-- Topics -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">主题</span>
+                                </label>
+                                <select id="topicSelect" name="topic_ids" multiple class="select select-sm select-bordered w-full" size="6">
+                                    <!-- Topics will be loaded from API -->
+                                </select>
+                                <label class="label">
+                                    <span class="label-text-alt">按住 Ctrl/Cmd 可多选</span>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Actions -->
+                    <div class="flex items-center justify-end gap-3 pt-3">
+                        <button type="button" class="btn btn-sm" onclick="location.href='sermons.html'">取消</button>
+                        <button type="submit" class="btn btn-sm btn-primary">提交审核</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer footer-center p-4 bg-base-200 text-base-content border-t border-base-300">
+            <div class="flex flex-wrap justify-center gap-4 text-xs">
+                <a href="help.html" class="link link-hover">帮助文档</a>
+                <a href="contact.html" class="link link-hover">联系我们</a>
+                <a href="review-standards.html" class="link link-hover">审核标准</a>
+                <a class="link link-hover">隐私政策</a>
+                <a class="link link-hover">服务条款</a>
+            </div>
+            <div class="text-xs opacity-60">
+                <p>© 2024 听道后台管理系统 | livingwater.99lamb@gmail.com</p>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<script src="assets/js/common.js"></script>
+<script>
+    // Check authentication
+    if (!localStorage.getItem('admin_token')) {
+        window.location.href = 'login.html';
+    }
+
+    // Handle logout
+    function handleLogout() {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_username');
+        window.location.href = 'login.html';
+    }
+
+    // Scripture management
+    let scriptures = [];
+    let scriptureIdCounter = 0;
+
+    function addScriptureField(value = '') {
+        const id = scriptureIdCounter++;
+        scriptures.push({ id, value });
+        renderScriptures();
+    }
+
+    function removeScripture(id) {
+        scriptures = scriptures.filter(s => s.id !== id);
+        renderScriptures();
+        updateScriptureHidden();
+    }
+
+    function updateScripture(id, value) {
+        const scripture = scriptures.find(s => s.id === id);
+        if (scripture) {
+            scripture.value = value;
+            updateScriptureHidden();
+        }
+    }
+
+    function renderScriptures() {
+        const container = document.getElementById('scripturesList');
+        if (scriptures.length === 0) {
+            container.innerHTML = '<div class="text-sm text-base-content/50 py-2">暂无经文引用，请点击"添加经文"按钮添加</div>';
+        } else {
+            container.innerHTML = scriptures.map(s => `
+                <div class="flex gap-2 items-center">
+                    <input type="text" 
+                           value="${s.value || ''}" 
+                           placeholder="例如：希伯来书 11:1" 
+                           class="input input-sm input-bordered flex-1" 
+                           oninput="updateScripture(${s.id}, this.value)">
+                    <button type="button" 
+                            class="btn btn-sm btn-ghost btn-circle text-error" 
+                            onclick="removeScripture(${s.id})">
+                        <span class="iconify" data-icon="heroicons:trash" data-width="16"></span>
+                    </button>
+                </div>
+            `).join('');
+        }
+        updateScriptureHidden();
+    }
+
+    function updateScriptureHidden() {
+        const hiddenInput = document.getElementById('scriptureHidden');
+        const validScriptures = scriptures.filter(s => s.value.trim()).map(s => s.value.trim());
+        hiddenInput.value = validScriptures.join(';');
+    }
+
+    // Initialize with one scripture field
+    addScriptureField();
+
+    // Audio File Upload - Drag & Drop + Click
+    const audioDropZone = document.getElementById('audioDropZone');
+    const audioFileInput = document.getElementById('audioFile');
+    
+    // Click to upload
+    audioDropZone.addEventListener('click', (e) => {
+        if (!e.target.closest('button')) {
+            audioFileInput.click();
+        }
+    });
+    
+    // Drag & Drop events
+    audioDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        audioDropZone.classList.add('border-primary', 'bg-primary/5');
+    });
+    
+    audioDropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        audioDropZone.classList.remove('border-primary', 'bg-primary/5');
+    });
+    
+    audioDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        audioDropZone.classList.remove('border-primary', 'bg-primary/5');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const dt = new DataTransfer();
+            dt.items.add(files[0]);
+            audioFileInput.files = dt.files;
+            handleAudioFileSelect({ target: audioFileInput });
+        }
+    });
+    
+    function handleAudioFileSelect(event) {
+        const file = event.target.files[0];
+        const errorDiv = document.getElementById('audioFileError');
+        
+        if (!file) {
+            errorDiv.classList.add('hidden');
+            return;
+        }
+        
+        const maxSize = 100 * 1024 * 1024; // 100MB
+        const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav'];
+        
+        if (file.size > maxSize) {
+            errorDiv.textContent = '文件大小超过 100MB，请选择较小的文件';
+            errorDiv.classList.remove('hidden');
+            event.target.value = '';
+            return;
+        }
+        
+        if (!allowedTypes.includes(file.type) && !file.name.toLowerCase().match(/\.(mp3|wav)$/)) {
+            errorDiv.textContent = '仅支持 MP3、WAV 格式的音频文件';
+            errorDiv.classList.remove('hidden');
+            event.target.value = '';
+            return;
+        }
+        
+        errorDiv.classList.add('hidden');
+        
+        // Show file info
+        document.getElementById('audioDropContent').classList.add('hidden');
+        document.getElementById('audioFileInfo').classList.remove('hidden');
+        document.getElementById('audioFileName').textContent = file.name;
+        document.getElementById('audioFileSize').textContent = formatFileSize(file.size);
+    }
+    
+    function removeAudioFile() {
+        audioFileInput.value = '';
+        document.getElementById('audioDropContent').classList.remove('hidden');
+        document.getElementById('audioFileInfo').classList.add('hidden');
+        document.getElementById('audioFileError').classList.add('hidden');
+    }
+    
+    // Cover Image Upload - Drag & Drop + Click
+    const coverDropZone = document.getElementById('coverDropZone');
+    const coverImageInput = document.getElementById('coverImage');
+    
+    // Click to upload
+    coverDropZone.addEventListener('click', (e) => {
+        if (!e.target.closest('button')) {
+            coverImageInput.click();
+        }
+    });
+    
+    // Drag & Drop events
+    coverDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        coverDropZone.classList.add('border-primary', 'bg-primary/5');
+    });
+    
+    coverDropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        coverDropZone.classList.remove('border-primary', 'bg-primary/5');
+    });
+    
+    coverDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        coverDropZone.classList.remove('border-primary', 'bg-primary/5');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const dt = new DataTransfer();
+            dt.items.add(files[0]);
+            coverImageInput.files = dt.files;
+            handleCoverImageSelect({ target: coverImageInput });
+        }
+    });
+    
+    function handleCoverImageSelect(event) {
+        const file = event.target.files[0];
+        const errorDiv = document.getElementById('coverImageError');
+        
+        if (!file) {
+            errorDiv.classList.add('hidden');
+            return;
+        }
+        
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        
+        if (file.size > maxSize) {
+            errorDiv.textContent = '图片大小超过 10MB，请选择较小的图片';
+            errorDiv.classList.remove('hidden');
+            event.target.value = '';
+            return;
+        }
+        
+        if (!allowedTypes.includes(file.type)) {
+            errorDiv.textContent = '仅支持 JPG、PNG 格式的图片';
+            errorDiv.classList.remove('hidden');
+            event.target.value = '';
+            return;
+        }
+        
+        errorDiv.classList.add('hidden');
+        
+        // Show image preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('coverImagePreview').src = e.target.result;
+            document.getElementById('coverDropContent').classList.add('hidden');
+            document.getElementById('coverImageInfo').classList.remove('hidden');
+            document.getElementById('coverImageName').textContent = file.name;
+            document.getElementById('coverImageSize').textContent = formatFileSize(file.size);
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    function removeCoverImage() {
+        coverImageInput.value = '';
+        document.getElementById('coverDropContent').classList.remove('hidden');
+        document.getElementById('coverImageInfo').classList.add('hidden');
+        document.getElementById('coverImageError').classList.add('hidden');
+        document.getElementById('coverImagePreview').src = '';
+    }
+    
+    // Helper function to format file size
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    // Load topics from API
+    async function loadTopics() {
+        try {
+            const response = await fetch('http://localhost:3000/v1/topics');
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                const select = document.getElementById('topicSelect');
+                select.innerHTML = result.data.map(topic => 
+                    `<option value="${topic.id}">${topic.name}</option>`
+                ).join('');
+            }
+        } catch (error) {
+            console.error('Failed to load topics:', error);
+        }
+    }
+
+    // Load topics on page load
+    loadTopics();
+
+    // Helper function to extract audio duration
+    function getAudioDuration(file) {
+        return new Promise((resolve, reject) => {
+            const audio = document.createElement('audio');
+            audio.preload = 'metadata';
+            
+            audio.onloadedmetadata = function() {
+                window.URL.revokeObjectURL(audio.src);
+                const duration = Math.round(audio.duration);
+                resolve(duration);
+            };
+            
+            audio.onerror = function() {
+                reject(new Error('无法读取音频文件'));
+            };
+            
+            audio.src = URL.createObjectURL(file);
+        });
+    }
+    
+    // Helper function to convert file to base64
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    // Handle form submission
+    document.getElementById('sermonForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Validate required fields
+        const title = document.querySelector('[name="title"]').value.trim();
+        const speakerId = document.getElementById('speakerIdHidden').value;
+        const submitterId = document.getElementById('submitterIdHidden').value;
+        const scripture = document.getElementById('scriptureHidden').value.trim();
+        const date = document.querySelector('[name="date"]').value;
+        const summary = document.querySelector('[name="summary"]').value.trim();
+        const audioFile = document.getElementById('audioFile').files[0];
+        const coverImage = document.getElementById('coverImage').files[0];
+        
+        if (!title) {
+            alert('请填写讲道标题');
+            return;
+        }
+        
+        if (!speakerId) {
+            alert('请选择讲员');
+            return;
+        }
+        
+        if (!submitterId) {
+            alert('请选择提交者');
+            return;
+        }
+        
+        if (!scripture) {
+            alert('请至少添加一条经文引用');
+            return;
+        }
+        
+        if (!date) {
+            alert('请选择讲道日期');
+            return;
+        }
+        
+        if (!summary) {
+            alert('请填写讲道摘要');
+            return;
+        }
+        
+        if (!audioFile) {
+            alert('请上传音频文件');
+            return;
+        }
+        
+        if (!coverImage) {
+            alert('请上传封面图片');
+            return;
+        }
+        
+        // Show loading message
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading loading-spinner loading-xs"></span> 处理中...';
+        
+        try {
+            // Get tags
+            const tagsValue = document.getElementById('tagsHidden').value;
+            const tagsArray = tagsValue ? tagsValue.split(',').filter(t => t.trim()) : [];
+            
+            // Get selected topics
+            const topicSelect = document.getElementById('topicSelect');
+            const selectedTopics = Array.from(topicSelect.selectedOptions).map(opt => opt.value);
+            
+            // Extract audio duration
+            const duration = await getAudioDuration(audioFile);
+            
+            // TODO: Upload audio to Cloudflare and get URL
+            // For now, use placeholder URL for audio (will be replaced with actual Cloudflare URL)
+            const audioUrl = `https://cdn.tingdao.com/audio/${audioFile.name}`;
+            
+            // Convert cover image to base64 for local testing
+            const coverBase64 = await fileToBase64(coverImage);
+            
+            // Get full speaker info
+            const speaker = speakers.find(s => s.id === speakerId);
+            const submitter = users.find(u => u.id === submitterId);
+            
+            // Fetch speaker details from API for complete info
+            let speakerDetails = { name: speaker.name, title: speaker.title };
+            try {
+                const speakerResponse = await fetch(`http://localhost:3000/v1/speakers/${speakerId}`);
+                const speakerResult = await speakerResponse.json();
+                if (speakerResult.success && speakerResult.data) {
+                    speakerDetails = {
+                        id: speakerResult.data.id,
+                        name: speakerResult.data.name,
+                        title: speakerResult.data.title,
+                        bio: speakerResult.data.bio || '',
+                        avatar_url: speakerResult.data.avatar_url || ''
+                    };
+                }
+            } catch (error) {
+                console.warn('Failed to fetch speaker details:', error);
+            }
+            
+            // Format date as YYYY-MM-DD
+            const formattedDate = date; // Already in YYYY-MM-DD format from input
+            
+            // Create sermon data
+            const sermonData = {
+                id: 'sermon-' + Date.now(),
+                title: title,
+                speaker_id: speakerId,
+                speaker_name: speakerDetails.name,
+                speaker: speakerDetails,
+                submitted_by: submitterId,
+                submitter: {
+                    id: submitterId,
+                    username: submitter ? submitter.name : '',
+                    email: submitter ? submitter.email : ''
+                },
+                scripture: scripture,
+                date: formattedDate,
+                summary: summary,
+                tags: tagsArray,
+                topic_ids: selectedTopics,
+                audio_url: audioUrl,
+                cover_image_url: coverBase64,
+                duration: duration,
+                status: 'pending',
+                play_count: 0,
+                favorite_count: 0,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            
+            console.log('Submitting sermon data:', sermonData);
+            
+            const response = await fetch('http://localhost:3000/v1/sermons', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(sermonData)
+            });
+            
+            if (response.ok) {
+                alert('提交成功！讲道已进入审核队列。');
+                location.href = 'sermons.html';
+            } else {
+                const errorData = await response.json();
+                console.error('Submission error:', errorData);
+                throw new Error('提交失败');
+            }
+        } catch (error) {
+            console.error('Submission error:', error);
+            alert('提交失败，请稍后重试。错误信息：' + error.message);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+    });
+
+    // Tag management
+    let tags = [];
+
+    function handleTagInput(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            const input = event.target;
+            const value = input.value.trim();
+            
+            if (value && !tags.includes(value)) {
+                tags.push(value);
+                renderTags();
+                input.value = '';
+            }
+        }
+    }
+
+    function removeTag(tag) {
+        tags = tags.filter(t => t !== tag);
+        renderTags();
+    }
+
+    function renderTags() {
+        const container = document.getElementById('tagContainer');
+        const hiddenInput = document.getElementById('tagsHidden');
+        
+        container.innerHTML = tags.map(tag => `
+            <span class="badge badge-md gap-1.5 cursor-pointer hover:badge-error transition-colors" style="font-size: 0.85rem;" onclick="removeTag('${tag}')">
+                ${tag}
+                <span class="iconify" data-icon="heroicons:x-mark" data-width="14"></span>
+            </span>
+        `).join('');
+        
+        hiddenInput.value = tags.join(',');
+    }
+
+    function addHotTag(tag) {
+        if (!tags.includes(tag)) {
+            tags.push(tag);
+            renderTags();
+        }
+    }
+
+    // Speaker search & autocomplete
+    let speakers = [];
+    let users = [];
+
+    // Load speakers from API
+    async function loadSpeakers() {
+        try {
+            const response = await fetch('http://localhost:3000/v1/speakers');
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                speakers = result.data.map(speaker => ({
+                    id: speaker.id,
+                    name: speaker.name,
+                    title: speaker.title || '讲员'
+                }));
+            }
+        } catch (error) {
+            console.error('Failed to load speakers:', error);
+        }
+    }
+
+    // Load users from API
+    async function loadUsers() {
+        try {
+            const response = await fetch('http://localhost:3000/v1/users');
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                users = result.data.map(user => ({
+                    id: user.id,
+                    name: user.username,
+                    email: user.email
+                }));
+            }
+        } catch (error) {
+            console.error('Failed to load users:', error);
+        }
+    }
+
+    // Load data on page load
+    loadSpeakers();
+    loadUsers();
+
+    function searchSpeaker(event) {
+        const input = event.target;
+        const query = input.value.trim().toLowerCase();
+        const dropdown = document.getElementById('speakerDropdown');
+        
+        if (!query) {
+            dropdown.classList.add('hidden');
+            return;
+        }
+
+        // Filter speakers
+        const filtered = speakers.filter(s => 
+            s.name.toLowerCase().includes(query) || 
+            s.title.toLowerCase().includes(query)
+        );
+
+        if (filtered.length === 0) {
+            // No matches - show "add new" option
+            const name = input.value.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            dropdown.innerHTML = `
+                <div class="p-3 hover:bg-base-200 cursor-pointer" data-action="add-new" data-name="${name}">
+                    <div class="flex items-center gap-2">
+                        <span class="iconify text-primary" data-icon="heroicons:plus-circle" data-width="20"></span>
+                        <div>
+                            <div class="text-sm font-medium">未找到匹配讲员</div>
+                            <div class="text-xs text-base-content/70">点击添加新讲员 "${name}"</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Show matches
+            dropdown.innerHTML = filtered.map(s => {
+                const safeName = s.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                return `
+                    <div class="p-3 hover:bg-base-200 cursor-pointer" data-action="select" data-id="${s.id}" data-name="${safeName}">
+                        <div class="text-sm font-medium">${s.name}</div>
+                        <div class="text-xs text-base-content/70">${s.title}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        dropdown.classList.remove('hidden');
+    }
+
+    function showSpeakerDropdown() {
+        const input = document.getElementById('speakerInput');
+        if (input.value.trim()) {
+            searchSpeaker({ target: input });
+        }
+    }
+
+    function selectSpeaker(id, name) {
+        document.getElementById('speakerInput').value = name;
+        document.getElementById('speakerIdHidden').value = id;
+        document.getElementById('speakerNameHidden').value = name;
+        document.getElementById('speakerDropdown').classList.add('hidden');
+    }
+
+    function addNewSpeaker(name) {
+        // Navigate to add speaker page
+        window.location.href = 'add-speaker.html?name=' + encodeURIComponent(name);
+    }
+
+    // Submitter search functions
+    function searchSubmitter(event) {
+        const input = event.target;
+        const query = input.value.trim().toLowerCase();
+        const dropdown = document.getElementById('submitterDropdown');
+        
+        if (!query) {
+            dropdown.classList.add('hidden');
+            return;
+        }
+
+        // Filter users
+        const filtered = users.filter(u => 
+            u.name.toLowerCase().includes(query) || 
+            u.email.toLowerCase().includes(query) ||
+            u.id.toLowerCase().includes(query)
+        );
+
+        if (filtered.length === 0) {
+            // No matches
+            dropdown.innerHTML = `
+                <div class="p-3 text-center text-sm text-base-content/70">
+                    <span class="iconify text-warning mb-2" data-icon="heroicons:exclamation-triangle" data-width="24"></span>
+                    <div>未找到匹配用户</div>
+                    <div class="text-xs mt-1">请确认用户名或邮箱是否正确</div>
+                </div>
+            `;
+        } else {
+            // Show matches
+            dropdown.innerHTML = filtered.map(u => {
+                const safeName = u.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                const safeEmail = u.email.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                return `
+                    <div class="p-3 hover:bg-base-200 cursor-pointer" data-action="select-submitter" data-id="${u.id}" data-name="${safeName}">
+                        <div class="text-sm font-medium">${u.name}</div>
+                        <div class="text-xs text-base-content/70">${u.email}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        dropdown.classList.remove('hidden');
+    }
+
+    function showSubmitterDropdown() {
+        const input = document.getElementById('submitterInput');
+        if (input.value.trim()) {
+            searchSubmitter({ target: input });
+        }
+    }
+
+    function selectSubmitter(id, name) {
+        document.getElementById('submitterInput').value = name;
+        document.getElementById('submitterIdHidden').value = id;
+        document.getElementById('submitterNameHidden').value = name;
+        document.getElementById('submitterDropdown').classList.add('hidden');
+    }
+
+    // Handle dropdown clicks
+    document.addEventListener('click', function(event) {
+        const speakerDropdown = document.getElementById('speakerDropdown');
+        const speakerInput = document.getElementById('speakerInput');
+        const submitterDropdown = document.getElementById('submitterDropdown');
+        const submitterInput = document.getElementById('submitterInput');
+        
+        // Check if clicked inside dropdown
+        const dropdownItem = event.target.closest('[data-action]');
+        if (dropdownItem) {
+            const action = dropdownItem.dataset.action;
+            if (action === 'select') {
+                selectSpeaker(dropdownItem.dataset.id, dropdownItem.dataset.name);
+            } else if (action === 'add-new') {
+                addNewSpeaker(dropdownItem.dataset.name);
+            } else if (action === 'select-submitter') {
+                selectSubmitter(dropdownItem.dataset.id, dropdownItem.dataset.name);
+            }
+            return;
+        }
+        
+        // Close speaker dropdown when clicking outside
+        if (event.target !== speakerInput && event.target !== speakerDropdown && !speakerDropdown.contains(event.target)) {
+            speakerDropdown.classList.add('hidden');
+        }
+        
+        // Close submitter dropdown when clicking outside
+        if (event.target !== submitterInput && event.target !== submitterDropdown && !submitterDropdown.contains(event.target)) {
+            submitterDropdown.classList.add('hidden');
+        }
+    });
+</script>
+</body>
+</html>
+

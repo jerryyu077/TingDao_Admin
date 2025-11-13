@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 听道后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .sidebar-wrapper {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-text {
+            white-space: nowrap;
+        }
+    </style>
+
+    <!-- API Client -->
+    <!-- 暂时禁用 API 脚本以使用静态 HTML -->
+    <!-- <script src="js/api-config.js?v=20251104v5"></script>
+    <script src="js/api-client.js?v=20251104v5"></script>
+    <script src="js/api-services.js?v=20251104v5"></script>
+    <script src="js/users-api.js?v=20251104v5"></script> -->
+    </head>
+<body class="bg-base-200 flex flex-col min-h-screen">
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside class="sidebar-wrapper bg-base-100 border-r border-base-300">
+            <div class="p-3 border-b border-base-300">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="iconify text-white" data-icon="heroicons:home" data-width="20"></span>
+                    </div>
+                    <span class="sidebar-text text-lg font-semibold">听道后台</span>
+                </div>
+            </div>
+
+            <ul class="menu menu-sm gap-1 p-3">
+                <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span class="sidebar-text">仪表盘</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span class="sidebar-text">讲道内容</span></summary>
+                        <ul>
+                            <li><a href="sermons.html">讲道列表</a></li>
+                            <li><a href="add-sermon.html">添加讲道</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html">讲员列表</a></li>
+                            <li><a href="add-speaker.html">添加讲员</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span class="sidebar-text">内容编排</span></summary>
+                        <ul>
+                            <li><a href="curation.html">编排概览</a></li>
+                            <li><a href="home-editor.html">首页模块</a></li>
+                            <li><a href="discover-editor.html">发现页模块</a></li>
+                            <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details open>
+                        <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span class="sidebar-text">用户管理</span></summary>
+                        <ul>
+                            <li><a href="users.html" class="active">所有用户</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span class="sidebar-text">标签主题</span></summary>
+                        <ul>
+                            <li><a href="tags.html">标签管理</a></li>
+                            <li><a href="tag-edit.html">标签编辑</a></li>
+                            <li><a href="topic-groups.html">主题组</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span class="sidebar-text">数据统计</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span class="sidebar-text">系统设置</span></summary>
+                        <ul>
+                            <li><a href="settings.html">系统概览</a></li>
+                            <li><a href="admins.html">账户管理</a></li>
+                            <li><a href="permissions.html">权限控制</a></li>
+                            <li><a href="api-config.html">API配置</a></li>
+                            <li><a href="logs.html">日志版本</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span class="sidebar-text">帮助中心</span></summary>
+                        <ul>
+                            <li><a href="help.html">帮助文档</a></li>
+                            <li><a href="upload-guide.html">上传指南</a></li>
+                            <li><a href="review-standards.html">审核标准</a></li>
+                            <li><a href="contact.html">联系开发者</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+                <div class="navbar-start gap-2">
+                    <span class="text-xl font-semibold">用户管理</span>
+                </div>
+                
+                <div class="navbar-center hidden md:flex">
+                    <div class="join">
+                        <input type="text" placeholder="搜索用户..." class="input input-bordered input-sm join-item w-80">
+                        <button class="btn btn-sm join-item btn-primary">
+                            <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="navbar-end gap-3">
+                    <div class="indicator">
+                        <span class="indicator-item badge badge-accent badge-sm">8</span>
+                        <button class="btn btn-ghost btn-circle">
+                            <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                        </button>
+                    </div>
+                    
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                                <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                            </div>
+                        </div>
+                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                            <li class="menu-title"><span>管理员中心</span></li>
+                            <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                            <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                            <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                            <div class="divider my-1"></div>
+                            <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs text-xs py-2 px-6 bg-base-100 border-b border-base-300">
+                <ul>
+                    <li><a href="dashboard.html" class="text-base-content/70 hover:text-primary"><span class="iconify" data-icon="heroicons:home" data-width="14"></span>首页</a></li>
+                    <li><span class="font-medium text-base-content">用户管理</span></li>
+                </ul>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="max-w-7xl mx-auto space-y-6">
+                    <!-- Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-base-content/60">总用户数</p>
+                                        <p class="text-2xl font-bold" id="statTotal">5</p>
+                                        <p class="text-xs text-success mt-1">↗︎ +2.5%</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <span class="iconify text-blue-600" data-icon="heroicons:users" data-width="24"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-base-content/60">活跃用户</p>
+                                        <p class="text-2xl font-bold" id="statActive">4</p>
+                                        <p class="text-xs text-success mt-1">↗︎ +5.2%</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <span class="iconify text-green-600" data-icon="heroicons:check-circle" data-width="24"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-base-content/60">新增用户（本月）</p>
+                                        <p class="text-2xl font-bold" id="statNew">0</p>
+                                        <p class="text-xs text-success mt-1">↗︎ +12.3%</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <span class="iconify text-purple-600" data-icon="heroicons:user-plus" data-width="24"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-base-content/60">禁用用户</p>
+                                        <p class="text-2xl font-bold" id="statBanned">1</p>
+                                        <p class="text-xs text-error mt-1">↗︎ +1</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                        <span class="iconify text-red-600" data-icon="heroicons:no-symbol" data-width="24"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters and Actions -->
+                    <div class="card bg-base-100 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="flex flex-wrap items-center gap-4">
+                                <div class="flex-1 min-w-[200px]">
+                                    <div class="join w-full">
+                                        <input type="text" id="searchInput" placeholder="搜索用户名、邮箱、用户ID..." class="input input-sm input-bordered join-item flex-1">
+                                        <button class="btn btn-sm btn-primary join-item" onclick="searchUsers()">
+                                            <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="14"></span>
+                                            搜索
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label class="label">
+                                        <span class="label-text text-sm">状态:</span>
+                                    </label>
+                                    <select id="statusFilter" class="select select-sm select-bordered" onchange="applyFilters()">
+                                        <option value="">全部</option>
+                                        <option value="active">活跃</option>
+                                        <option value="banned">禁用</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label class="label">
+                                        <span class="label-text text-sm">注册时间:</span>
+                                    </label>
+                                    <select id="timeFilter" class="select select-sm select-bordered" onchange="applyFilters()">
+                                        <option value="">全部</option>
+                                        <option value="today">今天</option>
+                                        <option value="week">本周</option>
+                                        <option value="month">本月</option>
+                                        <option value="year">本年</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-sm btn-ghost gap-2" onclick="resetFilters()">
+                                    <span class="iconify" data-icon="heroicons:arrow-path" data-width="14"></span>
+                                    重置筛选
+                                </button>
+                                <div class="ml-auto flex gap-2">
+                                    <div class="dropdown dropdown-end">
+                                        <button tabindex="0" class="btn btn-sm btn-ghost gap-2">
+                                            <span class="iconify" data-icon="heroicons:adjustments-horizontal" data-width="14"></span>
+                                            批量操作
+                                        </button>
+                                        <ul tabindex="0" class="dropdown-content z-10 menu p-2 shadow-lg bg-base-100 rounded-box w-40 border border-base-300">
+                                            <li><a onclick="batchActivate()"><span class="iconify text-success" data-icon="heroicons:check-circle" data-width="14"></span>批量激活</a></li>
+                                            <li><a onclick="batchBan()" class="text-error"><span class="iconify" data-icon="heroicons:no-symbol" data-width="14"></span>批量禁用</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Table -->
+                    <div class="card bg-base-100 shadow-sm">
+                        <div class="card-body p-0">
+                            <div class="overflow-x-auto">
+                                <table class="table table-sm" id="usersTable">
+                                    <thead>
+                                        <tr class="border-b border-base-300">
+                                            <th class="w-12">
+                                                <input type="checkbox" class="checkbox checkbox-sm" onchange="toggleSelectAll(this)">
+                                            </th>
+                                            <th class="w-24">用户ID</th>
+                                            <th class="w-64">用户信息</th>
+                                            <th class="w-32">注册时间</th>
+                                            <th class="w-32 text-center">上传讲道数</th>
+                                            <th class="w-24 text-center">状态</th>
+                                            <th class="w-20 text-right">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="hover border-b border-base-300">
+                                            <td><input type="checkbox" class="checkbox checkbox-sm row-checkbox"></td>
+                                            <td><a href="user-detail.html?id=10245" class="font-mono text-xs text-primary hover:underline">#10245</a></td>
+                                            <td>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="avatar placeholder">
+                                                        <div class="bg-primary text-white rounded-full w-8">
+                                                            <span class="text-xs">张</span>
+                                                        </div>
+                                                    </div>
+                                                    <span class="font-medium">张伟</span>
+                                                </div>
+                                            </td>
+                                            <td>zhang.wei@example.com</td>
+                                            <td>2024-10-15</td>
+                                            <td>2024-11-01 14:30</td>
+                                            <td class="text-center"><span class="badge badge-sm">15</span></td>
+                                            <td class="text-center"><span class="badge badge-success badge-sm">活跃</span></td>
+                                            <td class="text-right">
+                                                <button class="btn btn-ghost btn-xs" onclick="window.location.href='user-detail.html?id=10245'">
+                                                    <span class="iconify" data-icon="heroicons:pencil" data-width="14"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover border-b border-base-300">
+                                            <td><input type="checkbox" class="checkbox checkbox-sm row-checkbox"></td>
+                                            <td><a href="user-detail.html?id=10244" class="font-mono text-xs text-primary hover:underline">#10244</a></td>
+                                            <td>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="avatar placeholder">
+                                                        <div class="bg-secondary text-white rounded-full w-8">
+                                                            <span class="text-xs">李</span>
+                                                        </div>
+                                                    </div>
+                                                    <span class="font-medium">李娜</span>
+                                                </div>
+                                            </td>
+                                            <td>li.na@example.com</td>
+                                            <td>2024-10-12</td>
+                                            <td>2024-10-31 09:15</td>
+                                            <td class="text-center"><span class="badge badge-sm">8</span></td>
+                                            <td class="text-center"><span class="badge badge-success badge-sm">活跃</span></td>
+                                            <td class="text-right">
+                                                <button class="btn btn-ghost btn-xs" onclick="window.location.href='user-detail.html?id=10244'">
+                                                    <span class="iconify" data-icon="heroicons:pencil" data-width="14"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover border-b border-base-300">
+                                            <td><input type="checkbox" class="checkbox checkbox-sm row-checkbox"></td>
+                                            <td><a href="user-detail.html?id=10243" class="font-mono text-xs text-primary hover:underline">#10243</a></td>
+                                            <td>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="avatar placeholder">
+                                                        <div class="bg-accent text-white rounded-full w-8">
+                                                            <span class="text-xs">王</span>
+                                                        </div>
+                                                    </div>
+                                                    <span class="font-medium">王芳</span>
+                                                </div>
+                                            </td>
+                                            <td>wang.fang@example.com</td>
+                                            <td>2024-10-08</td>
+                                            <td>2024-10-28 16:45</td>
+                                            <td class="text-center"><span class="badge badge-sm">23</span></td>
+                                            <td class="text-center"><span class="badge badge-success badge-sm">活跃</span></td>
+                                            <td class="text-right">
+                                                <button class="btn btn-ghost btn-xs" onclick="window.location.href='user-detail.html?id=10243'">
+                                                    <span class="iconify" data-icon="heroicons:pencil" data-width="14"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover border-b border-base-300">
+                                            <td><input type="checkbox" class="checkbox checkbox-sm row-checkbox"></td>
+                                            <td><a href="user-detail.html?id=10242" class="font-mono text-xs text-primary hover:underline">#10242</a></td>
+                                            <td>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="avatar placeholder">
+                                                        <div class="bg-info text-white rounded-full w-8">
+                                                            <span class="text-xs">刘</span>
+                                                        </div>
+                                                    </div>
+                                                    <span class="font-medium">刘强</span>
+                                                </div>
+                                            </td>
+                                            <td>liu.qiang@example.com</td>
+                                            <td>2024-09-25</td>
+                                            <td>2024-10-15 11:20</td>
+                                            <td class="text-center"><span class="badge badge-sm">5</span></td>
+                                            <td class="text-center"><span class="badge badge-success badge-sm">活跃</span></td>
+                                            <td class="text-right">
+                                                <button class="btn btn-ghost btn-xs" onclick="window.location.href='user-detail.html?id=10242'">
+                                                    <span class="iconify" data-icon="heroicons:pencil" data-width="14"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover border-b border-base-300">
+                                            <td><input type="checkbox" class="checkbox checkbox-sm row-checkbox"></td>
+                                            <td><a href="user-detail.html?id=10241" class="font-mono text-xs text-primary hover:underline">#10241</a></td>
+                                            <td>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="avatar placeholder">
+                                                        <div class="bg-error text-white rounded-full w-8">
+                                                            <span class="text-xs">赵</span>
+                                                        </div>
+                                                    </div>
+                                                    <span class="font-medium">赵敏</span>
+                                                </div>
+                                            </td>
+                                            <td>zhao.min@example.com</td>
+                                            <td>2024-08-10</td>
+                                            <td>2024-08-15 10:00</td>
+                                            <td class="text-center"><span class="badge badge-sm">2</span></td>
+                                            <td class="text-center"><span class="badge badge-error badge-sm">禁用</span></td>
+                                            <td class="text-right">
+                                                <button class="btn btn-ghost btn-xs" onclick="window.location.href='user-detail.html?id=10241'">
+                                                    <span class="iconify" data-icon="heroicons:pencil" data-width="14"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="flex items-center justify-between p-4 border-t border-base-300">
+                                <div class="text-sm text-base-content/60" id="paginationInfo">
+                                    显示 1-5 / 共 5 条
+                                </div>
+                                <div class="join">
+                                    <button class="join-item btn btn-sm" disabled>«</button>
+                                    <button class="join-item btn btn-sm btn-active">1</button>
+                                    <button class="join-item btn btn-sm" disabled>»</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        }
+
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+        }
+
+        function searchUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const timeFilter = document.getElementById('timeFilter').value;
+            const rows = document.querySelectorAll('tbody tr');
+            
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+            const yearAgo = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000);
+            
+            rows.forEach(row => {
+                const userId = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+                const userName = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
+                const userEmail = row.querySelector('td:nth-child(4)')?.textContent.toLowerCase() || '';
+                const registerDateText = row.querySelector('td:nth-child(5)')?.textContent.trim() || '';
+                const statusBadge = row.querySelector('td:nth-child(8) .badge')?.textContent.toLowerCase() || '';
+                
+                // 搜索匹配
+                let matchSearch = !searchTerm || userId.includes(searchTerm) || userName.includes(searchTerm) || userEmail.includes(searchTerm);
+                
+                // 状态筛选
+                let matchStatus = !statusFilter || 
+                                (statusFilter === 'active' && statusBadge.includes('活跃')) || 
+                                (statusFilter === 'banned' && statusBadge.includes('禁用'));
+                
+                // 注册时间筛选
+                let matchTime = true;
+                if (timeFilter && registerDateText) {
+                    const registerDate = new Date(registerDateText);
+                    if (timeFilter === 'today') {
+                        matchTime = registerDate >= today;
+                    } else if (timeFilter === 'week') {
+                        matchTime = registerDate >= weekAgo;
+                    } else if (timeFilter === 'month') {
+                        matchTime = registerDate >= monthAgo;
+                    } else if (timeFilter === 'year') {
+                        matchTime = registerDate >= yearAgo;
+                    }
+                }
+                
+                if (matchSearch && matchStatus && matchTime) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function applyFilters() {
+            searchUsers();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').selectedIndex = 0;
+            document.getElementById('timeFilter').selectedIndex = 0;
+            searchUsers();
+        }
+
+        // Save user status to localStorage
+        function saveUserStatus(userId, status) {
+            const statuses = JSON.parse(localStorage.getItem('userStatuses') || '{}');
+            statuses[userId] = status;
+            localStorage.setItem('userStatuses', JSON.stringify(statuses));
+        }
+
+        // Load user status from localStorage
+        function loadUserStatus(userId) {
+            const statuses = JSON.parse(localStorage.getItem('userStatuses') || '{}');
+            return statuses[userId];
+        }
+
+        // Update statistics
+        function updateStats() {
+            const rows = document.querySelectorAll('tbody tr');
+            let total = rows.length;
+            let active = 0;
+            let banned = 0;
+            
+            rows.forEach(row => {
+                const statusBadge = row.querySelector('td:nth-child(6) .badge');
+                if (statusBadge) {
+                    const status = statusBadge.textContent.trim();
+                    if (status === '活跃') active++;
+                    if (status === '禁用') banned++;
+                }
+            });
+            
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statActive').textContent = active;
+            document.getElementById('statBanned').textContent = banned;
+        }
+
+        // Load users from API
+        async function loadUsers() {
+            try {
+                const response = await fetch('http://localhost:3000/v1/users');
+                const data = await response.json();
+                const users = data.data || data;
+                
+                // Get sermon data to calculate sermon counts
+                const sermonsResponse = await fetch('http://localhost:3000/v1/sermons');
+                const sermonsData = await sermonsResponse.json();
+                const sermons = sermonsData.data || sermonsData;
+                
+                // Count sermons by submitter username
+                const sermonCounts = {};
+                sermons.forEach(sermon => {
+                    const username = sermon.submitter?.username;
+                    if (username) {
+                        sermonCounts[username] = (sermonCounts[username] || 0) + 1;
+                    }
+                });
+                
+                // Render users table
+                const tbody = document.querySelector('tbody');
+                tbody.innerHTML = users.map(user => {
+                    const numericId = user.id.replace('user-', '');
+                    const sermonCount = sermonCounts[user.username] || 0;
+                    const statusBadge = user.status === 'active' 
+                        ? '<span class="badge badge-success badge-sm">活跃</span>'
+                        : '<span class="badge badge-error badge-sm">禁用</span>';
+                    
+                    // Format date
+                    const regDate = new Date(user.registered_at || user.created_at).toLocaleDateString('zh-CN');
+                    
+                    return `
+                        <tr class="hover border-b border-base-300">
+                            <td class="w-12"><input type="checkbox" class="checkbox checkbox-sm row-checkbox"></td>
+                            <td class="w-24"><a href="user-detail.html?id=${numericId}" class="font-mono text-xs text-primary hover:underline">#${numericId}</a></td>
+                            <td class="w-64">
+                                <div class="flex items-center gap-2">
+                                    <div class="avatar placeholder">
+                                        <div class="bg-primary text-primary-content rounded-full w-8">
+                                            <span class="text-xs">${(user.name || user.username || '?').charAt(0)}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium">${user.name || user.username}</div>
+                                        <div class="text-xs text-base-content/70">${user.email}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="w-32 text-sm text-base-content/80">${regDate}</td>
+                            <td class="w-32 text-center">${sermonCount}</td>
+                            <td class="w-24 text-center">${statusBadge}</td>
+                            <td class="w-20 text-right">
+                                <button class="btn btn-ghost btn-xs" onclick="window.location.href='user-detail.html?id=${numericId}'">
+                                    <span class="iconify" data-icon="heroicons:pencil" data-width="14"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                // Update statistics
+                updateStats();
+                
+                // Update pagination info
+                document.getElementById('paginationInfo').textContent = `显示 1-${users.length} / 共 ${users.length} 条`;
+                
+                console.log('✅ Users loaded from API:', users.length);
+            } catch (error) {
+                console.error('Failed to load users:', error);
+                alert('加载用户失败，请刷新页面重试');
+            }
+        }
+
+        async function batchActivate() {
+            const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('请先选择要操作的用户');
+                return;
+            }
+            
+            if (confirm(`确认激活选中的 ${checkboxes.length} 个用户？`)) {
+                try {
+                    // Collect user IDs
+                    const userIds = Array.from(checkboxes).map(checkbox => {
+                        const row = checkbox.closest('tr');
+                        const link = row.querySelector('td:nth-child(2) a');
+                        if (link) {
+                            // Extract user ID from href: user-detail.html?id=10245
+                            const href = link.getAttribute('href');
+                            const match = href.match(/id=(\d+)/);
+                            return match ? `user-${match[1]}` : null;
+                        }
+                        return null;
+                    }).filter(id => id);
+                    
+                    // Update each user via API
+                    for (const userId of userIds) {
+                        const response = await fetch(`http://localhost:3000/v1/users/${userId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ status: 'active' })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`Failed to update user ${userId}`);
+                        }
+                        
+                        // Also save to localStorage for backup
+                        saveUserStatus(userId, 'active');
+                    }
+                    
+                    // Reload users from API to reflect changes
+                    await loadUsers();
+                    
+                    // Uncheck "select all"
+                    const selectAllCheckbox = document.querySelector('thead input[type="checkbox"]');
+                    if (selectAllCheckbox) {
+                        selectAllCheckbox.checked = false;
+                    }
+                    
+                    alert('用户已激活');
+                } catch (error) {
+                    console.error('Batch activate error:', error);
+                    alert('批量激活失败：' + error.message);
+                }
+            }
+        }
+
+        async function batchBan() {
+            const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('请先选择要操作的用户');
+                return;
+            }
+            
+            if (confirm(`确认禁用选中的 ${checkboxes.length} 个用户？`)) {
+                try {
+                    // Collect user IDs
+                    const userIds = Array.from(checkboxes).map(checkbox => {
+                        const row = checkbox.closest('tr');
+                        const link = row.querySelector('td:nth-child(2) a');
+                        if (link) {
+                            // Extract user ID from href: user-detail.html?id=10245
+                            const href = link.getAttribute('href');
+                            const match = href.match(/id=(\d+)/);
+                            return match ? `user-${match[1]}` : null;
+                        }
+                        return null;
+                    }).filter(id => id);
+                    
+                    // Update each user via API
+                    for (const userId of userIds) {
+                        const response = await fetch(`http://localhost:3000/v1/users/${userId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ status: 'banned' })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`Failed to update user ${userId}`);
+                        }
+                        
+                        // Also save to localStorage for backup
+                        saveUserStatus(userId, 'banned');
+                    }
+                    
+                    // Reload users from API to reflect changes
+                    await loadUsers();
+                    
+                    // Uncheck "select all"
+                    const selectAllCheckbox = document.querySelector('thead input[type="checkbox"]');
+                    if (selectAllCheckbox) {
+                        selectAllCheckbox.checked = false;
+                    }
+                    
+                    alert('用户已禁用');
+                } catch (error) {
+                    console.error('Batch ban error:', error);
+                    alert('批量禁用失败：' + error.message);
+                }
+            }
+        }
+
+        // Load saved statuses on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const allUsersData = JSON.parse(localStorage.getItem('usersData') || '{}');
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const userIdText = row.querySelector('td:nth-child(2) a')?.textContent.trim();
+                const userId = userIdText?.replace('#', '');
+                const statusBadge = row.querySelector('td:nth-child(8) .badge');
+                const nameElement = row.querySelector('td:nth-child(3) .font-medium');
+                const emailElement = row.querySelector('td:nth-child(4)');
+                
+                // Load saved user data
+                if (userId && allUsersData[userId]) {
+                    const savedData = allUsersData[userId];
+                    
+                    // Update name
+                    if (nameElement && savedData.name) {
+                        nameElement.textContent = savedData.name;
+                        // Update avatar
+                        const avatarText = row.querySelector('td:nth-child(3) .avatar .text-xs');
+                        if (avatarText) {
+                            avatarText.textContent = savedData.name.charAt(0);
+                        }
+                    }
+                    
+                    // Update email
+                    if (emailElement && savedData.email) {
+                        emailElement.textContent = savedData.email;
+                    }
+                    
+                    // Update status
+                    if (statusBadge && savedData.status) {
+                        if (savedData.status === 'active') {
+                            statusBadge.textContent = '活跃';
+                            statusBadge.className = 'badge badge-success badge-sm';
+                        } else if (savedData.status === 'banned') {
+                            statusBadge.textContent = '禁用';
+                            statusBadge.className = 'badge badge-error badge-sm';
+                        }
+                    }
+                } else if (userIdText && statusBadge) {
+                    // Fallback: only load status
+                    const savedStatus = loadUserStatus(userIdText);
+                    if (savedStatus === 'active') {
+                        statusBadge.textContent = '活跃';
+                        statusBadge.className = 'badge badge-success badge-sm';
+                    } else if (savedStatus === 'banned') {
+                        statusBadge.textContent = '禁用';
+                        statusBadge.className = 'badge badge-error badge-sm';
+                    }
+                }
+            });
+            
+            // Load users from API instead of using hardcoded HTML
+            loadUsers();
+        });
+    
+    // Initialize page when DOM is ready
+    // 注释掉 UsersPage.init() 以使用静态 HTML 内容
+    // if (typeof UsersPage !== 'undefined') {
+    //     document.addEventListener('DOMContentLoaded', () => {
+    //         UsersPage.init();
+    //     });
+    // }
+</script>
+</body>
+</html>
+

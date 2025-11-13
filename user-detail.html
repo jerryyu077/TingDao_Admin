@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户详情 - 听道后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .sidebar-wrapper {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-text {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="bg-base-200 flex flex-col min-h-screen">
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside class="sidebar-wrapper bg-base-100 border-r border-base-300">
+            <div class="p-3 border-b border-base-300">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="iconify text-white" data-icon="heroicons:home" data-width="20"></span>
+                    </div>
+                    <span class="sidebar-text text-lg font-semibold">听道后台</span>
+                </div>
+            </div>
+
+            <ul class="menu menu-sm gap-1 p-3">
+                <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span class="sidebar-text">仪表盘</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span class="sidebar-text">讲道内容</span></summary>
+                        <ul>
+                            <li><a href="sermons.html">讲道列表</a></li>
+                            <li><a href="add-sermon.html">添加讲道</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html">讲员列表</a></li>
+                            <li><a href="add-speaker.html">添加讲员</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span class="sidebar-text">内容编排</span></summary>
+                        <ul>
+                            <li><a href="curation.html">编排概览</a></li>
+                            <li><a href="home-editor.html">首页模块</a></li>
+                            <li><a href="discover-editor.html">发现页模块</a></li>
+                            <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details open>
+                        <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span class="sidebar-text">用户管理</span></summary>
+                        <ul>
+                            <li><a href="users.html" class="active">所有用户</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span class="sidebar-text">标签主题</span></summary>
+                        <ul>
+                            <li><a href="tags.html">标签管理</a></li>
+                            <li><a href="tag-edit.html">标签编辑</a></li>
+                            <li><a href="topic-groups.html">主题组</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span class="sidebar-text">数据统计</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span class="sidebar-text">系统设置</span></summary>
+                        <ul>
+                            <li><a href="settings.html">系统概览</a></li>
+                            <li><a href="admins.html">账户管理</a></li>
+                            <li><a href="permissions.html">权限控制</a></li>
+                            <li><a href="api-config.html">API配置</a></li>
+                            <li><a href="logs.html">日志版本</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span class="sidebar-text">帮助中心</span></summary>
+                        <ul>
+                            <li><a href="help.html">帮助文档</a></li>
+                            <li><a href="upload-guide.html">上传指南</a></li>
+                            <li><a href="review-standards.html">审核标准</a></li>
+                            <li><a href="contact.html">联系开发者</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+                <div class="navbar-start gap-2">
+                    <button onclick="location.href='users.html'" class="btn btn-ghost btn-sm gap-2">
+                        <span class="iconify" data-icon="heroicons:arrow-left" data-width="16"></span>
+                        返回列表
+                    </button>
+                </div>
+                
+                <div class="navbar-center hidden md:flex">
+                    <span class="text-xl font-semibold">用户详情</span>
+                </div>
+                
+                <div class="navbar-end gap-3">
+                    <div class="indicator">
+                        <span class="indicator-item badge badge-accent badge-sm">8</span>
+                        <button class="btn btn-ghost btn-circle">
+                            <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                        </button>
+                    </div>
+                    
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                                <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                            </div>
+                        </div>
+                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                            <li class="menu-title"><span>管理员中心</span></li>
+                            <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                            <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                            <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                            <div class="divider my-1"></div>
+                            <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs text-xs py-2 px-6 bg-base-100 border-b border-base-300">
+                <ul>
+                    <li><a href="dashboard.html" class="text-base-content/70 hover:text-primary"><span class="iconify" data-icon="heroicons:home" data-width="14"></span>首页</a></li>
+                    <li><a href="users.html" class="text-base-content/70 hover:text-primary">用户管理</a></li>
+                    <li><span class="font-medium text-base-content">用户详情</span></li>
+                </ul>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="max-w-6xl mx-auto space-y-6">
+                    <!-- User Info Card -->
+                    <div class="card bg-base-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="flex items-start justify-between mb-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="avatar placeholder">
+                                        <div class="bg-primary text-white rounded-full w-20">
+                                            <span class="text-3xl" id="avatarText">张</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-2xl font-bold mb-1" id="displayName">张伟</h2>
+                                        <p class="text-base-content/60">用户ID: <span class="font-mono" id="displayUserId">#10245</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button id="editBtn" onclick="toggleEditMode()" class="btn btn-primary btn-sm gap-2">
+                                        <span class="iconify" data-icon="heroicons:pencil" data-width="16"></span>
+                                        编辑
+                                    </button>
+                                    <button id="saveBtn" onclick="saveChanges()" class="btn btn-success btn-sm gap-2" style="display: none;">
+                                        <span class="iconify" data-icon="heroicons:check" data-width="16"></span>
+                                        保存
+                                    </button>
+                                    <button id="cancelBtn" onclick="cancelEdit()" class="btn btn-ghost btn-sm gap-2" style="display: none;">
+                                        <span class="iconify" data-icon="heroicons:x-mark" data-width="16"></span>
+                                        取消
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Name Field -->
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-medium">用户名</span>
+                                    </label>
+                                    <div data-mode="view">
+                                        <p class="text-base-content" id="viewName">张伟</p>
+                                    </div>
+                                    <div data-mode="edit" style="display: none;">
+                                        <input type="text" id="editName" class="input input-bordered w-full" value="张伟">
+                                    </div>
+                                </div>
+
+                                <!-- Email Field -->
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-medium">邮箱</span>
+                                    </label>
+                                    <div data-mode="view">
+                                        <p class="text-base-content" id="viewEmail">zhang.wei@example.com</p>
+                                    </div>
+                                    <div data-mode="edit" style="display: none;">
+                                        <input type="email" id="editEmail" class="input input-bordered w-full" value="zhang.wei@example.com">
+                                    </div>
+                                </div>
+
+                                <!-- Status Field -->
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-medium">账户状态</span>
+                                    </label>
+                                    <div data-mode="view">
+                                        <span class="badge badge-success" id="viewStatus">活跃</span>
+                                    </div>
+                                    <div data-mode="edit" style="display: none;">
+                                        <select id="editStatus" class="select select-bordered w-full">
+                                            <option value="active">活跃</option>
+                                            <option value="banned">已禁用</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Registration Date (Read-only) -->
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-medium">注册时间</span>
+                                    </label>
+                                    <p class="text-base-content" data-field="registered_at">2024-10-15 10:30:00</p>
+                                </div>
+
+                                <!-- Last Login (Read-only) -->
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-medium">最后登录</span>
+                                    </label>
+                                    <p class="text-base-content" data-field="last_login">2024-11-01 14:30:00</p>
+                                </div>
+
+                                <!-- Upload Count (Read-only) -->
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-medium">上传讲道数</span>
+                                    </label>
+                                    <p class="text-base-content"><span class="badge badge-lg" data-field="sermon_count">15</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Sermons List -->
+                    <div class="card bg-base-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-semibold">用户上传的讲道</h3>
+                                <div class="flex gap-2">
+                                    <input type="text" placeholder="搜索讲道..." class="input input-sm input-bordered w-64">
+                                    <select class="select select-sm select-bordered">
+                                        <option>全部状态</option>
+                                        <option>已发布</option>
+                                        <option>待审核</option>
+                                        <option>已退回</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr class="border-b border-base-300">
+                                            <th>标题</th>
+                                            <th>讲员</th>
+                                            <th>上传时间</th>
+                                            <th>经文</th>
+                                            <th class="text-center">时长</th>
+                                            <th class="text-center">状态</th>
+                                            <th class="text-center">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="hover border-b border-base-300">
+                                            <td>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-medium">十诫与现代生活</span>
+                                                </div>
+                                            </td>
+                                            <td>张三牧师</td>
+                                            <td>2025-10-21 14:30</td>
+                                            <td>出埃及记 20:1-17</td>
+                                            <td class="text-center">45:12</td>
+                                            <td class="text-center"><span class="badge badge-success badge-sm">已发布</span></td>
+                                            <td class="text-center">
+                                                <button class="btn btn-ghost btn-xs" onclick="location.href='sermon-detail.html'">
+                                                    <span class="iconify" data-icon="heroicons:eye" data-width="14"></span>
+                                                    查看
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover border-b border-base-300">
+                                            <td>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-medium">登山宝训的智慧</span>
+                                                </div>
+                                            </td>
+                                            <td>李四长老</td>
+                                            <td>2025-10-20 09:15</td>
+                                            <td>马太福音 5-7章</td>
+                                            <td class="text-center">55:30</td>
+                                            <td class="text-center"><span class="badge badge-warning badge-sm">待审核</span></td>
+                                            <td class="text-center">
+                                                <button class="btn btn-ghost btn-xs" onclick="location.href='sermon-detail.html'">
+                                                    <span class="iconify" data-icon="heroicons:eye" data-width="14"></span>
+                                                    查看
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover border-b border-base-300">
+                                            <td>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-medium">因信称义的真理</span>
+                                                </div>
+                                            </td>
+                                            <td>王五牧师</td>
+                                            <td>2025-10-19 18:00</td>
+                                            <td>罗马书 3:21-31</td>
+                                            <td class="text-center">38:45</td>
+                                            <td class="text-center"><span class="badge badge-error badge-sm">已退回</span></td>
+                                            <td class="text-center">
+                                                <button class="btn btn-ghost btn-xs" onclick="location.href='sermon-detail.html'">
+                                                    <span class="iconify" data-icon="heroicons:eye" data-width="14"></span>
+                                                    查看
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="flex items-center justify-between mt-4" data-pagination>
+                                <div class="text-sm text-base-content/60" data-pagination-info>
+                                    显示 1-3 / 共 15 条
+                                </div>
+                                <div class="join">
+                                    <button class="join-item btn btn-sm">«</button>
+                                    <button class="join-item btn btn-sm btn-active">1</button>
+                                    <button class="join-item btn btn-sm">»</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let isEditMode = false;
+        let originalData = {};
+        let currentUserId = null;
+        let currentUserData = null;
+
+        // Mock user data (matching users.html and API data)
+        const mockUsers = {
+            '10245': {
+                id: '10245',
+                name: '张伟',
+                username: '王小明',  // API submitter.username
+                email: 'zhang.wei@example.com',
+                registered_at: '2024-10-15',
+                last_login: '2024-11-01 14:30',
+                sermon_count: 0,  // Will be calculated from API
+                status: 'active'
+            },
+            '10244': {
+                id: '10244',
+                name: '李娜',
+                username: '李娜',
+                email: 'li.na@example.com',
+                registered_at: '2024-10-12',
+                last_login: '2024-10-31 09:15',
+                sermon_count: 0,
+                status: 'active'
+            },
+            '10243': {
+                id: '10243',
+                name: '王芳',
+                username: '王芳',
+                email: 'wang.fang@example.com',
+                registered_at: '2024-10-08',
+                last_login: '2024-10-28 16:45',
+                sermon_count: 0,
+                status: 'active'
+            },
+            '10242': {
+                id: '10242',
+                name: '刘强',
+                username: '刘强',
+                email: 'liu.qiang@example.com',
+                registered_at: '2024-09-25',
+                last_login: '2024-10-15 11:20',
+                sermon_count: 0,
+                status: 'active'
+            },
+            '10241': {
+                id: '10241',
+                name: '赵敏',
+                username: '赵敏',
+                email: 'zhao.min@example.com',
+                registered_at: '2024-08-10',
+                last_login: '2024-08-15 10:00',
+                sermon_count: 0,
+                status: 'banned'
+            }
+        };
+
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        }
+
+        function loadUserData(userId) {
+            // Extract numeric ID from userId (e.g., "user-10245" -> "10245")
+            const numericId = userId.replace('user-', '');
+            
+            // Check localStorage first for saved data
+            const allUsersData = JSON.parse(localStorage.getItem('usersData') || '{}');
+            const savedData = allUsersData[userId];
+            
+            const userStatuses = JSON.parse(localStorage.getItem('userStatuses') || '{}');
+            const savedStatus = userStatuses[`#${numericId}`];
+            
+            // Get user data from mockUsers using numeric ID
+            const user = mockUsers[numericId];
+            if (!user) {
+                alert('用户不存在');
+                window.location.href = 'users.html';
+                return;
+            }
+
+            // Override with saved data from localStorage
+            if (savedData) {
+                user.name = savedData.name;
+                user.email = savedData.email;
+                user.status = savedData.status;
+            } else if (savedStatus) {
+                // Override status only if saved
+                if (savedStatus === 'active') {
+                    user.status = 'active';
+                } else if (savedStatus === 'banned') {
+                    user.status = 'banned';
+                }
+            }
+
+            currentUserData = user;
+            currentUserId = userId;
+
+            // Update UI
+            const firstChar = user.name.charAt(0);
+            document.getElementById('avatarText').textContent = firstChar;
+            document.getElementById('displayName').textContent = user.name;
+            document.getElementById('displayUserId').textContent = '#' + user.id;
+            
+            // View mode
+            document.getElementById('viewName').textContent = user.name;
+            document.getElementById('viewEmail').textContent = user.email;
+            
+            // Edit mode
+            document.getElementById('editName').value = user.name;
+            document.getElementById('editEmail').value = user.email;
+            document.getElementById('editStatus').value = user.status;
+            
+            // Status badge
+            const statusBadge = document.getElementById('viewStatus');
+            if (user.status === 'active') {
+                statusBadge.textContent = '活跃';
+                statusBadge.className = 'badge badge-success';
+            } else {
+                statusBadge.textContent = '已禁用';
+                statusBadge.className = 'badge badge-error';
+            }
+            
+            // Read-only fields
+            document.querySelector('[data-field="registered_at"]').textContent = user.registered_at + ' 10:30:00';
+            document.querySelector('[data-field="last_login"]').textContent = user.last_login;
+            document.querySelector('[data-field="sermon_count"]').textContent = user.sermon_count;
+
+            // Load user's sermons
+            loadUserSermons(userId);
+        }
+
+        async function loadUserSermons(userId) {
+            try {
+                // Fetch all sermons from API
+                const response = await fetch('http://localhost:3000/v1/sermons');
+                const data = await response.json();
+                const allSermons = data.data || data;
+
+                // Filter sermons by submitter.username matching user's username
+                const userUsername = currentUserData.username;
+                const userSermons = allSermons.filter(sermon => {
+                    return sermon.submitter && sermon.submitter.username === userUsername;
+                });
+
+                // Update sermon count with real data
+                currentUserData.sermon_count = userSermons.length;
+                document.querySelector('[data-field="sermon_count"]').textContent = userSermons.length;
+
+                // Render sermons table
+                renderSermonsTable(userSermons);
+            } catch (error) {
+                console.error('Failed to load user sermons:', error);
+                // Keep the table but show message
+                document.querySelector('tbody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-8 text-base-content/70">
+                            加载讲道数据失败
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function renderSermonsTable(sermons) {
+            const tbody = document.querySelector('tbody');
+            
+            if (sermons.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-8 text-base-content/70">
+                            该用户暂无上传的讲道
+                        </td>
+                    </tr>
+                `;
+                document.querySelector('[data-pagination]').style.display = 'none';
+                return;
+            }
+
+            // Map status
+            function getStatusBadge(status) {
+                const statusMap = {
+                    '已发布': '<span class="badge badge-success badge-sm">已发布</span>',
+                    '待审核': '<span class="badge badge-warning badge-sm">待审核</span>',
+                    '已退回': '<span class="badge badge-error badge-sm">已退回</span>',
+                    '已拒绝': '<span class="badge badge-ghost badge-sm">已拒绝</span>'
+                };
+                return statusMap[status] || '<span class="badge badge-sm">' + status + '</span>';
+            }
+
+            // Format duration
+            function formatDuration(seconds) {
+                if (!seconds) return '--:--';
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            tbody.innerHTML = sermons.map(sermon => `
+                <tr class="hover border-b border-base-300">
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <span class="font-medium">${sermon.title}</span>
+                        </div>
+                    </td>
+                    <td>${sermon.speaker?.name || '未知讲员'}</td>
+                    <td>${new Date(sermon.created_at).toLocaleString('zh-CN', { 
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}</td>
+                    <td>${(sermon.scripture_references || []).map(s => s.reference).join('; ') || '无'}</td>
+                    <td class="text-center">${formatDuration(sermon.duration)}</td>
+                    <td class="text-center">${getStatusBadge(sermon.status)}</td>
+                    <td class="text-center">
+                        <button class="btn btn-ghost btn-xs" onclick="location.href='sermon-detail.html?id=${sermon.id}'">
+                            <span class="iconify" data-icon="heroicons:eye" data-width="14"></span>
+                            查看
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Update pagination info
+            const paginationInfo = document.querySelector('[data-pagination-info]');
+            if (paginationInfo) {
+                paginationInfo.textContent = `显示 1-${sermons.length} / 共 ${sermons.length} 条`;
+            }
+        }
+
+        function toggleEditMode() {
+            isEditMode = true;
+            
+            // Save original data
+            originalData = {
+                name: document.getElementById('editName').value,
+                email: document.getElementById('editEmail').value,
+                status: document.getElementById('editStatus').value
+            };
+            
+            // Show edit mode elements
+            document.querySelectorAll('[data-mode="view"]').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('[data-mode="edit"]').forEach(el => el.style.display = 'block');
+            
+            // Toggle buttons
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'inline-flex';
+            document.getElementById('cancelBtn').style.display = 'inline-flex';
+        }
+
+        async function saveChanges() {
+            const name = document.getElementById('editName').value;
+            const email = document.getElementById('editEmail').value;
+            const status = document.getElementById('editStatus').value;
+            
+            try {
+                // Call API to update user
+                const response = await fetch(`http://localhost:3000/v1/users/${currentUserId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        status: status
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error?.message || '保存失败');
+                }
+                
+                console.log('✅ User updated via API:', result.data);
+                
+                // Extract numeric ID for localStorage
+                const numericId = currentUserId.replace('user-', '');
+                
+                // Also save to localStorage for backup
+                const userStatuses = JSON.parse(localStorage.getItem('userStatuses') || '{}');
+                userStatuses[`#${numericId}`] = status;
+                localStorage.setItem('userStatuses', JSON.stringify(userStatuses));
+
+                const allUsersData = JSON.parse(localStorage.getItem('usersData') || '{}');
+                allUsersData[currentUserId] = {
+                    name: name,
+                    email: email,
+                    status: status
+                };
+                localStorage.setItem('usersData', JSON.stringify(allUsersData));
+
+                // Update mock data using numeric ID
+                if (mockUsers[numericId]) {
+                    mockUsers[numericId].name = name;
+                    mockUsers[numericId].email = email;
+                    mockUsers[numericId].status = status;
+                }
+                
+                // Update view mode elements
+                document.getElementById('viewName').textContent = name;
+                document.getElementById('displayName').textContent = name;
+                document.getElementById('avatarText').textContent = name.charAt(0);
+                document.getElementById('viewEmail').textContent = email;
+                
+                const statusBadge = document.getElementById('viewStatus');
+                if (status === 'active') {
+                    statusBadge.textContent = '活跃';
+                    statusBadge.className = 'badge badge-success';
+                } else {
+                    statusBadge.textContent = '已禁用';
+                    statusBadge.className = 'badge badge-error';
+                }
+                
+                exitEditMode();
+                
+                // Show success message
+                alert('用户信息已保存！');
+            } catch (error) {
+                console.error('Failed to save user changes:', error);
+                alert(`保存失败：${error.message}`);
+            }
+        }
+
+        function cancelEdit() {
+            // Restore original data
+            document.getElementById('editName').value = originalData.name;
+            document.getElementById('editEmail').value = originalData.email;
+            document.getElementById('editStatus').value = originalData.status;
+            
+            exitEditMode();
+        }
+
+        function exitEditMode() {
+            isEditMode = false;
+            
+            // Show view mode elements
+            document.querySelectorAll('[data-mode="view"]').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('[data-mode="edit"]').forEach(el => el.style.display = 'none');
+            
+            // Toggle buttons
+            document.getElementById('editBtn').style.display = 'inline-flex';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        // Load user data on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userIdParam = urlParams.get('id');
+            
+            if (userIdParam) {
+                // Convert numeric ID to full user ID format
+                const userId = `user-${userIdParam}`;
+                loadUserData(userId);
+            } else {
+                alert('缺少用户ID参数');
+                window.location.href = 'users.html';
+            }
+        });
+    </script>
+</body>
+</html>
+

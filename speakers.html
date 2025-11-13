@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>讲员管理列表 - 听道后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: rgba(5, 150, 105, 1);
+        }
+
+        .status-pending {
+            background-color: rgba(251, 191, 36, 0.1);
+            color: rgba(180, 83, 9, 1);
+        }
+
+        .status-inactive {
+            background-color: rgba(156, 163, 175, 0.1);
+            color: rgba(75, 85, 99, 1);
+        }
+
+        .sidebar-wrapper {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-text {
+            white-space: nowrap;
+        }
+    </style>
+
+    <!-- API Client -->
+    <script src="js/api-config.js?v=20251104v5"></script>
+    <script src="js/api-client.js?v=20251104v5"></script>
+    <script src="js/api-services.js?v=20251104v5"></script>
+    <script src="js/speakers-api.js?v=20251104v5"></script>
+    </head>
+<body class="bg-base-200 flex flex-col min-h-screen">
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside class="sidebar-wrapper bg-base-100 border-r border-base-300">
+            <div class="p-3 border-b border-base-300">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="iconify text-white" data-icon="heroicons:home" data-width="20"></span>
+                    </div>
+                    <span class="sidebar-text text-lg font-semibold">听道后台</span>
+                </div>
+            </div>
+
+            <ul class="menu menu-sm gap-1 p-3">
+                <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span class="sidebar-text">仪表盘</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span class="sidebar-text">讲道内容</span></summary>
+                        <ul>
+                            <li><a href="sermons.html">讲道列表</a></li>
+                            <li><a href="add-sermon.html">添加讲道</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details open>
+                        <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html" class="active">讲员列表</a></li>
+                            <li><a href="add-speaker.html">添加讲员</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span class="sidebar-text">内容编排</span></summary>
+                        <ul>
+                            <li><a href="curation.html">编排概览</a></li>
+                            <li><a href="home-editor.html">首页模块</a></li>
+                            <li><a href="discover-editor.html">发现页模块</a></li>
+                            <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span class="sidebar-text">用户管理</span></summary>
+                        <ul>
+                            <li><a href="users.html">所有用户</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span class="sidebar-text">标签主题</span></summary>
+                        <ul>
+                            <li><a href="tags.html">标签管理</a></li>
+                            <li><a href="tag-edit.html">标签编辑</a></li>
+                            <li><a href="topic-groups.html">主题组</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span class="sidebar-text">数据统计</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span class="sidebar-text">系统设置</span></summary>
+                        <ul>
+                            <li><a href="settings.html">系统概览</a></li>
+                            <li><a href="admins.html">账户管理</a></li>
+                            <li><a href="permissions.html">权限控制</a></li>
+                            <li><a href="api-config.html">API配置</a></li>
+                            <li><a href="logs.html">日志版本</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span class="sidebar-text">帮助中心</span></summary>
+                        <ul>
+                            <li><a href="help.html">帮助文档</a></li>
+                            <li><a href="upload-guide.html">上传指南</a></li>
+                            <li><a href="review-standards.html">审核标准</a></li>
+                            <li><a href="contact.html">联系开发者</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+                <div class="navbar-start gap-2">
+                    <span class="text-xl font-semibold">讲员管理</span>
+                </div>
+                
+                <div class="navbar-end gap-3">
+                    <div class="indicator">
+                        <span class="indicator-item badge badge-accent badge-sm">8</span>
+                        <button class="btn btn-ghost btn-circle">
+                            <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                        </button>
+                    </div>
+                    
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                                <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                            </div>
+                        </div>
+                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                            <li class="menu-title"><span>管理员中心</span></li>
+                            <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                            <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                            <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                            <div class="divider my-1"></div>
+                            <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs text-xs py-2 px-6 bg-base-100 border-b border-base-300">
+                <ul>
+                    <li><a href="dashboard.html" class="text-base-content/70 hover:text-primary"><span class="iconify" data-icon="heroicons:home" data-width="14"></span>首页</a></li>
+                    <li><span class="text-base-content/70">讲员管理</span></li>
+                    <li><span class="font-medium text-base-content">讲员列表</span></li>
+                </ul>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="max-w-screen-2xl mx-auto space-y-5">
+                    <!-- Header -->
+                    <section>
+                        <h1 class="text-2xl font-bold">讲员管理列表</h1>
+                    </section>
+
+                    <!-- Stats Cards -->
+                    <section>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="bg-base-100 border border-base-300 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-base-content/70">总讲员数</p>
+                                        <p class="text-2xl font-bold mt-1" id="statTotal">0</p>
+                                    </div>
+                                    <div class="bg-primary/10 p-3 rounded-lg">
+                                        <span class="iconify text-primary" data-icon="heroicons:users" data-width="24"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-base-100 border border-base-300 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-base-content/70">活跃讲员</p>
+                                        <p class="text-2xl font-bold mt-1" id="statActive">0</p>
+                                    </div>
+                                    <div class="bg-success/10 p-3 rounded-lg">
+                                        <span class="iconify text-success" data-icon="heroicons:check-badge" data-width="24"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-base-100 border border-base-300 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-base-content/70">停用讲员</p>
+                                        <p class="text-2xl font-bold mt-1" id="statInactive">0</p>
+                                    </div>
+                                    <div class="bg-warning/10 p-3 rounded-lg">
+                                        <span class="iconify text-warning" data-icon="heroicons:no-symbol" data-width="24"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-base-100 border border-base-300 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-base-content/70">本月新增</p>
+                                        <p class="text-2xl font-bold mt-1" id="statNewThisMonth">0</p>
+                                    </div>
+                                    <div class="bg-info/10 p-3 rounded-lg">
+                                        <span class="iconify text-info" data-icon="heroicons:arrow-trending-up" data-width="24"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Filter and Actions -->
+                    <section class="bg-base-100 rounded-lg p-4">
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <input type="text" placeholder="搜索讲员名字..." class="input input-bordered input-sm w-64" id="searchInput" autocomplete="off">
+                                
+                                <select class="select select-bordered select-sm" id="statusFilter">
+                                    <option value="">状态筛选</option>
+                                    <option value="active">活跃</option>
+                                    <option value="inactive">停用</option>
+                                </select>
+                                
+                                <select class="select select-bordered select-sm" id="churchFilter">
+                                    <option value="">教会筛选</option>
+                                    <!-- 动态加载 -->
+                                </select>
+                                
+                                <button class="btn btn-ghost btn-sm" onclick="resetFilters()">
+                                    <span class="iconify" data-icon="heroicons:arrow-path" data-width="16"></span>
+                                    重置
+                                </button>
+                                <button class="btn btn-sm btn-primary" onclick="applyFilters()">
+                                    <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                                    搜索
+                                </button>
+                            </div>
+                            
+                            <button class="btn btn-sm btn-primary" onclick="location.href='add-speaker.html'">
+                                <span class="iconify" data-icon="heroicons:plus" data-width="16"></span>
+                                添加讲员
+                            </button>
+                        </div>
+                        
+                        <div class="divider my-3"></div>
+                        
+                        <div class="flex items-center gap-2">
+                            <div class="dropdown">
+                                <button tabindex="0" role="button" class="btn btn-sm">
+                                    批量操作
+                                    <span class="iconify" data-icon="heroicons:chevron-down" data-width="16"></span>
+                                </button>
+                                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40">
+                                    <li><a onclick="batchActivate()"><span class="iconify" data-icon="heroicons:check"></span>批量激活</a></li>
+                                    <li><a onclick="batchDeactivate()"><span class="iconify" data-icon="heroicons:no-symbol"></span>批量停用</a></li>
+                                </ul>
+                            </div>
+                            <span class="text-sm text-base-content/70" id="selectedCount">已选择 0 项</span>
+                        </div>
+                    </section>
+
+                    <!-- Speakers Table -->
+                    <section class="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="table table-sm" id="speakersTable">
+                                <thead class="bg-base-200">
+                                    <tr>
+                                        <th class="w-12"><input type="checkbox" class="checkbox checkbox-sm" id="selectAll" onchange="toggleSelectAll()"></th>
+                                        <th>讲员信息</th>
+                                        <th>教会</th>
+                                        <th class="text-center">讲道数</th>
+                                        <th class="text-center">关注数</th>
+                                        <th class="text-center">状态</th>
+                                        <th class="text-center">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="speakersTableBody">
+                                    <!-- Data will be loaded dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Pagination -->
+                    <section class="flex justify-between items-center">
+                        <div class="text-sm text-base-content/70">
+                            共 <span id="totalCount">0</span> 个讲员，每页显示 <span id="pageSize">10</span> 条
+                        </div>
+                        <div class="join" id="paginationContainer">
+                            <!-- Pagination buttons will be generated dynamically -->
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        }
+
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.speaker-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+            updateSelectCount();
+        }
+
+        function updateSelectCount() {
+            const checkboxes = document.querySelectorAll('.speaker-checkbox');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            document.getElementById('selectedCount').textContent = `已选择 ${checkedCount} 项`;
+            
+            const selectAll = document.getElementById('selectAll');
+            selectAll.checked = checkedCount === checkboxes.length && checkedCount > 0;
+            selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+        }
+
+        function deleteSpeaker() {
+            if (confirm('确认删除此讲员？此操作不可撤销。')) {
+                alert('讲员已删除');
+            }
+        }
+
+        function batchActivate() {
+            const checkedCount = Array.from(document.querySelectorAll('.speaker-checkbox')).filter(cb => cb.checked).length;
+            if (checkedCount === 0) {
+                alert('请先选择要操作的项目');
+                return;
+            }
+            if (confirm(`确认激活已选择的 ${checkedCount} 个讲员？`)) {
+                alert('批量激活成功');
+            }
+        }
+
+        function batchDeactivate() {
+            const checkedCount = Array.from(document.querySelectorAll('.speaker-checkbox')).filter(cb => cb.checked).length;
+            if (checkedCount === 0) {
+                alert('请先选择要操作的项目');
+                return;
+            }
+            if (confirm(`确认停用已选择的 ${checkedCount} 个讲员？`)) {
+                alert('批量停用成功');
+            }
+        }
+
+
+        // Global variables for pagination
+        let currentPage = 1;
+        const pageSize = 10;
+        let allSpeakers = [];
+
+        // Load speakers from API
+        async function loadSpeakers(page = 1) {
+            try {
+                currentPage = page;
+                
+                // Clear table immediately to prevent flash
+                document.getElementById('speakersTableBody').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-base-content/70">加载中...</td></tr>';
+                
+                // Load all speakers to calculate stats and populate church filter
+                const allResponse = await fetch(`http://localhost:3000/v1/speakers`);
+                const allResult = await allResponse.json();
+                
+                if (allResult.success) {
+                    const allData = allResult.data;
+                    updateStats(allData, allData.length);
+                    populateChurchFilter(allData);
+                    
+                    // Now load paginated data
+                    const response = await fetch(`http://localhost:3000/v1/speakers?_page=${page}&_limit=${pageSize}`);
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        allSpeakers = result.data;
+                        renderSpeakersTable(result.data);
+                        
+                        // Calculate pagination ourselves
+                        const total = allData.length;
+                        const totalPages = Math.ceil(total / pageSize);
+                        const pagination = {
+                            page: page,
+                            per_page: pageSize,
+                            total: total,
+                            total_pages: totalPages
+                        };
+                        
+                        renderPagination(pagination);
+                        document.getElementById('totalCount').textContent = total;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading speakers:', error);
+                document.getElementById('speakersTableBody').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-error">加载失败，请刷新页面重试</td></tr>';
+            }
+        }
+
+        // Populate church filter with unique churches from data
+        function populateChurchFilter(speakers) {
+            const churches = [...new Set(speakers.map(s => s.church).filter(c => c))];
+            const churchFilter = document.getElementById('churchFilter');
+            
+            if (!churchFilter) return;
+            
+            // Keep the first option "教会筛选"
+            churchFilter.innerHTML = '<option value="">教会筛选</option>';
+            
+            churches.forEach(church => {
+                const option = document.createElement('option');
+                option.value = church;
+                option.textContent = church;
+                churchFilter.appendChild(option);
+            });
+        }
+
+        // Update statistics
+        function updateStats(allSpeakers, total) {
+            const active = allSpeakers.filter(s => s.status === 'active').length;
+            const inactive = allSpeakers.filter(s => s.status === 'inactive').length;
+            
+            // Calculate new this month
+            const now = new Date();
+            const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const newThisMonth = allSpeakers.filter(s => {
+                const createdDate = new Date(s.created_at);
+                return createdDate >= firstDayOfMonth;
+            }).length;
+            
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statActive').textContent = active;
+            document.getElementById('statInactive').textContent = inactive;
+            document.getElementById('statNewThisMonth').textContent = newThisMonth;
+        }
+
+        // Render speakers table
+        function renderSpeakersTable(speakers) {
+            const tbody = document.getElementById('speakersTableBody');
+            
+            if (speakers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-base-content/70">暂无数据</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = speakers.map(speaker => `
+                <tr class="hover">
+                    <td><input type="checkbox" class="checkbox checkbox-sm speaker-checkbox" data-id="${speaker.id}" onclick="updateSelectCount()"></td>
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <div class="avatar">
+                                <div class="w-10 h-10 rounded-full bg-base-300">
+                                    ${speaker.avatar_url ? `<img src="${speaker.avatar_url}" alt="${speaker.name}">` : '<span class="iconify" data-icon="heroicons:user" data-width="20"></span>'}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="font-medium">${speaker.name}</div>
+                                <div class="text-xs text-base-content/70">${speaker.title || '-'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${speaker.church || '-'}</td>
+                    <td class="text-center">${speaker.sermon_count || 0}</td>
+                    <td class="text-center">${speaker.follower_count || 0}</td>
+                    <td class="text-center">
+                        <span class="status-indicator ${speaker.status === 'active' ? 'status-active' : 'status-inactive'}">
+                            ${speaker.status === 'active' ? '活跃' : '停用'}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-ghost btn-xs btn-square" onclick="location.href='speaker-detail.html?id=${speaker.id}'" title="编辑">
+                            <span class="iconify" data-icon="heroicons:pencil" data-width="16"></span>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render pagination
+        function renderPagination(pagination) {
+            const container = document.getElementById('paginationContainer');
+            const { page, total_pages } = pagination;
+            
+            // Always show pagination buttons (like sermons.html)
+            let buttons = [`<button class="join-item btn btn-sm ${page === 1 ? 'btn-disabled' : ''}" onclick="loadSpeakers(${page - 1})" ${page === 1 ? 'disabled' : ''}>«</button>`];
+            
+            if (total_pages <= 1) {
+                // Show only page 1
+                buttons.push(`<button class="join-item btn btn-sm btn-active">1</button>`);
+            } else {
+                // Show multiple pages
+                for (let i = 1; i <= total_pages; i++) {
+                    if (i === 1 || i === total_pages || (i >= page - 1 && i <= page + 1)) {
+                        buttons.push(`<button class="join-item btn btn-sm ${i === page ? 'btn-active' : ''}" onclick="loadSpeakers(${i})">${i}</button>`);
+                    } else if (i === page - 2 || i === page + 2) {
+                        buttons.push('<button class="join-item btn btn-sm btn-disabled">...</button>');
+                    }
+                }
+            }
+            
+            buttons.push(`<button class="join-item btn btn-sm ${page === total_pages ? 'btn-disabled' : ''}" onclick="loadSpeakers(${page + 1})" ${page === total_pages ? 'disabled' : ''}>»</button>`);
+            container.innerHTML = buttons.join('');
+        }
+
+        // Apply filters (combines search, status, and church filters)
+        async function applyFilters() {
+            try {
+                const searchInput = document.getElementById('searchInput');
+                const statusFilter = document.getElementById('statusFilter');
+                const churchFilter = document.getElementById('churchFilter');
+                
+                if (!searchInput || !statusFilter || !churchFilter) {
+                    console.error('Filter elements not found');
+                    return;
+                }
+                
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                const status = statusFilter.value;
+                const church = churchFilter.value;
+                
+                // If no filters, reload default
+                if (!searchTerm && !status && !church) {
+                    loadSpeakers(1);
+                    return;
+                }
+
+                // Load all speakers for filtering
+                const response = await fetch(`http://localhost:3000/v1/speakers`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    let filtered = result.data;
+                    
+                    // Apply search filter
+                    if (searchTerm) {
+                        filtered = filtered.filter(s => s.name.toLowerCase().includes(searchTerm));
+                    }
+                    
+                    // Apply status filter
+                    if (status) {
+                        filtered = filtered.filter(s => s.status === status);
+                    }
+                    
+                    // Apply church filter
+                    if (church) {
+                        filtered = filtered.filter(s => s.church === church);
+                    }
+                    
+                    allSpeakers = filtered;
+                    renderSpeakersTable(filtered);
+                    document.getElementById('paginationContainer').innerHTML = '';
+                    document.getElementById('totalCount').textContent = filtered.length;
+                    updateStats(filtered, filtered.length);
+                } else {
+                    throw new Error('API returned success: false');
+                }
+            } catch (error) {
+                console.error('Filter error:', error);
+                // Don't show alert if results are displayed successfully
+            }
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('churchFilter').value = '';
+            loadSpeakers(1);
+        }
+    
+        // Batch operations
+        async function batchActivate() {
+            const checkedBoxes = Array.from(document.querySelectorAll('.speaker-checkbox:checked'));
+            if (checkedBoxes.length === 0) {
+                alert('请先选择要操作的项目');
+                return;
+            }
+            
+            if (confirm(`确认激活已选择的 ${checkedBoxes.length} 个讲员？`)) {
+                try {
+                    const speakerIds = checkedBoxes.map(cb => cb.dataset.id);
+                    
+                    // Update each speaker's status
+                    for (const speakerId of speakerIds) {
+                        const response = await fetch(`http://localhost:3000/v1/speakers/${speakerId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ status: 'active' })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`Failed to update speaker ${speakerId}`);
+                        }
+                    }
+                    
+                    alert('批量激活成功');
+                    // Uncheck all boxes
+                    checkedBoxes.forEach(cb => cb.checked = false);
+                    document.getElementById('selectAll').checked = false;
+                    updateSelectCount();
+                    // Reload current page
+                    loadSpeakers(currentPage);
+                } catch (error) {
+                    console.error('Batch activate error:', error);
+                    alert('批量操作失败：' + error.message);
+                }
+            }
+        }
+
+        async function batchDeactivate() {
+            const checkedBoxes = Array.from(document.querySelectorAll('.speaker-checkbox:checked'));
+            if (checkedBoxes.length === 0) {
+                alert('请先选择要操作的项目');
+                return;
+            }
+            
+            if (confirm(`确认停用已选择的 ${checkedBoxes.length} 个讲员？`)) {
+                try {
+                    const speakerIds = checkedBoxes.map(cb => cb.dataset.id);
+                    
+                    // Update each speaker's status
+                    for (const speakerId of speakerIds) {
+                        const response = await fetch(`http://localhost:3000/v1/speakers/${speakerId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ status: 'inactive' })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`Failed to update speaker ${speakerId}`);
+                        }
+                    }
+                    
+                    alert('批量停用成功');
+                    // Uncheck all boxes
+                    checkedBoxes.forEach(cb => cb.checked = false);
+                    document.getElementById('selectAll').checked = false;
+                    updateSelectCount();
+                    // Reload current page
+                    loadSpeakers(currentPage);
+                } catch (error) {
+                    console.error('Batch deactivate error:', error);
+                    alert('批量操作失败：' + error.message);
+                }
+            }
+        }
+    
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Clear all filters on page load
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('churchFilter').value = '';
+            
+            // Load speakers
+            loadSpeakers(1);
+            
+            // Enter key for search
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') applyFilters();
+            });
+        });
+</script>
+</body>
+</html>
+

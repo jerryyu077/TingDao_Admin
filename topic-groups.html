@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主题组管理 - 听道后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .sidebar-wrapper {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-text {
+            white-space: nowrap;
+        }
+    </style>
+
+    <!-- API Client -->
+    <script src="js/api-config.js?v=20251104"></script>
+    <script src="js/api-client.js?v=20251104"></script>
+    <script src="js/api-services.js?v=20251104"></script>
+    <script src="js/curation-api.js?v=20251104"></script>
+    </head>
+<body class="bg-base-200 flex flex-col min-h-screen">
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside class="sidebar-wrapper bg-base-100 border-r border-base-300">
+            <div class="p-3 border-b border-base-300">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="iconify text-white" data-icon="heroicons:home" data-width="20"></span>
+                    </div>
+                    <span class="sidebar-text text-lg font-semibold">听道后台</span>
+                </div>
+            </div>
+
+            <ul class="menu menu-sm gap-1 p-3">
+                <li><a href="dashboard.html"><span class="iconify" data-icon="heroicons:home" data-width="18"></span><span class="sidebar-text">仪表盘</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="18"></span><span class="sidebar-text">讲道内容</span></summary>
+                        <ul>
+                            <li><a href="sermons.html">讲道列表</a></li>
+                            <li><a href="add-sermon.html">添加讲道</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
+                        <ul>
+                            <li><a href="speakers.html">讲员列表</a></li>
+                            <li><a href="add-speaker.html">添加讲员</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-purple-600" data-icon="heroicons:squares-plus" data-width="18"></span><span class="sidebar-text">内容编排</span></summary>
+                        <ul>
+                            <li><a href="curation.html">编排概览</a></li>
+                            <li><a href="home-editor.html">首页模块</a></li>
+                            <li><a href="discover-editor.html">发现页模块</a></li>
+                            <li><a href="launch-screen-editor.html">开屏页模块</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-orange-600" data-icon="heroicons:user-group" data-width="18"></span><span class="sidebar-text">用户管理</span></summary>
+                        <ul>
+                            <li><a href="users.html">所有用户</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details open>
+                        <summary><span class="iconify text-indigo-600" data-icon="heroicons:tag" data-width="18"></span><span class="sidebar-text">标签主题</span></summary>
+                        <ul>
+                            <li><a href="tags.html">标签管理</a></li>
+                            <li><a href="tag-edit.html">标签编辑</a></li>
+                            <li><a href="topic-groups.html" class="active">主题组</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li><a href="analytics.html"><span class="iconify text-red-600" data-icon="heroicons:chart-bar" data-width="18"></span><span class="sidebar-text">数据统计</span></a></li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-gray-600" data-icon="heroicons:cog-6-tooth" data-width="18"></span><span class="sidebar-text">系统设置</span></summary>
+                        <ul>
+                            <li><a href="settings.html">系统概览</a></li>
+                            <li><a href="admins.html">账户管理</a></li>
+                            <li><a href="permissions.html">权限控制</a></li>
+                            <li><a href="api-config.html">API配置</a></li>
+                            <li><a href="logs.html">日志版本</a></li>
+                        </ul>
+                    </details>
+                </li>
+                
+                <li>
+                    <details>
+                        <summary><span class="iconify text-teal-600" data-icon="heroicons:question-mark-circle" data-width="18"></span><span class="sidebar-text">帮助中心</span></summary>
+                        <ul>
+                            <li><a href="help.html">帮助文档</a></li>
+                            <li><a href="upload-guide.html">上传指南</a></li>
+                            <li><a href="review-standards.html">审核标准</a></li>
+                            <li><a href="contact.html">联系开发者</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="navbar bg-base-100 shadow-sm border-b border-base-300 px-6" style="height: 64px;">
+                <div class="navbar-start gap-2">
+                    <span class="text-xl font-semibold">主题组管理</span>
+                </div>
+                
+                <div class="navbar-center hidden md:flex">
+                    <div class="join">
+                        <input type="text" id="searchInput" placeholder="搜索主题组..." class="input input-bordered input-sm join-item w-80" oninput="searchTopics()">
+                        <button class="btn btn-sm join-item btn-primary">
+                            <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="navbar-end gap-3">
+                    <div class="indicator">
+                        <span class="indicator-item badge badge-accent badge-sm">8</span>
+                        <button class="btn btn-ghost btn-circle">
+                            <span class="iconify" data-icon="heroicons:bell" data-width="20"></span>
+                        </button>
+                    </div>
+                    
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                                <span class="font-semibold text-white" style="font-size: 16px; line-height: 40px;">管</span>
+                            </div>
+                        </div>
+                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300">
+                            <li class="menu-title"><span>管理员中心</span></li>
+                            <li><a href="admins.html"><span class="iconify" data-icon="heroicons:user" data-width="16"></span>个人资料</a></li>
+                            <li><a href="settings.html"><span class="iconify" data-icon="heroicons:cog-6-tooth" data-width="16"></span>系统设置</a></li>
+                            <li><a href="logs.html"><span class="iconify" data-icon="heroicons:clock" data-width="16"></span>操作日志</a></li>
+                            <div class="divider my-1"></div>
+                            <li><a onclick="handleLogout()" class="text-error"><span class="iconify" data-icon="heroicons:arrow-right-on-rectangle" data-width="16"></span>退出登录</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs text-xs py-2 px-6 bg-base-100 border-b border-base-300">
+                <ul>
+                    <li><a href="dashboard.html" class="text-base-content/70 hover:text-primary"><span class="iconify" data-icon="heroicons:home" data-width="14"></span>首页</a></li>
+                    <li><span class="font-medium text-base-content">主题组管理</span></li>
+                </ul>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="max-w-7xl mx-auto space-y-6">
+                    <!-- Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-base-content/60">主题组总数</p>
+                                        <p class="text-2xl font-bold">28</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <span class="iconify text-purple-600" data-icon="heroicons:folder" data-width="24"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-base-content/60">总讲道数</p>
+                                        <p class="text-2xl font-bold">1,245</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="24"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-base-content/60">平均讲道数</p>
+                                        <p class="text-2xl font-bold">44</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <span class="iconify text-green-600" data-icon="heroicons:chart-bar" data-width="24"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions Bar -->
+                    <div class="flex items-center justify-between">
+                        <button onclick="openCreateModal()" class="btn btn-primary btn-sm gap-2">
+                            <span class="iconify" data-icon="heroicons:plus" data-width="16"></span>
+                            新建主题组
+                        </button>
+                        <div class="flex gap-2">
+                            <select class="select select-sm select-bordered" onchange="filterTopics()">
+                                <option value="">全部状态</option>
+                                <option value="active">已启用</option>
+                                <option value="inactive">已禁用</option>
+                            </select>
+                            <button class="btn btn-sm btn-ghost gap-2" onclick="loadTopics(currentPage)">
+                                <span class="iconify" data-icon="heroicons:arrow-path" data-width="14"></span>
+                                刷新
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Topic Groups Table -->
+                    <div class="card bg-base-100 shadow-sm">
+                        <div class="card-body p-0">
+                            <div class="overflow-x-auto">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr class="border-b border-base-300">
+                                            <th>主题组名称</th>
+                                            <th>描述</th>
+                                            <th class="text-center">讲道数量</th>
+                                            <th class="text-center">创建时间</th>
+                                            <th class="text-center">状态</th>
+                                            <th class="text-center">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="6" class="text-center py-8 text-base-content/70">
+                                                加载中...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="flex items-center justify-between p-4 border-t border-base-300">
+                                <div class="text-sm text-base-content/60">
+                                    显示 1-5 / 共 28 条
+                                </div>
+                                <div class="join">
+                                    <button class="join-item btn btn-sm">«</button>
+                                    <button class="join-item btn btn-sm btn-active">1</button>
+                                    <button class="join-item btn btn-sm">2</button>
+                                    <button class="join-item btn btn-sm">3</button>
+                                    <button class="join-item btn btn-sm">»</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Topic Modal -->
+    <dialog id="edit-topic-modal" class="modal">
+        <div class="modal-box w-11/12 max-w-5xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-xl" id="modal-title">编辑主题组 - 圣经概览</h3>
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle btn-ghost">
+                        <span class="iconify" data-icon="heroicons:x-mark" data-width="20"></span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Topic Info Section -->
+            <div class="card bg-base-200 mb-6">
+                <div class="card-body p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Topic Icon -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-medium">主题图标</span>
+                            </label>
+                            <div class="flex items-center gap-3">
+                                <div id="topic-icon-preview" class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center cursor-pointer" onclick="document.getElementById('icon-upload').click()">
+                                    <span class="iconify text-white" data-icon="heroicons:book-open" data-width="32"></span>
+                                </div>
+                                <div class="flex-1">
+                                    <input type="file" id="icon-upload" class="file-input file-input-bordered file-input-sm w-full" accept="image/*" onchange="previewIcon(this)" style="display: none;">
+                                    <button class="btn btn-sm btn-outline w-full" onclick="document.getElementById('icon-upload').click()">
+                                        <span class="iconify" data-icon="heroicons:photo" data-width="16"></span>
+                                        更换图标
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Topic Status -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-medium">状态</span>
+                            </label>
+                            <select id="topic-status" class="select select-bordered select-sm">
+                                <option value="active">已启用</option>
+                                <option value="inactive">已禁用</option>
+                            </select>
+                        </div>
+
+                        <!-- Delete Button -->
+                        <div class="form-control" id="delete-topic-section">
+                            <label class="label">
+                                <span class="label-text font-medium">危险操作</span>
+                            </label>
+                            <button onclick="deleteTopic()" class="btn btn-error btn-sm gap-2">
+                                <span class="iconify" data-icon="heroicons:trash" data-width="16"></span>
+                                删除主题组
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sermons List in Topic -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-semibold">主题组讲道列表 <span class="badge badge-primary" id="sermon-count">66篇</span></h4>
+                    <div class="flex gap-2">
+                        <input type="text" placeholder="搜索讲道..." class="input input-sm input-bordered w-64" id="modal-search" oninput="searchModalSermons()">
+                        <button class="btn btn-sm btn-primary gap-2" onclick="openAddSermonModal()">
+                            <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
+                            添加讲道
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto max-h-96">
+                    <table class="table table-sm">
+                        <thead class="sticky top-0 bg-base-200">
+                            <tr>
+                                <th class="w-12">
+                                    <input type="checkbox" class="checkbox checkbox-sm" onchange="toggleSelectAll(this)">
+                                </th>
+                                <th>讲道标题</th>
+                                <th>讲员</th>
+                                <th>时长</th>
+                                <th>状态</th>
+                                <th class="text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sermons-table-body">
+                            <tr>
+                                <td colspan="6" class="text-center py-8 text-base-content/70">
+                                    加载中...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Batch Actions -->
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-sm text-base-content/70">已选择 <span id="selected-count">0</span> 篇</span>
+                <button class="btn btn-xs btn-error gap-1" onclick="batchRemove()">
+                    <span class="iconify" data-icon="heroicons:trash" data-width="12"></span>
+                    批量移除
+                </button>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="modal-action">
+                <form method="dialog" class="flex gap-2">
+                    <button class="btn btn-ghost">取消</button>
+                    <button type="button" onclick="saveTopicChanges()" class="btn btn-primary gap-2">
+                        <span class="iconify" data-icon="heroicons:check" data-width="16"></span>
+                        保存更改
+                    </button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <!-- Add Sermon Modal -->
+    <dialog id="add-sermon-modal" class="modal">
+        <div class="modal-box w-11/12 max-w-4xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-lg">添加讲道到主题组</h3>
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle btn-ghost">
+                        <span class="iconify" data-icon="heroicons:x-mark" data-width="20"></span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="flex gap-2 mb-4">
+                <input type="text" placeholder="搜索讲道标题、讲员..." class="input input-bordered input-sm flex-1" id="add-sermon-search" oninput="searchAvailableSermons()">
+                <select class="select select-bordered select-sm" id="sermon-filter">
+                    <option value="">全部状态</option>
+                    <option value="published">已发布</option>
+                    <option value="pending">待审核</option>
+                </select>
+            </div>
+
+            <!-- Available Sermons List -->
+            <div class="overflow-x-auto max-h-96 mb-4">
+                <table class="table table-sm">
+                    <thead class="sticky top-0 bg-base-200">
+                        <tr>
+                            <th class="w-12">
+                                <input type="checkbox" class="checkbox checkbox-sm" onchange="toggleSelectAllAvailable(this)">
+                            </th>
+                            <th>讲道标题</th>
+                            <th>讲员</th>
+                            <th>上传时间</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="available-sermons-body">
+                        <tr>
+                            <td colspan="5" class="text-center py-8 text-base-content/70">
+                                加载中...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="text-sm text-base-content/70 mb-4">
+                已选择 <span id="add-selected-count">0</span> 篇讲道
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="modal-action">
+                <form method="dialog" class="flex gap-2">
+                    <button class="btn btn-ghost">取消</button>
+                    <button type="button" onclick="confirmAddSermons()" class="btn btn-primary gap-2">
+                        <span class="iconify" data-icon="heroicons:plus" data-width="16"></span>
+                        添加选中的讲道
+                    </button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <!-- Create Topic Modal -->
+    <dialog id="create-topic-modal" class="modal">
+        <div class="modal-box">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-lg">新建主题组</h3>
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle btn-ghost">
+                        <span class="iconify" data-icon="heroicons:x-mark" data-width="20"></span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Topic Name -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">主题组名称 <span class="text-error">*</span></span>
+                    </label>
+                    <input type="text" id="new-topic-name" class="input input-bordered" placeholder="例如：福音书讲解">
+                </div>
+
+                <!-- Topic Description -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">描述</span>
+                    </label>
+                    <textarea id="new-topic-description" class="textarea textarea-bordered" rows="3" placeholder="简要描述这个主题组..."></textarea>
+                </div>
+
+                <!-- Topic Icon -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">主题图标</span>
+                    </label>
+                    <input type="file" id="new-topic-icon" class="file-input file-input-bordered" accept="image/*">
+                    <label class="label">
+                        <span class="label-text-alt">建议尺寸: 256x256px，支持 JPG, PNG 格式</span>
+                    </label>
+                </div>
+
+                <!-- Topic Status -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">状态</span>
+                    </label>
+                    <select id="new-topic-status" class="select select-bordered">
+                        <option value="active">已启用</option>
+                        <option value="inactive">已禁用</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="modal-action">
+                <form method="dialog" class="flex gap-2">
+                    <button class="btn btn-ghost">取消</button>
+                    <button type="button" onclick="createTopic()" class="btn btn-primary gap-2">
+                        <span class="iconify" data-icon="heroicons:check" data-width="16"></span>
+                        创建主题组
+                    </button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <script>
+        let currentTopic = null;
+        let allTopics = [];
+        let currentPage = 1;
+        const pageSize = 10;
+
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        }
+
+        // Load topics from API
+        async function loadTopics(page = 1) {
+            try {
+                const response = await fetch('http://localhost:3000/v1/topics');
+                const data = await response.json();
+                let apiTopics = data.data || data;
+                
+                // Load deleted system topics from localStorage
+                const deletedSystemTopics = JSON.parse(localStorage.getItem('deletedSystemTopics') || '[]');
+                console.log('Deleted system topics:', deletedSystemTopics);
+                
+                // Filter out deleted system topics
+                apiTopics = apiTopics.filter(topic => !deletedSystemTopics.includes(topic.id));
+                
+                // Load custom topics from localStorage
+                const customTopics = JSON.parse(localStorage.getItem('customTopics') || '[]');
+                allTopics = [...apiTopics, ...customTopics];
+                
+                console.log('All topics after filtering:', allTopics.length);
+                
+                currentPage = page;
+                renderTopics();
+            } catch (error) {
+                console.error('Failed to load topics:', error);
+                alert('加载主题组失败，请刷新页面重试');
+            }
+        }
+
+        function renderTopics() {
+            const tbody = document.querySelector('tbody');
+            
+            // Apply filters
+            let filteredTopics = [...allTopics];
+            
+            // Search filter
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm) {
+                filteredTopics = filteredTopics.filter(topic => 
+                    topic.name.toLowerCase().includes(searchTerm) || 
+                    topic.description.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Status filter
+            const statusFilter = document.querySelector('select[onchange="filterTopics()"]').value;
+            if (statusFilter) {
+                filteredTopics = filteredTopics.filter(topic => topic.status === statusFilter);
+            }
+            
+            // Pagination
+            const totalPages = Math.ceil(filteredTopics.length / pageSize);
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const paginatedTopics = filteredTopics.slice(startIndex, endIndex);
+            
+            // Render table
+            if (paginatedTopics.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-base-content/70">
+                            暂无主题组数据
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = paginatedTopics.map(topic => {
+                    const statusBadge = topic.status === 'active' 
+                        ? '<span class="badge badge-success badge-sm">已启用</span>'
+                        : '<span class="badge badge-warning badge-sm">已禁用</span>';
+                    
+                    // Check if topic has custom image
+                    let iconHTML = '';
+                    if (topic.cover_image_url && topic.cover_image_url.startsWith('data:')) {
+                        // Custom uploaded image
+                        iconHTML = `<div class="w-10 h-10 rounded-lg" style="background-image: url(${topic.cover_image_url}); background-size: cover; background-position: center;"></div>`;
+                    } else {
+                        // Default gradient icon
+                        const iconGradient = getTopicGradient(topic.id);
+                        const iconName = getTopicIcon(topic.id);
+                        iconHTML = `
+                            <div class="w-10 h-10 ${iconGradient} rounded-lg flex items-center justify-center">
+                                <span class="iconify text-white" data-icon="heroicons:${iconName}" data-width="20"></span>
+                            </div>
+                        `;
+                    }
+                    
+                    // Calculate actual sermon count from topic_sermons_cache if available
+                    const actualSermonCount = topic.topic_sermons_cache ? topic.topic_sermons_cache : topic.sermon_count;
+                    
+                    return `
+                        <tr class="hover border-b border-base-300">
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    ${iconHTML}
+                                    <span class="font-medium">${topic.name}</span>
+                                </div>
+                            </td>
+                            <td class="text-sm text-base-content/70">${topic.description}</td>
+                            <td class="text-center"><span class="badge badge-lg">${actualSermonCount}</span></td>
+                            <td class="text-center text-sm">${new Date(topic.created_at).toLocaleDateString('zh-CN')}</td>
+                            <td class="text-center">${statusBadge}</td>
+                            <td class="text-center">
+                                <button onclick="openEditModal('${topic.id}', '${topic.name.replace(/'/g, "\\'")}', ${actualSermonCount})" class="btn btn-ghost btn-xs gap-1">
+                                    <span class="iconify" data-icon="heroicons:pencil" data-width="14"></span>
+                                    编辑
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            
+            // Update stats
+            updateStats();
+            
+            // Update pagination
+            renderPagination(filteredTopics.length, totalPages);
+        }
+
+        function getTopicGradient(topicId) {
+            const gradients = {
+                'topic-faith': 'bg-gradient-to-br from-purple-500 to-pink-500',
+                'topic-prayer': 'bg-gradient-to-br from-blue-500 to-cyan-500',
+                'topic-christian-life': 'bg-gradient-to-br from-green-500 to-emerald-500',
+                'topic-spiritual-growth': 'bg-gradient-to-br from-orange-500 to-red-500',
+                'topic-worship': 'bg-gradient-to-br from-indigo-500 to-purple-500',
+                'topic-bible-study': 'bg-gradient-to-br from-yellow-500 to-orange-500',
+                'topic-evangelism': 'bg-gradient-to-br from-red-500 to-pink-500',
+                'topic-discipleship': 'bg-gradient-to-br from-teal-500 to-green-500'
+            };
+            return gradients[topicId] || 'bg-gradient-to-br from-gray-500 to-slate-500';
+        }
+
+        function getTopicIcon(topicId) {
+            const icons = {
+                'topic-faith': 'star',
+                'topic-prayer': 'hand-raised',
+                'topic-christian-life': 'user-group',
+                'topic-spiritual-growth': 'fire',
+                'topic-worship': 'musical-note',
+                'topic-bible-study': 'book-open',
+                'topic-evangelism': 'megaphone',
+                'topic-discipleship': 'academic-cap'
+            };
+            return icons[topicId] || 'folder';
+        }
+
+        function updateStats() {
+            const totalTopics = allTopics.length;
+            const totalSermons = allTopics.reduce((sum, topic) => sum + topic.sermon_count, 0);
+            const avgSermons = totalTopics > 0 ? Math.round(totalSermons / totalTopics) : 0;
+            
+            document.querySelector('.grid .card:nth-child(1) .text-2xl').textContent = totalTopics;
+            document.querySelector('.grid .card:nth-child(2) .text-2xl').textContent = totalSermons.toLocaleString();
+            document.querySelector('.grid .card:nth-child(3) .text-2xl').textContent = avgSermons;
+        }
+
+        function renderPagination(totalItems, totalPages) {
+            const paginationInfo = document.querySelector('.flex.items-center.justify-between.p-4 .text-sm');
+            const paginationButtons = document.querySelector('.flex.items-center.justify-between.p-4 .join');
+            
+            const startIndex = (currentPage - 1) * pageSize + 1;
+            const endIndex = Math.min(currentPage * pageSize, totalItems);
+            
+            paginationInfo.textContent = `显示 ${startIndex}-${endIndex} / 共 ${totalItems} 条`;
+            
+            // Generate pagination buttons
+            let buttonsHTML = `<button class="join-item btn btn-sm" ${currentPage === 1 ? 'disabled' : ''} onclick="loadTopics(${currentPage - 1})">«</button>`;
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    buttonsHTML += `<button class="join-item btn btn-sm ${i === currentPage ? 'btn-active' : ''}" onclick="loadTopics(${i})">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    buttonsHTML += `<button class="join-item btn btn-sm btn-disabled">...</button>`;
+                }
+            }
+            
+            buttonsHTML += `<button class="join-item btn btn-sm" ${currentPage === totalPages ? 'disabled' : ''} onclick="loadTopics(${currentPage + 1})">»</button>`;
+            
+            paginationButtons.innerHTML = buttonsHTML;
+        }
+
+        function searchTopics() {
+            currentPage = 1;
+            renderTopics();
+        }
+
+        function filterTopics() {
+            currentPage = 1;
+            renderTopics();
+        }
+
+        async function openEditModal(topicId, topicName, sermonCount) {
+            currentTopic = allTopics.find(t => t.id === topicId);
+            if (!currentTopic) {
+                alert('主题组不存在');
+                return;
+            }
+            
+            document.getElementById('modal-title').textContent = `编辑主题组 - ${topicName}`;
+            document.getElementById('sermon-count').textContent = `${sermonCount}篇`;
+            document.getElementById('topic-status').value = currentTopic.status;
+            
+            // Reset icon preview and uploaded data
+            uploadedIconData = null;
+            const iconPreview = document.getElementById('topic-icon-preview');
+            
+            // Set icon preview based on current topic
+            if (currentTopic.cover_image_url && currentTopic.cover_image_url.startsWith('data:')) {
+                // Base64 image
+                iconPreview.style.backgroundImage = `url(${currentTopic.cover_image_url})`;
+                iconPreview.style.backgroundSize = 'cover';
+                iconPreview.style.backgroundPosition = 'center';
+                iconPreview.innerHTML = '';
+            } else {
+                // Default gradient icon
+                const gradient = getTopicGradient(currentTopic.id);
+                const iconName = getTopicIcon(currentTopic.id);
+                iconPreview.className = `w-16 h-16 ${gradient} rounded-lg flex items-center justify-center cursor-pointer`;
+                iconPreview.style.backgroundImage = '';
+                iconPreview.innerHTML = `<span class="iconify text-white" data-icon="heroicons:${iconName}" data-width="32"></span>`;
+            }
+            
+            // Reset file input
+            document.getElementById('icon-upload').value = '';
+            
+            // Always show delete button for all topics
+            const deleteSection = document.getElementById('delete-topic-section');
+            console.log('Delete section element:', deleteSection);
+            console.log('Current topic ID:', currentTopic.id);
+            console.log('Is custom topic?', currentTopic.id.startsWith('topic-1'));
+            
+            if (deleteSection) {
+                // Show delete button for all topics (both custom and system)
+                deleteSection.style.display = 'block';
+                console.log('✅ Showing delete button');
+            } else {
+                console.error('❌ Delete section element not found!');
+            }
+            
+            // Load sermons for this topic
+            await loadTopicSermons(topicId);
+            
+            document.getElementById('edit-topic-modal').showModal();
+        }
+        
+        async function loadTopicSermons(topicId) {
+            try {
+                console.log('Loading sermons for topic:', topicId);
+                
+                // Fetch all sermons
+                const response = await fetch('http://localhost:3000/v1/sermons');
+                const data = await response.json();
+                const allSermons = data.data || data;
+                
+                console.log('All sermons fetched:', allSermons.length);
+                
+                let topicSermons = [];
+                
+                // Check if there's a localStorage override for this topic
+                const localStorageSermons = localStorage.getItem(`topic-${topicId}-sermons`);
+                
+                if (localStorageSermons) {
+                    // Use localStorage sermon list (for both custom and modified API topics)
+                    const sermonIds = JSON.parse(localStorageSermons);
+                    console.log('Using localStorage sermon IDs:', sermonIds);
+                    topicSermons = allSermons.filter(sermon => sermonIds.includes(sermon.id));
+                } else if (topicId.startsWith('topic-1')) {
+                    // Custom topic without localStorage (shouldn't happen, but handle it)
+                    console.log('Custom topic without localStorage');
+                    topicSermons = [];
+                } else {
+                    // API topic without localStorage override - use default topic_ids
+                    console.log('API topic, filtering by topic_ids field');
+                    
+                    // Check the first sermon's structure
+                    if (allSermons.length > 0) {
+                        console.log('Sample sermon topics:', allSermons[0].topics);
+                    }
+                    
+                    topicSermons = allSermons.filter(sermon => {
+                        // API uses topic_ids (array of strings)
+                        const topicArray = sermon.topic_ids || sermon.topics;
+                        
+                        if (!topicArray) {
+                            console.log(`Sermon ${sermon.id} has no topics field`);
+                            return false;
+                        }
+                        
+                        // Check if topicArray is an array of strings or objects
+                        const hasThisTopic = topicArray.some(t => {
+                            // If t is a string, compare directly
+                            if (typeof t === 'string') {
+                                return t === topicId;
+                            }
+                            // If t is an object with id, compare id
+                            if (t && typeof t === 'object' && t.id) {
+                                return t.id === topicId;
+                            }
+                            return false;
+                        });
+                        
+                        if (hasThisTopic) {
+                            console.log(`Sermon ${sermon.id} (${sermon.title}) belongs to topic ${topicId}`);
+                        }
+                        
+                        return hasThisTopic;
+                    });
+                }
+                
+                console.log('Found topic sermons:', topicSermons.length);
+                
+                // Update topic's sermon count cache
+                if (currentTopic) {
+                    currentTopic.topic_sermons_cache = topicSermons.length;
+                    
+                    // Update in allTopics array
+                    const topicIndex = allTopics.findIndex(t => t.id === currentTopic.id);
+                    if (topicIndex !== -1) {
+                        allTopics[topicIndex].topic_sermons_cache = topicSermons.length;
+                    }
+                }
+                
+                // Render sermons table
+                renderTopicSermons(topicSermons);
+            } catch (error) {
+                console.error('Failed to load topic sermons:', error);
+                document.getElementById('sermons-table-body').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-base-content/70">
+                            加载讲道失败: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        function renderTopicSermons(sermons) {
+            const tbody = document.getElementById('sermons-table-body');
+            
+            if (sermons.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-base-content/70">
+                            该主题组暂无讲道
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('sermon-count').textContent = '0篇';
+                return;
+            }
+            
+            tbody.innerHTML = sermons.map(sermon => {
+                const duration = sermon.duration ? `${Math.floor(sermon.duration / 60)}:${(sermon.duration % 60).toString().padStart(2, '0')}` : '--:--';
+                
+                // Normalize status to Chinese
+                let displayStatus = sermon.status;
+                if (sermon.status === 'published') {
+                    displayStatus = '已发布';
+                } else if (sermon.status === 'pending') {
+                    displayStatus = '待审核';
+                } else if (sermon.status === 'rejected') {
+                    displayStatus = '已拒绝';
+                }
+                
+                const statusBadge = displayStatus === '已发布' ? 'badge-success' : 'badge-warning';
+                
+                return `
+                    <tr class="hover">
+                        <td><input type="checkbox" class="checkbox checkbox-sm sermon-checkbox" data-id="${sermon.id}"></td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium">${sermon.title}</span>
+                            </div>
+                        </td>
+                        <td>${sermon.speaker?.name || '未知讲员'}</td>
+                        <td>${duration}</td>
+                        <td><span class="badge ${statusBadge} badge-sm">${displayStatus}</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-ghost btn-xs text-error" onclick="removeSermonFromTopic('${sermon.id}')">
+                                <span class="iconify" data-icon="heroicons:trash" data-width="14"></span>
+                                移除
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            document.getElementById('sermon-count').textContent = `${sermons.length}篇`;
+        }
+
+        let uploadedIconData = null;
+        
+        function previewIcon(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('topic-icon-preview');
+                    preview.style.backgroundImage = `url(${e.target.result})`;
+                    preview.style.backgroundSize = 'cover';
+                    preview.style.backgroundPosition = 'center';
+                    preview.innerHTML = '';
+                    
+                    // Store the base64 data for saving
+                    uploadedIconData = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function deleteTopic() {
+            if (!currentTopic) return;
+            
+            const topicName = currentTopic.name;
+            const isCustomTopic = currentTopic.id.startsWith('topic-1');
+            const topicType = isCustomTopic ? '自定义主题组' : '系统主题组';
+            
+            if (confirm(`确定要删除${topicType}"${topicName}"吗？\n\n主题组内的讲道不会被删除，只是解除关联。`)) {
+                try {
+                    // Call API to delete topic
+                    const response = await fetch(`http://localhost:3000/v1/topics/${currentTopic.id}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (!response.ok || !result.success) {
+                        throw new Error(result.error?.message || '删除失败');
+                    }
+                    
+                    console.log('✅ Topic deleted via API:', result.data);
+                    
+                    // Update localStorage
+                    if (isCustomTopic) {
+                        // For custom topics, remove from localStorage customTopics
+                        const customTopics = JSON.parse(localStorage.getItem('customTopics') || '[]');
+                        const updatedTopics = customTopics.filter(t => t.id !== currentTopic.id);
+                        localStorage.setItem('customTopics', JSON.stringify(updatedTopics));
+                    } else {
+                        // For system topics, add to deletedSystemTopics list
+                        const deletedSystemTopics = JSON.parse(localStorage.getItem('deletedSystemTopics') || '[]');
+                        if (!deletedSystemTopics.includes(currentTopic.id)) {
+                            deletedSystemTopics.push(currentTopic.id);
+                            localStorage.setItem('deletedSystemTopics', JSON.stringify(deletedSystemTopics));
+                            console.log('Added to deleted system topics:', currentTopic.id);
+                        }
+                    }
+                    
+                    // Remove sermon associations
+                    localStorage.removeItem(`topic-${currentTopic.id}-sermons`);
+                    
+                    // Remove from allTopics array
+                    allTopics = allTopics.filter(t => t.id !== currentTopic.id);
+                    
+                    alert(`${topicType}"${topicName}"已删除。讲道未被删除，只是解除了关联。`);
+                    document.getElementById('edit-topic-modal').close();
+                    renderTopics();
+                } catch (error) {
+                    console.error('Failed to delete topic:', error);
+                    alert(`删除失败：${error.message}`);
+                }
+            }
+        }
+
+        function searchModalSermons() {
+            const searchTerm = document.getElementById('modal-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#sermons-table-body tr');
+            
+            rows.forEach(row => {
+                const title = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+                const speaker = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
+                
+                if (title.includes(searchTerm) || speaker.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('.sermon-checkbox');
+            checkboxes.forEach(cb => {
+                if (cb.closest('tr').style.display !== 'none') {
+                    cb.checked = checkbox.checked;
+                }
+            });
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.sermon-checkbox:checked');
+            document.getElementById('selected-count').textContent = checkboxes.length;
+        }
+
+        // Update count when individual checkbox is clicked
+        document.addEventListener('change', (e) => {
+            if (e.target.classList.contains('sermon-checkbox')) {
+                updateSelectedCount();
+            }
+            if (e.target.classList.contains('available-sermon-checkbox')) {
+                updateAddSelectedCount();
+            }
+        });
+
+        function removeSermon(button) {
+            if (confirm('确定要从主题组中移除这篇讲道吗？')) {
+                const row = button.closest('tr');
+                row.remove();
+                updateSermonCount();
+                alert('讲道已移除');
+            }
+        }
+
+        function batchRemove() {
+            const checkboxes = document.querySelectorAll('.sermon-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('请选择要移除的讲道');
+                return;
+            }
+            
+            if (confirm(`确定要移除选中的 ${checkboxes.length} 篇讲道吗？`)) {
+                checkboxes.forEach(checkbox => {
+                    checkbox.closest('tr').remove();
+                });
+                
+                // Save updated sermon list to localStorage
+                if (currentTopic) {
+                    const tbody = document.getElementById('sermons-table-body');
+                    const remainingCheckboxes = tbody.querySelectorAll('input[data-id]');
+                    const topicSermons = Array.from(remainingCheckboxes).map(cb => cb.getAttribute('data-id'));
+                    
+                    localStorage.setItem(`topic-${currentTopic.id}-sermons`, JSON.stringify(topicSermons));
+                    
+                    // Update sermon count in currentTopic and cache
+                    currentTopic.sermon_count = topicSermons.length;
+                    currentTopic.topic_sermons_cache = topicSermons.length;
+                    
+                    // Update in allTopics array
+                    const allTopicsIndex = allTopics.findIndex(t => t.id === currentTopic.id);
+                    if (allTopicsIndex !== -1) {
+                        allTopics[allTopicsIndex].sermon_count = topicSermons.length;
+                        allTopics[allTopicsIndex].topic_sermons_cache = topicSermons.length;
+                    }
+                    
+                    // If custom topic, also update in customTopics
+                    if (currentTopic.id.startsWith('topic-1')) {
+                        const customTopics = JSON.parse(localStorage.getItem('customTopics') || '[]');
+                        const topicIndex = customTopics.findIndex(t => t.id === currentTopic.id);
+                        if (topicIndex !== -1) {
+                            customTopics[topicIndex].sermon_count = topicSermons.length;
+                            customTopics[topicIndex].topic_sermons_cache = topicSermons.length;
+                            localStorage.setItem('customTopics', JSON.stringify(customTopics));
+                        }
+                    }
+                    
+                    // Refresh the topics list to show updated count
+                    renderTopics();
+                }
+                
+                updateSermonCount();
+                updateSelectedCount();
+                alert('选中的讲道已移除');
+            }
+        }
+
+        function updateSermonCount() {
+            const visibleRows = document.querySelectorAll('#sermons-table-body tr:not([style*="display: none"])');
+            document.getElementById('sermon-count').textContent = `${visibleRows.length}篇`;
+        }
+
+        async function saveTopicChanges() {
+            if (!currentTopic) return;
+            
+            const status = document.getElementById('topic-status').value;
+            
+            // Update topic status
+            currentTopic.status = status;
+            currentTopic.updated_at = new Date().toISOString();
+            
+            // Update icon if uploaded
+            if (uploadedIconData) {
+                currentTopic.cover_image_url = uploadedIconData;
+                uploadedIconData = null; // Reset after saving
+            }
+            
+            // Get current sermon list
+            const tbody = document.getElementById('sermons-table-body');
+            const checkboxes = tbody.querySelectorAll('input[data-id]');
+            const sermon_ids = Array.from(checkboxes).map(cb => cb.getAttribute('data-id'));
+            
+            try {
+                // Call API to update topic
+                const response = await fetch(`http://localhost:3000/v1/topics/${currentTopic.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(currentTopic)
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error?.message || '保存失败');
+                }
+                
+                console.log('✅ Topic updated via API:', result.data);
+                
+                // Update sermon list via API
+                const sermonsResponse = await fetch(`http://localhost:3000/v1/topics/${currentTopic.id}/sermons`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ sermon_ids })
+                });
+                
+                const sermonsResult = await sermonsResponse.json();
+                
+                if (!sermonsResponse.ok || !sermonsResult.success) {
+                    throw new Error(sermonsResult.error?.message || '保存sermon列表失败');
+                }
+                
+                console.log('✅ Topic sermons updated via API:', sermonsResult.data);
+                
+                // Update localStorage
+                localStorage.setItem(`topic-${currentTopic.id}-sermons`, JSON.stringify(sermon_ids));
+                
+                if (currentTopic.id.startsWith('topic-1')) {
+                    const customTopics = JSON.parse(localStorage.getItem('customTopics') || '[]');
+                    const index = customTopics.findIndex(t => t.id === currentTopic.id);
+                    if (index !== -1) {
+                        customTopics[index] = result.data;
+                        localStorage.setItem('customTopics', JSON.stringify(customTopics));
+                    }
+                }
+                
+                // Update in allTopics array
+                const allTopicsIndex = allTopics.findIndex(t => t.id === currentTopic.id);
+                if (allTopicsIndex !== -1) {
+                    allTopics[allTopicsIndex] = result.data;
+                }
+                
+                // Re-render topics list
+                renderTopics();
+                
+                alert('主题组更改已保存！\n\n状态: ' + (status === 'active' ? '已启用' : '已禁用'));
+                document.getElementById('edit-topic-modal').close();
+            } catch (error) {
+                console.error('Failed to save topic changes:', error);
+                alert(`保存失败：${error.message}`);
+            }
+        }
+
+        // Add Sermon Modal Functions
+        async function openAddSermonModal() {
+            await loadAvailableSermons();
+            document.getElementById('add-sermon-modal').showModal();
+        }
+        
+        async function loadAvailableSermons() {
+            try {
+                const response = await fetch('http://localhost:3000/v1/sermons');
+                const data = await response.json();
+                const allSermons = data.data || data;
+                
+                console.log('All sermons:', allSermons.length);
+                
+                // Filter only published sermons (support both English and Chinese status)
+                const publishedSermons = allSermons.filter(sermon => 
+                    sermon.status === '已发布' || sermon.status === 'published'
+                );
+                console.log('Published sermons:', publishedSermons.length);
+                
+                // Get current topic's sermon IDs
+                const currentSermonIds = new Set();
+                const tbody = document.getElementById('sermons-table-body');
+                const rows = tbody.querySelectorAll('tr');
+                
+                // Only get IDs from actual sermon rows, not from empty state messages
+                rows.forEach(row => {
+                    const checkbox = row.querySelector('input[data-id]');
+                    if (checkbox) {
+                        currentSermonIds.add(checkbox.getAttribute('data-id'));
+                    }
+                });
+                
+                console.log('Current sermon IDs:', Array.from(currentSermonIds));
+                
+                // Filter out sermons already in this topic
+                const availableSermons = publishedSermons.filter(sermon => !currentSermonIds.has(sermon.id));
+                console.log('Available sermons:', availableSermons.length);
+                
+                // Render available sermons
+                renderAvailableSermons(availableSermons);
+            } catch (error) {
+                console.error('Failed to load available sermons:', error);
+                document.getElementById('available-sermons-body').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-base-content/70">
+                            加载讲道失败: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        function renderAvailableSermons(sermons) {
+            const tbody = document.getElementById('available-sermons-body');
+            
+            if (sermons.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-base-content/70">
+                            没有可添加的讲道
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = sermons.map(sermon => {
+                const uploadDate = new Date(sermon.created_at).toLocaleDateString('zh-CN');
+                
+                // Normalize status to Chinese
+                let displayStatus = sermon.status;
+                if (sermon.status === 'published') {
+                    displayStatus = '已发布';
+                } else if (sermon.status === 'pending') {
+                    displayStatus = '待审核';
+                } else if (sermon.status === 'rejected') {
+                    displayStatus = '已拒绝';
+                }
+                
+                return `
+                    <tr class="hover">
+                        <td><input type="checkbox" class="checkbox checkbox-sm available-sermon-checkbox" data-id="${sermon.id}" data-title="${sermon.title}" data-speaker="${sermon.speaker?.name || '未知讲员'}"></td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium">${sermon.title}</span>
+                            </div>
+                        </td>
+                        <td>${sermon.speaker?.name || '未知讲员'}</td>
+                        <td>${uploadDate}</td>
+                        <td><span class="badge badge-success badge-sm">${displayStatus}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function searchAvailableSermons() {
+            const searchTerm = document.getElementById('add-sermon-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#available-sermons-body tr');
+            
+            rows.forEach(row => {
+                const title = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+                const speaker = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
+                
+                if (title.includes(searchTerm) || speaker.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleSelectAllAvailable(checkbox) {
+            const checkboxes = document.querySelectorAll('.available-sermon-checkbox');
+            checkboxes.forEach(cb => {
+                if (cb.closest('tr').style.display !== 'none') {
+                    cb.checked = checkbox.checked;
+                }
+            });
+            updateAddSelectedCount();
+        }
+
+        function updateAddSelectedCount() {
+            const checkboxes = document.querySelectorAll('.available-sermon-checkbox:checked');
+            document.getElementById('add-selected-count').textContent = checkboxes.length;
+        }
+
+        async function confirmAddSermons() {
+            const checkboxes = document.querySelectorAll('.available-sermon-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('请选择要添加的讲道');
+                return;
+            }
+
+            // Get sermon data from checkboxes
+            const selectedSermons = Array.from(checkboxes).map(checkbox => ({
+                id: checkbox.getAttribute('data-id'),
+                title: checkbox.getAttribute('data-title'),
+                speaker: checkbox.getAttribute('data-speaker')
+            }));
+
+            // Fetch full sermon data for duration and status
+            try {
+                const response = await fetch('http://localhost:3000/v1/sermons');
+                const data = await response.json();
+                const allSermons = data.data || data;
+                
+                // Add selected sermons to the main table
+                selectedSermons.forEach(selected => {
+                    const sermon = allSermons.find(s => s.id === selected.id);
+                    if (!sermon) return;
+                    
+                    const duration = sermon.duration ? `${Math.floor(sermon.duration / 60)}:${(sermon.duration % 60).toString().padStart(2, '0')}` : '--:--';
+                    
+                    // Normalize status to Chinese
+                    let displayStatus = sermon.status;
+                    if (sermon.status === 'published') {
+                        displayStatus = '已发布';
+                    } else if (sermon.status === 'pending') {
+                        displayStatus = '待审核';
+                    } else if (sermon.status === 'rejected') {
+                        displayStatus = '已拒绝';
+                    }
+                    
+                    const statusBadge = displayStatus === '已发布' ? 'badge-success' : 'badge-warning';
+                    
+                    // Create new row in sermons table
+                    const newRow = document.createElement('tr');
+                    newRow.className = 'hover';
+                    newRow.innerHTML = `
+                        <td><input type="checkbox" class="checkbox checkbox-sm sermon-checkbox" data-id="${sermon.id}"></td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium">${sermon.title}</span>
+                            </div>
+                        </td>
+                        <td>${sermon.speaker?.name || '未知讲员'}</td>
+                        <td>${duration}</td>
+                        <td><span class="badge ${statusBadge} badge-sm">${displayStatus}</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-ghost btn-xs text-error" onclick="removeSermonFromTopic('${sermon.id}')">
+                                <span class="iconify" data-icon="heroicons:trash" data-width="14"></span>
+                                移除
+                            </button>
+                        </td>
+                    `;
+                    document.getElementById('sermons-table-body').appendChild(newRow);
+                });
+
+                // Save sermon IDs to localStorage for both custom and API topics
+                if (currentTopic) {
+                    // Get all sermon IDs currently in the table (including existing ones)
+                    const tbody = document.getElementById('sermons-table-body');
+                    const allRowCheckboxes = tbody.querySelectorAll('input[data-id]');
+                    const topicSermons = Array.from(allRowCheckboxes).map(cb => cb.getAttribute('data-id'));
+                    
+                    console.log('Saving sermon IDs to localStorage:', topicSermons);
+                    localStorage.setItem(`topic-${currentTopic.id}-sermons`, JSON.stringify(topicSermons));
+                    
+                    // Update sermon count in currentTopic and cache
+                    currentTopic.sermon_count = topicSermons.length;
+                    currentTopic.topic_sermons_cache = topicSermons.length;
+                    
+                    // Update in allTopics array
+                    const allTopicsIndex = allTopics.findIndex(t => t.id === currentTopic.id);
+                    if (allTopicsIndex !== -1) {
+                        allTopics[allTopicsIndex].sermon_count = topicSermons.length;
+                        allTopics[allTopicsIndex].topic_sermons_cache = topicSermons.length;
+                    }
+                    
+                    // If custom topic, also update in customTopics
+                    if (currentTopic.id.startsWith('topic-1')) {
+                        const customTopics = JSON.parse(localStorage.getItem('customTopics') || '[]');
+                        const index = customTopics.findIndex(t => t.id === currentTopic.id);
+                        if (index !== -1) {
+                            customTopics[index].sermon_count = topicSermons.length;
+                            customTopics[index].topic_sermons_cache = topicSermons.length;
+                            localStorage.setItem('customTopics', JSON.stringify(customTopics));
+                        }
+                    }
+                }
+
+                updateSermonCount();
+                updateAddSelectedCount();
+                
+                // Refresh the topics list to show updated count
+                renderTopics();
+                
+                // Close the "该主题组暂无讲道" message by updating the UI
+                // Check if the table is showing empty state
+                const tbody = document.getElementById('sermons-table-body');
+                const emptyRow = tbody.querySelector('td[colspan="6"]');
+                if (emptyRow) {
+                    // Remove the empty state message since we just added sermons
+                    emptyRow.closest('tr').remove();
+                }
+                
+                // Uncheck checkboxes
+                checkboxes.forEach(cb => cb.checked = false);
+                
+                alert(`成功添加 ${checkboxes.length} 篇讲道到主题组`);
+                document.getElementById('add-sermon-modal').close();
+            } catch (error) {
+                console.error('Failed to add sermons:', error);
+                alert('添加讲道失败，请重试');
+            }
+        }
+        
+        function removeSermonFromTopic(sermonId) {
+            if (!confirm('确定要从主题组中移除这篇讲道吗？')) {
+                return;
+            }
+            
+            // Remove from UI
+            const row = document.querySelector(`input[data-id="${sermonId}"]`)?.closest('tr');
+            if (row) {
+                row.remove();
+            }
+            
+            // Remove sermon ID from localStorage for both custom and API topics
+            if (currentTopic) {
+                const topicSermons = JSON.parse(localStorage.getItem(`topic-${currentTopic.id}-sermons`) || '[]');
+                const index = topicSermons.indexOf(sermonId);
+                if (index !== -1) {
+                    topicSermons.splice(index, 1);
+                    localStorage.setItem(`topic-${currentTopic.id}-sermons`, JSON.stringify(topicSermons));
+                    
+                    // Update sermon count in currentTopic and cache
+                    currentTopic.sermon_count = topicSermons.length;
+                    currentTopic.topic_sermons_cache = topicSermons.length;
+                    
+                    // Update in allTopics array
+                    const allTopicsIndex = allTopics.findIndex(t => t.id === currentTopic.id);
+                    if (allTopicsIndex !== -1) {
+                        allTopics[allTopicsIndex].sermon_count = topicSermons.length;
+                        allTopics[allTopicsIndex].topic_sermons_cache = topicSermons.length;
+                    }
+                    
+                    // If custom topic, also update in customTopics
+                    if (currentTopic.id.startsWith('topic-1')) {
+                        const customTopics = JSON.parse(localStorage.getItem('customTopics') || '[]');
+                        const topicIndex = customTopics.findIndex(t => t.id === currentTopic.id);
+                        if (topicIndex !== -1) {
+                            customTopics[topicIndex].sermon_count = topicSermons.length;
+                            customTopics[topicIndex].topic_sermons_cache = topicSermons.length;
+                            localStorage.setItem('customTopics', JSON.stringify(customTopics));
+                        }
+                    }
+                }
+            }
+            
+            updateSermonCount();
+            
+            // Refresh the topics list to show updated count
+            renderTopics();
+            
+            alert('讲道已移除');
+        }
+
+        // Create Topic Modal Functions
+        function openCreateModal() {
+            // Reset form
+            document.getElementById('new-topic-name').value = '';
+            document.getElementById('new-topic-description').value = '';
+            document.getElementById('new-topic-icon').value = '';
+            document.getElementById('new-topic-status').value = 'active';
+            
+            document.getElementById('create-topic-modal').showModal();
+        }
+
+        async function createTopic() {
+            const name = document.getElementById('new-topic-name').value.trim();
+            const description = document.getElementById('new-topic-description').value.trim();
+            const status = document.getElementById('new-topic-status').value;
+            
+            if (!name) {
+                alert('请输入主题组名称');
+                return;
+            }
+            
+            // Generate topic ID
+            const topicId = `topic-${Date.now()}`;
+            
+            // Create new topic object
+            const newTopic = {
+                id: topicId,
+                name: name,
+                name_en: name,
+                slug: name.toLowerCase().replace(/\s+/g, '-'),
+                description: description || '暂无描述',
+                cover_image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
+                icon: 'folder',
+                color: '#60A5FA',
+                parent_id: null,
+                sermon_count: 0,
+                follower_count: 0,
+                total_play_count: 0,
+                total_duration: 0,
+                speaker_count: 0,
+                is_featured: false,
+                display_order: allTopics.length + 1,
+                status: status,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                metadata: {
+                    keywords: [],
+                    related_topics: []
+                }
+            };
+            
+            try {
+                // Call API to create topic
+                const response = await fetch('http://localhost:3000/v1/topics', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newTopic)
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error?.message || '创建失败');
+                }
+                
+                console.log('✅ Topic created via API:', result.data);
+                
+                // Add to allTopics array
+                allTopics.push(result.data);
+                
+                // Also save to localStorage customTopics for offline access
+                const savedTopics = JSON.parse(localStorage.getItem('customTopics') || '[]');
+                savedTopics.push(result.data);
+                localStorage.setItem('customTopics', JSON.stringify(savedTopics));
+                
+                // Re-render
+                currentPage = Math.ceil(allTopics.length / pageSize);
+                renderTopics();
+                
+                alert(`主题组创建成功！\n\n名称: ${name}\n状态: ${status === 'active' ? '已启用' : '已禁用'}`);
+                document.getElementById('create-topic-modal').close();
+            } catch (error) {
+                console.error('Failed to create topic:', error);
+                alert(`创建主题组失败：${error.message}`);
+            }
+        }
+        
+        // Load custom topics on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTopics(1);
+        });
+    </script>
+</body>
+</html>
+

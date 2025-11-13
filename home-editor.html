@@ -834,17 +834,19 @@
                     // 从 API 加载讲道列表
                     const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=50');
                     const result = await response.json();
-                    const sermons = result.data || result;
+                    // API 返回格式: { success: true, data: [...] }
+                    const sermons = result.success ? result.data : (result.data || result);
                     items = sermons.map(sermon => ({
                         id: sermon.id,
                         title: sermon.title,
-                        speaker: sermon.speaker?.name || '未知讲员'
+                        speaker: sermon.speaker_name || sermon.speaker?.name || '未知讲员'
                     }));
                 } else if (isSpeakersType) {
                     // 从 API 加载讲员列表
                     const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_limit=50');
                     const result = await response.json();
-                    const speakers = result.data || result;
+                    // API 返回格式: { success: true, data: [...] }
+                    const speakers = result.success ? result.data : (result.data || result);
                     items = speakers.map(speaker => ({
                         id: speaker.id,
                         name: speaker.name,
@@ -854,7 +856,8 @@
                     // 从 API 加载主题列表
                     const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=50');
                     const result = await response.json();
-                    const topics = result.data || result;
+                    // API 返回格式: { success: true, data: [...] }
+                    const topics = result.success ? result.data : (result.data || result);
                     items = topics.map(topic => ({
                         id: topic.id,
                         title: topic.name,

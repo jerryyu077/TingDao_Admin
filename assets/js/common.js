@@ -3,8 +3,11 @@
 // 全局命名空间
 window.TingdaoAdmin = window.TingdaoAdmin || {};
 
-// API基础URL
-const API_BASE_URL = 'http://localhost:3000/v1';
+// API基础URL - 从 api-config.js 导入
+// 如果 APIConfig 未定义，使用默认值
+const API_BASE_URL = (typeof APIConfig !== 'undefined' && APIConfig.baseURL) 
+    ? `${APIConfig.baseURL}${APIConfig.apiVersion}` 
+    : 'https://tingdao-api.living-water-tingdaoapp.workers.dev/api/v1';
 
 // 获取认证令牌
 function getAuthToken() {

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API连接测试 - TingDao Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/api-config.js"></script>
+</head>
+<body class="bg-base-200">
+    <div class="container mx-auto p-8">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h1 class="card-title text-3xl mb-6">🧪 Cloudflare API 连接测试</h1>
+                
+                <!-- API配置显示 -->
+                <div class="alert alert-info mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div>
+                        <div class="font-bold">当前API地址</div>
+                        <div id="apiUrl" class="text-sm opacity-80"></div>
+                    </div>
+                </div>
+
+                <!-- 测试按钮 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <button class="btn btn-primary" onclick="testSermons()">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        测试讲道API
+                    </button>
+                    <button class="btn btn-primary" onclick="testSpeakers()">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        测试讲员API
+                    </button>
+                    <button class="btn btn-primary" onclick="testTopics()">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                        测试主题API
+                    </button>
+                    <button class="btn btn-primary" onclick="testUsers()">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        测试用户API
+                    </button>
+                </div>
+
+                <!-- 测试结果 -->
+                <div class="divider">测试结果</div>
+                <div id="results" class="space-y-4">
+                    <!-- 结果将显示在这里 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 显示当前API地址
+        document.getElementById('apiUrl').textContent = APIConfig.baseURL + APIConfig.apiVersion;
+
+        // 通用API测试函数
+        async function testAPI(endpoint, name) {
+            const resultsDiv = document.getElementById('results');
+            const resultId = `result-${Date.now()}`;
+            
+            // 添加加载状态
+            resultsDiv.innerHTML = `
+                <div id="${resultId}" class="alert">
+                    <span class="loading loading-spinner"></span>
+                    <span>正在测试 ${name}...</span>
+                </div>
+            ` + resultsDiv.innerHTML;
+
+            try {
+                const url = `${APIConfig.baseURL}${APIConfig.apiVersion}${endpoint}`;
+                const startTime = Date.now();
+                const response = await fetch(url);
+                const endTime = Date.now();
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById(resultId).className = 'alert alert-success';
+                    document.getElementById(resultId).innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <div>
+                            <div class="font-bold">✅ ${name} - 成功</div>
+                            <div class="text-sm">
+                                响应时间: ${endTime - startTime}ms | 
+                                数据量: ${data.data?.length || 1} 条 |
+                                ${data.pagination ? `总计: ${data.pagination.total} 条` : ''}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.error?.message || '未知错误');
+                }
+            } catch (error) {
+                document.getElementById(resultId).className = 'alert alert-error';
+                document.getElementById(resultId).innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <div>
+                        <div class="font-bold">❌ ${name} - 失败</div>
+                        <div class="text-sm">${error.message}</div>
+                    </div>
+                `;
+            }
+        }
+
+        // 测试各个端点
+        function testSermons() {
+            testAPI('/sermons?_limit=5', '讲道列表');
+        }
+
+        function testSpeakers() {
+            testAPI('/speakers?_limit=5', '讲员列表');
+        }
+
+        function testTopics() {
+            testAPI('/topics?_limit=5', '主题列表');
+        }
+
+        function testUsers() {
+            testAPI('/users?_limit=5', '用户列表');
+        }
+
+        // 页面加载时自动运行所有测试
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                testSermons();
+                setTimeout(() => testSpeakers(), 500);
+                setTimeout(() => testTopics(), 1000);
+                setTimeout(() => testUsers(), 1500);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
+

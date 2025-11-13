@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>发现页模块编辑器 v1.5 - 听道后台管理系统</title>
+    <title>发现页模块编辑器 v1.6 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -671,13 +671,32 @@
             } catch (error) {
                 console.error('❌ 加载配置失败:', error);
                 showNotification('加载配置失败，使用默认配置', 'warning');
+                // 使用默认标签
+                renderFilterTags(getDefaultFilterTags());
             }
         }
         window.loadDiscoverConfig = loadDiscoverConfig;
         
+        // 获取默认筛选标签
+        function getDefaultFilterTags() {
+            return [
+                { id: 'daily-recommended', title: '每日推荐' },
+                { id: 'latest-uploads', title: '最新上传' },
+                { id: 'most-popular', title: '最受欢迎' },
+                { id: 'popular-speakers', title: '热门讲员' },
+                { id: 'popular-topics', title: '热门主题' }
+            ];
+        }
+        
         // 渲染筛选标签
         function renderFilterTags(filterTags) {
             const container = document.getElementById('tags-container');
+            
+            // 如果没有标签，使用默认标签
+            if (!filterTags || filterTags.length === 0) {
+                filterTags = getDefaultFilterTags();
+            }
+            
             container.innerHTML = '';
             
             filterTags.forEach((tag, index) => {

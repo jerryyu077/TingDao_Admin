@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>开屏页模块编辑器 v1.0 - 听道后台管理系统</title>
+    <title>开屏页模块编辑器 v1.1 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -428,7 +428,7 @@
             };
             
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/launch-screen-config', {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/launch-screen-config`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',

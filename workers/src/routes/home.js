@@ -94,6 +94,146 @@ export async function getCurationHomeConfig(request, env) {
   return getHomeConfig(request, env);
 }
 
+// GET /v1/curation/discover-config - 获取发现页配置
+export async function getDiscoverConfig(request, env) {
+  try {
+    const sql = 'SELECT discover_tags, discover_daily_sermon, discover_popular_sermons, discover_popular_speakers, discover_popular_topics FROM home_config WHERE id = ?';
+    let config = await queryOne(env.DB, sql, [1]);
+    
+    if (!config) {
+      return success({
+        config: {
+          filterTags: []
+        }
+      });
+    }
+
+    // 解析JSON字段并转换为前端期望的格式
+    const filterTags = config.discover_tags ? JSON.parse(config.discover_tags) : [];
+    
+    return success({
+      config: {
+        filterTags: filterTags
+      }
+    });
+  } catch (e) {
+    console.error('Error fetching discover config:', e);
+    return error('获取发现页配置失败: ' + e.message);
+  }
+}
+
+// PATCH /v1/curation/discover-config - 更新发现页配置
+export async function updateDiscoverConfig(request, env) {
+  try {
+    const data = await request.json();
+    const now = new Date().toISOString();
+    
+    // 从配置中提取标签数据
+    const filterTags = data.config?.filterTags || [];
+    
+    const sql = `
+      UPDATE home_config SET
+        discover_tags = ?,
+        updated_at = ?
+      WHERE id = 1
+    `;
+    
+    await execute(env.DB, sql, [
+      JSON.stringify(filterTags),
+      now
+    ]);
+
+    return success({ id: 'discover-config' }, { message: '发现页配置更新成功' });
+  } catch (e) {
+    console.error('Error updating discover config:', e);
+    return error('更新发现页配置失败: ' + e.message);
+  }
+}
+
+// GET /v1/curation/launch-screen-config - 获取启动页配置（兼容API）
+export async function getLaunchScreenConfig(request, env) {
+  try {
+    const sql = 'SELECT * FROM launch_screen WHERE id = ?';
+    let config = await queryOne(env.DB, sql, ['default']);
+    
+    if (!config) {
+      return success({
+        config: {
+          illustrationUrl: '',
+          scripture: {
+            text: '',
+            reference: ''
+          }
+        }
+      });
+    }
+
+    return success({
+      config: {
+        illustrationUrl: config.image_url || '',
+        scripture: {
+          text: config.scripture_text || '',
+          reference: config.scripture_reference || ''
+        }
+      }
+    });
+  } catch (e) {
+    console.error('Error fetching launch screen config:', e);
+    return error('获取启动页配置失败: ' + e.message);
+  }
+}
+
+// PATCH /v1/curation/launch-screen-config - 更新启动页配置
+export async function updateLaunchScreenConfig(request, env) {
+  try {
+    const data = await request.json();
+    const config = data.config || {};
+    
+    const existing = await queryOne(env.DB, 'SELECT id FROM launch_screen WHERE id = ?', ['default']);
+    
+    const now = new Date().toISOString();
+    
+    if (existing) {
+      const sql = `
+        UPDATE launch_screen SET
+          image_url = ?,
+          scripture_text = ?,
+          scripture_reference = ?,
+          updated_at = ?
+        WHERE id = ?
+      `;
+      
+      await execute(env.DB, sql, [
+        config.illustrationUrl || '',
+        config.scripture?.text || '',
+        config.scripture?.reference || '',
+        now,
+        'default'
+      ]);
+    } else {
+      const sql = `
+        INSERT INTO launch_screen (
+          id, image_url, scripture_text, scripture_reference, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?)
+      `;
+      
+      await execute(env.DB, sql, [
+        'default',
+        config.illustrationUrl || '',
+        config.scripture?.text || '',
+        config.scripture?.reference || '',
+        now,
+        now
+      ]);
+    }
+
+    return success({ id: 'launch-screen-config' }, { message: '启动页配置更新成功' });
+  } catch (e) {
+    console.error('Error updating launch screen config:', e);
+    return error('更新启动页配置失败: ' + e.message);
+  }
+}
+
 // GET /v1/launch-screen - 获取启动页配置
 export async function getLaunchScreen(request, env) {
   try {

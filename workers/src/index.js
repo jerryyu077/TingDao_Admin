@@ -182,6 +182,26 @@ export default {
         return await homeRoute.getCurationHomeConfig(request, env);
       }
       
+      // GET /v1/curation/discover-config
+      if (path === '/api/v1/curation/discover-config' && method === 'GET') {
+        return await homeRoute.getDiscoverConfig(request, env);
+      }
+      
+      // PATCH /v1/curation/discover-config
+      if (path === '/api/v1/curation/discover-config' && method === 'PATCH') {
+        return await homeRoute.updateDiscoverConfig(request, env);
+      }
+      
+      // GET /v1/curation/launch-screen-config
+      if (path === '/api/v1/curation/launch-screen-config' && method === 'GET') {
+        return await homeRoute.getLaunchScreenConfig(request, env);
+      }
+      
+      // PATCH /v1/curation/launch-screen-config
+      if (path === '/api/v1/curation/launch-screen-config' && method === 'PATCH') {
+        return await homeRoute.updateLaunchScreenConfig(request, env);
+      }
+      
       // GET /v1/launch-screen
       if (path === '/api/v1/launch-screen' && method === 'GET') {
         return await homeRoute.getLaunchScreen(request, env);

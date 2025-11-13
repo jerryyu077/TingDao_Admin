@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>发现页模块编辑器 v1.0 - 听道后台管理系统</title>
+    <title>发现页模块编辑器 v1.1 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -626,7 +626,7 @@
         async function loadDiscoverConfig() {
             try {
                 console.log('🔄 加载发现页配置...');
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/discover-config');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/discover-config`);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
@@ -1390,7 +1390,7 @@
 
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Discover Editor 页面已加载 v1.0');
+            console.log('✅ Discover Editor 页面已加载 v1.1 (template string quote fixed)');
             console.log('✅ 所有函数已绑定到 window 对象 (12个函数)');
             
             // 初始化标签拖拽

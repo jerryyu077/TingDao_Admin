@@ -70,7 +70,7 @@ const SermonsPage = {
             this.showLoading(true);
             
             // Build URL with speaker_id filter if present
-            let url = 'http://localhost:3000/v1/sermons';
+            let url = `${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`;
             if (this.filters.speaker_id) {
                 url += `?speaker_id=${this.filters.speaker_id}`;
             }

@@ -558,7 +558,7 @@
         // Load topics from API
         async function loadTopics(page = 1) {
             try {
-                const response = await fetch('http://localhost:3000/v1/topics');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics');
                 const data = await response.json();
                 let apiTopics = data.data || data;
                 
@@ -806,7 +806,7 @@
                 console.log('Loading sermons for topic:', topicId);
                 
                 // Fetch all sermons
-                const response = await fetch('http://localhost:3000/v1/sermons');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -975,7 +975,7 @@
             if (confirm(`确定要删除${topicType}"${topicName}"吗？\n\n主题组内的讲道不会被删除，只是解除关联。`)) {
                 try {
                     // Call API to delete topic
-                    const response = await fetch(`http://localhost:3000/v1/topics/${currentTopic.id}`, {
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${currentTopic.id}`, {
                         method: 'DELETE'
                     });
                     
@@ -1148,7 +1148,7 @@
             
             try {
                 // Call API to update topic
-                const response = await fetch(`http://localhost:3000/v1/topics/${currentTopic.id}`, {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${currentTopic.id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1165,7 +1165,7 @@
                 console.log('✅ Topic updated via API:', result.data);
                 
                 // Update sermon list via API
-                const sermonsResponse = await fetch(`http://localhost:3000/v1/topics/${currentTopic.id}/sermons`, {
+                const sermonsResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${currentTopic.id}/sermons`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1218,7 +1218,7 @@
         
         async function loadAvailableSermons() {
             try {
-                const response = await fetch('http://localhost:3000/v1/sermons');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1353,7 +1353,7 @@
 
             // Fetch full sermon data for duration and status
             try {
-                const response = await fetch('http://localhost:3000/v1/sermons');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1562,7 +1562,7 @@
             
             try {
                 // Call API to create topic
-                const response = await fetch('http://localhost:3000/v1/topics', {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

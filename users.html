@@ -566,12 +566,12 @@
         // Load users from API
         async function loadUsers() {
             try {
-                const response = await fetch('http://localhost:3000/v1/users');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users');
                 const data = await response.json();
                 const users = data.data || data;
                 
                 // Get sermon data to calculate sermon counts
-                const sermonsResponse = await fetch('http://localhost:3000/v1/sermons');
+                const sermonsResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
                 const sermonsData = await sermonsResponse.json();
                 const sermons = sermonsData.data || sermonsData;
                 
@@ -662,7 +662,7 @@
                     
                     // Update each user via API
                     for (const userId of userIds) {
-                        const response = await fetch(`http://localhost:3000/v1/users/${userId}`, {
+                        const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users/${userId}`, {
                             method: 'PATCH',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -719,7 +719,7 @@
                     
                     // Update each user via API
                     for (const userId of userIds) {
-                        const response = await fetch(`http://localhost:3000/v1/users/${userId}`, {
+                        const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users/${userId}`, {
                             method: 'PATCH',
                             headers: {
                                 'Content-Type': 'application/json',

@@ -598,7 +598,7 @@
             
             try {
                 // Save to backend API
-                const response = await fetch(`http://localhost:3000/v1/sermons/${sermonId}`, {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json'
@@ -898,7 +898,7 @@
                 
                 try {
                     // Update status in backend API
-                    const response = await fetch(`http://localhost:3000/v1/sermons/${sermonId}`, {
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`, {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json'
@@ -933,7 +933,7 @@
                 
                 try {
                     // Update status in backend API
-                    const response = await fetch(`http://localhost:3000/v1/sermons/${sermonId}`, {
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`, {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1007,7 +1007,7 @@
                 
                 try {
                     // Update status in backend API
-                    const response = await fetch(`http://localhost:3000/v1/sermons/${sermonId}`, {
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`, {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1185,7 +1185,7 @@
             
             // First, try to load from API
             try {
-                const response = await fetch(`http://localhost:3000/v1/sermons/${sermonId}`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`);
                 if (response.ok) {
                     const result = await response.json();
                     const apiData = result.data;

@@ -518,7 +518,7 @@
         async function loadUserSermons(userId) {
             try {
                 // Fetch all sermons from API
-                const response = await fetch('http://localhost:3000/v1/sermons');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
                 const data = await response.json();
                 const allSermons = data.data || data;
 
@@ -642,7 +642,7 @@
             
             try {
                 // Call API to update user
-                const response = await fetch(`http://localhost:3000/v1/users/${currentUserId}`, {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users/${currentUserId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

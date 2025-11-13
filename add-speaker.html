@@ -416,7 +416,7 @@
                 console.log('Submitting speaker data:', speakerData);
                 
                 // Submit to API
-                const response = await fetch('http://localhost:3000/v1/speakers', {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

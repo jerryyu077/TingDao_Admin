@@ -832,7 +832,7 @@
                 
                 if (isSermonsType) {
                     // 从 API 加载讲道列表
-                    const response = await fetch('http://localhost:3000/v1/sermons?_limit=50');
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=50');
                     const result = await response.json();
                     const sermons = result.data || result;
                     items = sermons.map(sermon => ({
@@ -842,7 +842,7 @@
                     }));
                 } else if (isSpeakersType) {
                     // 从 API 加载讲员列表
-                    const response = await fetch('http://localhost:3000/v1/speakers?_limit=50');
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_limit=50');
                     const result = await response.json();
                     const speakers = result.data || result;
                     items = speakers.map(speaker => ({
@@ -852,7 +852,7 @@
                     }));
                 } else if (isTopicsType) {
                     // 从 API 加载主题列表
-                    const response = await fetch('http://localhost:3000/v1/topics?_limit=50');
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=50');
                     const result = await response.json();
                     const topics = result.data || result;
                     items = topics.map(topic => ({

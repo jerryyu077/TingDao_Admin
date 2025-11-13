@@ -658,7 +658,7 @@
     // Load topics from API
     async function loadTopics() {
         try {
-            const response = await fetch('http://localhost:3000/v1/topics');
+            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics');
             const result = await response.json();
             
             if (result.success && result.data) {
@@ -791,7 +791,7 @@
             // Fetch speaker details from API for complete info
             let speakerDetails = { name: speaker.name, title: speaker.title };
             try {
-                const speakerResponse = await fetch(`http://localhost:3000/v1/speakers/${speakerId}`);
+                const speakerResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`);
                 const speakerResult = await speakerResponse.json();
                 if (speakerResult.success && speakerResult.data) {
                     speakerDetails = {
@@ -839,7 +839,7 @@
             
             console.log('Submitting sermon data:', sermonData);
             
-            const response = await fetch('http://localhost:3000/v1/sermons', {
+            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -913,7 +913,7 @@
     // Load speakers from API
     async function loadSpeakers() {
         try {
-            const response = await fetch('http://localhost:3000/v1/speakers');
+            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers');
             const result = await response.json();
             
             if (result.success && result.data) {
@@ -931,7 +931,7 @@
     // Load users from API
     async function loadUsers() {
         try {
-            const response = await fetch('http://localhost:3000/v1/users');
+            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users');
             const result = await response.json();
             
             if (result.success && result.data) {

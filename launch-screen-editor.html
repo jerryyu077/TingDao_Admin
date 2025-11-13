@@ -325,7 +325,7 @@
         // 加载配置
         async function loadConfig() {
             try {
-                const response = await fetch('http://localhost:3000/v1/curation/launch-screen-config');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/launch-screen-config');
                 if (!response.ok) {
                     throw new Error('Failed to load config');
                 }
@@ -422,7 +422,7 @@
             };
             
             try {
-                const response = await fetch('http://localhost:3000/v1/curation/launch-screen-config', {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/launch-screen-config', {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',

@@ -409,7 +409,7 @@
                 document.getElementById('speakersTableBody').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-base-content/70">加载中...</td></tr>';
                 
                 // Load all speakers to calculate stats and populate church filter
-                const allResponse = await fetch(`http://localhost:3000/v1/speakers`);
+                const allResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`);
                 const allResult = await allResponse.json();
                 
                 if (allResult.success) {
@@ -418,7 +418,7 @@
                     populateChurchFilter(allData);
                     
                     // Now load paginated data
-                    const response = await fetch(`http://localhost:3000/v1/speakers?_page=${page}&_limit=${pageSize}`);
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_page=${page}&_limit=${pageSize}`);
                     const result = await response.json();
                     
                     if (result.success) {
@@ -573,7 +573,7 @@
                 }
 
                 // Load all speakers for filtering
-                const response = await fetch(`http://localhost:3000/v1/speakers`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`);
                 const result = await response.json();
                 
                 if (result.success) {
@@ -629,7 +629,7 @@
                     
                     // Update each speaker's status
                     for (const speakerId of speakerIds) {
-                        const response = await fetch(`http://localhost:3000/v1/speakers/${speakerId}`, {
+                        const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`, {
                             method: 'PATCH',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -669,7 +669,7 @@
                     
                     // Update each speaker's status
                     for (const speakerId of speakerIds) {
-                        const response = await fetch(`http://localhost:3000/v1/speakers/${speakerId}`, {
+                        const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`, {
                             method: 'PATCH',
                             headers: {
                                 'Content-Type': 'application/json',

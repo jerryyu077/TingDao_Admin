@@ -506,7 +506,7 @@
             }
 
             try {
-                const response = await fetch(`http://localhost:3000/v1/speakers/${speakerId}`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`);
                 const result = await response.json();
                 
                 if (result.success && result.data) {
@@ -668,7 +668,7 @@
         // Load recent sermons for this speaker
         async function loadRecentSermons(speakerId) {
             try {
-                const response = await fetch(`http://localhost:3000/v1/sermons?speaker_id=${speakerId}&_limit=3&_sort=date&_order=desc`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?speaker_id=${speakerId}&_limit=3&_sort=date&_order=desc`);
                 const result = await response.json();
                 
                 const sermonsList = document.getElementById('recentSermonsList');
@@ -784,7 +784,7 @@
                 }
 
                 // Send PUT request to update speaker
-                const response = await fetch(`http://localhost:3000/v1/speakers/${speakerId}`, {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -914,7 +914,7 @@
             
             if (confirm('确认激活此讲员？')) {
                 try {
-                    const response = await fetch(`http://localhost:3000/v1/speakers/${currentSpeaker.id}`, {
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${currentSpeaker.id}`, {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
@@ -945,7 +945,7 @@
             
             if (confirm('确认停用此讲员？')) {
                 try {
-                    const response = await fetch(`http://localhost:3000/v1/speakers/${currentSpeaker.id}`, {
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${currentSpeaker.id}`, {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',

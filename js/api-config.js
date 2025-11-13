@@ -6,8 +6,11 @@
  * API 配置
  */
 const APIConfig = {
-    // 基础 URL
-    baseURL: 'http://localhost:3000',
+    // 基础 URL - Cloudflare Workers API
+    baseURL: 'https://tingdao-api.living-water-tingdaoapp.workers.dev/api',
+    
+    // 本地开发备用URL（取消注释以使用本地服务器）
+    // baseURL: 'http://localhost:3000',
     
     // 超时时间（毫秒）
     timeout: 30000,
@@ -19,7 +22,7 @@ const APIConfig = {
     debug: true,
     
     // API 版本（如果后端使用了版本前缀）
-    apiVersion: '/v1', // 使用 /v1 前缀，与后端 server.js 保持一致
+    apiVersion: '/v1', // 使用 /v1 前缀
     
     // 认证相关
     auth: {
@@ -33,7 +36,8 @@ const APIConfig = {
         maxFileSize: 100 * 1024 * 1024, // 100MB
         allowedAudioFormats: ['.mp3', '.m4a', '.wav'],
         allowedImageFormats: ['.jpg', '.jpeg', '.png', '.webp'],
-        chunkSize: 5 * 1024 * 1024 // 5MB chunks for large files
+        chunkSize: 5 * 1024 * 1024, // 5MB chunks for large files
+        cdnBaseURL: 'https://media.tingdao.app' // R2 CDN URL
     }
 };
 

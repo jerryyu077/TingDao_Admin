@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>首页模块编辑器 v2.1 - 听道后台管理系统</title>
+    <title>首页模块编辑器 v2.2 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -1216,7 +1216,7 @@
         
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Home Editor 页面已加载 v2.1');
+            console.log('✅ Home Editor 页面已加载 v2.2 (no curation-api.js conflict)');
             console.log('✅ 所有函数已绑定到 window 对象');
             
             // 使用事件委托绑定所有按钮
@@ -1251,19 +1251,10 @@
     </script>
 
     <!-- API Integration Scripts -->
-    <script src="js/api-config.js?v=20251105v27"></script>
-    <script src="js/api-client.js?v=20251105v27"></script>
-    <script src="js/api-services.js?v=20251105v27"></script>
-    <script src="js/curation-api.js?v=20251105v27"></script>
-
-    <!-- Initialize Home Editor Page -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof HomeEditorPage !== 'undefined') {
-                HomeEditorPage.init();
-            }
-        });
-    </script>
+    <script src="js/api-config.js?v=20251105v28"></script>
+    <script src="js/api-client.js?v=20251105v28"></script>
+    <script src="js/api-services.js?v=20251105v28"></script>
+    <!-- curation-api.js removed to avoid conflicts with inline scripts -->
 </body>
 </html>
 

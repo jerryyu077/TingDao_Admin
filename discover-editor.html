@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>发现页模块编辑器 v1.4 - 听道后台管理系统</title>
+    <title>发现页模块编辑器 v1.5 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -88,9 +88,9 @@
     </style>
 
     <!-- API Client -->
-    <script src="js/api-config.js?v=20251105v31"></script>
-    <script src="js/api-client.js?v=20251105v31"></script>
-    <script src="js/api-services.js?v=20251105v31"></script>
+    <script src="js/api-config.js?v=20251105v32"></script>
+    <script src="js/api-client.js?v=20251105v32"></script>
+    <script src="js/api-services.js?v=20251105v32"></script>
     <!-- curation-api.js removed to avoid conflicts with inline scripts -->
     
     <!-- 预先声明全局函数占位符，确保 onclick 可以找到函数 -->
@@ -1267,7 +1267,7 @@
                 console.log('📦 准备保存配置:', configData);
                 
                 // 保存到 API
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/discover-config', {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/discover-config`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1405,8 +1405,9 @@
 
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Discover Editor 页面已加载 v1.4 (function placeholders in head)');
+            console.log('✅ Discover Editor 页面已加载 v1.5 (final quote fix)');
             console.log('✅ 函数占位符已在 <head> 中预先声明');
+            console.log('✅ 所有模板字符串引号已修复 (6处)');
             console.log('✅ 所有函数已立即绑定到 window 对象 (12个函数)');
             
             // 初始化标签拖拽

@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>发现页模块编辑器 v1.2 - 听道后台管理系统</title>
+    <title>发现页模块编辑器 v1.3 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -568,12 +568,16 @@
     </dialog>
 
     <script>
+        // ==================== 立即绑定函数到全局作用域 ====================
+        // 这些函数需要在 HTML 解析时就可用（用于 onclick 属性）
+        
         // Global functions
         function handleLogout() {
             localStorage.removeItem('admin_token');
             localStorage.removeItem('admin_username');
             window.location.href = 'login.html';
         }
+        window.handleLogout = handleLogout;
 
         // Module expansion/collapse
         function toggleModuleExpand(button) {
@@ -589,6 +593,7 @@
                 icon.classList.add('rotated');
             }
         }
+        window.toggleModuleExpand = toggleModuleExpand;
 
         // Tag drag and drop (5 fixed tags, no add/remove)
         function initTagDragDrop() {
@@ -621,6 +626,7 @@
                 });
             });
         }
+        window.initTagDragDrop = initTagDragDrop;
         
         // 加载发现页配置
         async function loadDiscoverConfig() {
@@ -653,6 +659,7 @@
                 showNotification('加载配置失败，使用默认配置', 'warning');
             }
         }
+        window.loadDiscoverConfig = loadDiscoverConfig;
         
         // 渲染筛选标签
         function renderFilterTags(filterTags) {
@@ -841,6 +848,7 @@
                 showNotification('error', '加载失败: ' + error.message);
             }
         }
+        window.autoLoadLatestSermons = autoLoadLatestSermons;
         
         // Initialize tag drag drop on load
         document.addEventListener('DOMContentLoaded', function() {
@@ -960,6 +968,7 @@
             loadContentItems(type, contentGrid);
             modal.showModal();
         }
+        window.openContentSelector = openContentSelector;
         
         async function loadContentItems(type, container) {
             container.innerHTML = '<div class="col-span-3 flex justify-center items-center h-48"><span class="loading loading-spinner loading-lg text-primary"></span></div>';
@@ -1212,21 +1221,25 @@
             modal.close();
             selectedItems = [];
         }
+        window.confirmContentSelection = confirmContentSelection;
 
         // Remove item from grid
         function removeItem(button) {
             button.closest('.card').remove();
             showNotification('已移除', 'success');
         }
+        window.removeItem = removeItem;
         
         // Utility functions
         function openPreviewMode() {
             showNotification('预览模式功能开发中', 'info');
         }
+        window.openPreviewMode = openPreviewMode;
         
         function openPublishHistory() {
             showNotification('发布历史功能开发中', 'info');
         }
+        window.openPublishHistory = openPublishHistory;
         
         async function saveAndPublish() {
             const button = event.target;
@@ -1270,6 +1283,7 @@
                 showNotification(`保存失败: ${error.message}`, 'error');
             }
         }
+        window.saveAndPublish = saveAndPublish;
         
         // 收集发现页配置
         function collectDiscoverConfig() {
@@ -1373,25 +1387,13 @@
                 setTimeout(() => notification.remove(), 150);
             }, 3000);
         }
-        
-        // 确保函数在全局作用域中可用
-        window.handleLogout = handleLogout;
-        window.toggleModuleExpand = toggleModuleExpand;
-        window.openContentSelector = openContentSelector;
-        window.removeItem = removeItem;
-        window.autoLoadLatestSermons = autoLoadLatestSermons;
-        window.confirmContentSelection = confirmContentSelection;
-        window.openPreviewMode = openPreviewMode;
-        window.openPublishHistory = openPublishHistory;
-        window.saveAndPublish = saveAndPublish;
         window.showNotification = showNotification;
-        window.loadDiscoverConfig = loadDiscoverConfig;
-        window.initTagDragDrop = initTagDragDrop;
 
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Discover Editor 页面已加载 v1.2 (all quotes fixed)');
-            console.log('✅ 所有函数已绑定到 window 对象 (12个函数)');
+            console.log('✅ Discover Editor 页面已加载 v1.3 (immediate binding)');
+            console.log('✅ 所有函数已立即绑定到 window 对象 (12个函数)');
+            console.log('✅ onclick 属性现在可以正常工作');
             
             // 初始化标签拖拽
             initTagDragDrop();

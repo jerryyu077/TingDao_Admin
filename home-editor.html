@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>首页模块编辑器 v2.2 - 听道后台管理系统</title>
+    <title>首页模块编辑器 v2.3 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -835,7 +835,7 @@
                 
                 if (isSermonsType) {
                     // 从 API 加载讲道列表
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=50');
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=50`);
                     const result = await response.json();
                     // API 返回格式: { success: true, data: [...] }
                     const sermons = result.success ? result.data : (result.data || result);
@@ -846,7 +846,7 @@
                     }));
                 } else if (isSpeakersType) {
                     // 从 API 加载讲员列表
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_limit=50');
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_limit=50`);
                     const result = await response.json();
                     // API 返回格式: { success: true, data: [...] }
                     const speakers = result.success ? result.data : (result.data || result);
@@ -857,7 +857,7 @@
                     }));
                 } else if (isTopicsType) {
                     // 从 API 加载主题列表
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=50');
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=50`);
                     const result = await response.json();
                     // API 返回格式: { success: true, data: [...] }
                     const topics = result.success ? result.data : (result.data || result);
@@ -1216,7 +1216,7 @@
         
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Home Editor 页面已加载 v2.2 (no curation-api.js conflict)');
+            console.log('✅ Home Editor 页面已加载 v2.3 (template string quotes fixed)');
             console.log('✅ 所有函数已绑定到 window 对象');
             
             // 使用事件委托绑定所有按钮

@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>首页模块编辑器 - 听道后台管理系统</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>首页模块编辑器 v2.0 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -1210,6 +1213,26 @@
         window.openContentSelector = openContentSelector;
         window.removeContent = removeContent;
         window.saveContentSelection = saveContentSelection;
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('✅ Home Editor 页面已加载');
+            console.log('✅ 所有函数已绑定到 window 对象');
+            
+            // 加载现有的经文数据
+            await loadExistingScriptures();
+        });
+        
+        // 从 API 加载现有经文
+        async function loadExistingScriptures() {
+            try {
+                // 注意：这里需要你实现一个 API 端点来获取经文列表
+                // 暂时先不加载，等 API 端点准备好再启用
+                console.log('📝 经文加载功能待实现');
+            } catch (error) {
+                console.error('加载经文失败:', error);
+            }
+        }
     </script>
 
     <!-- API Integration Scripts -->

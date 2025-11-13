@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>首页模块编辑器 v2.3 - 听道后台管理系统</title>
+    <title>首页模块编辑器 v2.4 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -1211,13 +1211,18 @@
         window.deleteScripture = deleteScripture;
         window.toggleModuleExpand = toggleModuleExpand;
         window.openContentSelector = openContentSelector;
-        window.removeContent = removeContent;
-        window.saveContentSelection = saveContentSelection;
+        window.removeItem = removeItem;
+        window.confirmContentSelection = confirmContentSelection;
+        window.openPreviewMode = openPreviewMode;
+        window.openPublishHistory = openPublishHistory;
+        window.saveAndPublish = saveAndPublish;
+        window.showNotification = showNotification;
+        window.handleLogout = handleLogout;
         
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Home Editor 页面已加载 v2.3 (template string quotes fixed)');
-            console.log('✅ 所有函数已绑定到 window 对象');
+            console.log('✅ Home Editor 页面已加载 v2.4 (all functions bound correctly)');
+            console.log('✅ 所有函数已绑定到 window 对象 (15个函数)');
             
             // 使用事件委托绑定所有按钮
             document.body.addEventListener('click', (e) => {

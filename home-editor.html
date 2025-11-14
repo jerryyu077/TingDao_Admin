@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>首页模块编辑器 v2.5 - 听道后台管理系统</title>
+    <title>首页模块编辑器 v2.6 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -1257,13 +1257,93 @@
         }
         
         async function saveAndPublish() {
-            // 调用 HomeEditorPage.saveConfig() 来保存配置
-            if (typeof HomeEditorPage !== 'undefined' && HomeEditorPage.saveConfig) {
-                await HomeEditorPage.saveConfig();
-            } else {
-                console.error('HomeEditorPage.saveConfig() not available');
-                showNotification('保存失败：API 未加载', 'error');
+            try {
+                console.log('📤 开始保存并发布首页配置...');
+                
+                // 1. 收集所有配置数据
+                const config = await collectConfigData();
+                
+                // 2. 保存到 API
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id: 'home-config',
+                        config: config
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`保存失败: HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.message || '保存失败');
+                }
+                
+                console.log('✅ 首页配置保存成功');
+                showNotification('首页配置已保存并发布成功！', 'success');
+                
+            } catch (error) {
+                console.error('❌ 保存首页配置失败:', error);
+                showNotification('保存失败: ' + error.message, 'error');
             }
+        }
+        
+        // 收集所有配置数据
+        async function collectConfigData() {
+            // 1. 获取当前经文列表（从页面上的卡片读取）
+            const scriptureCards = document.querySelectorAll('#scripture-list .card');
+            const scriptures = Array.from(scriptureCards).map((card, index) => {
+                const text = card.querySelector('p.text-sm')?.textContent.replace(/^"|"$/g, '') || '';
+                const reference = card.querySelector('p.text-xs')?.textContent || '';
+                const scriptureId = card.dataset.scriptureId || `scripture-${Date.now()}-${index}`;
+                
+                return {
+                    id: scriptureId,
+                    text: text,
+                    reference: reference,
+                    order: index + 1
+                };
+            });
+            
+            // 2. 收集推荐讲道 IDs（从推荐讲道卡片读取）
+            const recommendedSermonCards = document.querySelectorAll('[data-module-id="recommended-sermons"] .grid .card');
+            const recommendedSermons = Array.from(recommendedSermonCards).map(card => 
+                card.dataset.contentId || card.dataset.sermonId
+            ).filter(id => id);
+            
+            // 3. 收集主题讲道 IDs
+            const topicCards = document.querySelectorAll('[data-module-id="featured-topics"] .grid .card');
+            const featuredTopics = Array.from(topicCards).map(card => 
+                card.dataset.contentId || card.dataset.topicId
+            ).filter(id => id);
+            
+            // 4. 收集热门讲员 IDs
+            const speakerCards = document.querySelectorAll('[data-module-id="popular-speakers"] .grid .card');
+            const popularSpeakers = Array.from(speakerCards).map(card => 
+                card.dataset.contentId || card.dataset.speakerId
+            ).filter(id => id);
+            
+            console.log('📊 收集到的配置数据:', {
+                scriptures: scriptures.length,
+                recommendedSermons: recommendedSermons.length,
+                featuredTopics: featuredTopics.length,
+                popularSpeakers: popularSpeakers.length
+            });
+            
+            return {
+                scriptures: scriptures,
+                recommendedSermons: recommendedSermons,
+                moreRecommendedSermons: recommendedSermons, // 使用相同数据
+                featuredTopics: featuredTopics,
+                browseTopics: featuredTopics, // 使用相同数据
+                popularSpeakers: popularSpeakers,
+                moreSpeakers: popularSpeakers // 使用相同数据
+            };
         }
         
         function showNotification(message, type = 'info') {
@@ -1297,13 +1377,15 @@
         window.openPreviewMode = openPreviewMode;
         window.openPublishHistory = openPublishHistory;
         window.saveAndPublish = saveAndPublish;
+        window.collectConfigData = collectConfigData;
         window.showNotification = showNotification;
         window.handleLogout = handleLogout;
         
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Home Editor 页面已加载 v2.5 (scripture functionality fully implemented with API)');
-            console.log('📝 新功能: 经文库支持从API加载、添加、编辑和删除');
+            console.log('✅ Home Editor 页面已加载 v2.6 (save and publish functionality implemented)');
+            console.log('📝 新功能: 完整的保存并发布功能，自动收集所有模块数据');
+            console.log('🔧 修复: saveAndPublish() 不再依赖 HomeEditorPage 对象');
             console.log('✅ 所有函数已绑定到 window 对象 (15个函数)');
             
             // 使用事件委托绑定所有按钮

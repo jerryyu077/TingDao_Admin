@@ -1311,37 +1311,37 @@
             });
             
             // 2. 收集推荐讲道 IDs
-            const recommendedSermonCards = document.querySelectorAll('[data-module-id="recommended-sermons"] .grid .card');
+            const recommendedSermonCards = document.querySelectorAll('#sermons-grid .card');
             const recommendedSermons = Array.from(recommendedSermonCards).map(card => 
                 card.dataset.contentId || card.dataset.sermonId
             ).filter(id => id);
             
             // 3. 收集更多推荐页讲道 IDs
-            const moreRecommendedCards = document.querySelectorAll('[data-module-id="more-recommended"] .grid .card');
+            const moreRecommendedCards = document.querySelectorAll('#more-sermons-grid .card');
             const moreRecommendedSermons = Array.from(moreRecommendedCards).map(card => 
                 card.dataset.contentId || card.dataset.sermonId
             ).filter(id => id);
             
             // 4. 收集主题讲道 IDs
-            const topicSermonCards = document.querySelectorAll('[data-module-id="topic-sermons"] .grid .card');
+            const topicSermonCards = document.querySelectorAll('#topics-grid .card');
             const featuredTopics = Array.from(topicSermonCards).map(card => 
                 card.dataset.contentId || card.dataset.topicId
             ).filter(id => id);
             
             // 5. 收集浏览主题页 IDs
-            const browseTopicCards = document.querySelectorAll('[data-module-id="browse-topics"] .grid .card');
+            const browseTopicCards = document.querySelectorAll('#browse-topics-grid .card');
             const browseTopics = Array.from(browseTopicCards).map(card => 
                 card.dataset.contentId || card.dataset.topicId
             ).filter(id => id);
             
             // 6. 收集热门讲员 IDs
-            const speakerCards = document.querySelectorAll('[data-module-id="popular-speakers"] .grid .card');
+            const speakerCards = document.querySelectorAll('#speakers-grid .card');
             const popularSpeakers = Array.from(speakerCards).map(card => 
                 card.dataset.contentId || card.dataset.speakerId
             ).filter(id => id);
             
             // 7. 收集更多讲员页 IDs
-            const moreSpeakerCards = document.querySelectorAll('[data-module-id="more-speakers"] .grid .card');
+            const moreSpeakerCards = document.querySelectorAll('#more-speakers-grid .card');
             const moreSpeakers = Array.from(moreSpeakerCards).map(card => 
                 card.dataset.contentId || card.dataset.speakerId
             ).filter(id => id);
@@ -1483,20 +1483,32 @@
             }
         }
         
+        // 模块 ID 到容器 ID 的映射
+        const moduleContainerMap = {
+            'recommended-sermons': '#sermons-grid',
+            'more-recommended': '#more-sermons-grid',
+            'topic-sermons': '#topics-grid',
+            'browse-topics': '#browse-topics-grid',
+            'popular-speakers': '#speakers-grid',
+            'more-speakers': '#more-speakers-grid'
+        };
+        
         // 清空模块内容
         function clearModuleContent(moduleId) {
-            const container = document.querySelector(`[data-module-id="${moduleId}"] .grid`);
+            const containerId = moduleContainerMap[moduleId];
+            const container = containerId ? document.querySelector(containerId) : null;
             if (container) {
                 container.innerHTML = '';
-                console.log(`🧹 已清空模块: ${moduleId}`);
+                console.log(`🧹 已清空模块: ${moduleId} (${containerId})`);
             }
         }
         
         // 根据 IDs 加载讲道并显示
         async function loadSermonsByIds(sermonIds, moduleId) {
-            const container = document.querySelector(`[data-module-id="${moduleId}"] .grid`);
+            const containerId = moduleContainerMap[moduleId];
+            const container = containerId ? document.querySelector(containerId) : null;
             if (!container) {
-                console.warn(`⚠️ 未找到模块容器: ${moduleId}`);
+                console.warn(`⚠️ 未找到模块容器: ${moduleId} (${containerId})`);
                 return;
             }
             
@@ -1536,9 +1548,10 @@
         
         // 根据 IDs 加载主题并显示
         async function loadTopicsByIds(topicIds, moduleId) {
-            const container = document.querySelector(`[data-module-id="${moduleId}"] .grid`);
+            const containerId = moduleContainerMap[moduleId];
+            const container = containerId ? document.querySelector(containerId) : null;
             if (!container) {
-                console.warn(`⚠️ 未找到模块容器: ${moduleId}`);
+                console.warn(`⚠️ 未找到模块容器: ${moduleId} (${containerId})`);
                 return;
             }
             
@@ -1578,9 +1591,10 @@
         
         // 根据 IDs 加载讲员并显示
         async function loadSpeakersByIds(speakerIds, moduleId) {
-            const container = document.querySelector(`[data-module-id="${moduleId}"] .grid`);
+            const containerId = moduleContainerMap[moduleId];
+            const container = containerId ? document.querySelector(containerId) : null;
             if (!container) {
-                console.warn(`⚠️ 未找到模块容器: ${moduleId}`);
+                console.warn(`⚠️ 未找到模块容器: ${moduleId} (${containerId})`);
                 return;
             }
             
@@ -1620,10 +1634,11 @@
         
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Home Editor 页面已加载 v2.9 (fixed data persistence)');
-            console.log('📝 新功能: 支持所有 7 个模块的保存和加载');
-            console.log('🔧 修复: 更多推荐页、浏览主题页、更多讲员页数据保存和加载');
-            console.log('✅ 所有函数已绑定到 window 对象 (15个函数)');
+            console.log('✅ Home Editor 页面已加载 v3.0 (selector fix)');
+            console.log('🐛 修复: 使用正确的容器 ID 选择器 (#sermons-grid, #more-sermons-grid 等)');
+            console.log('🐛 修复: collectConfigData() 现在从正确的容器收集数据');
+            console.log('🐛 修复: loadSermonsByIds/loadTopicsByIds/loadSpeakersByIds 使用映射表');
+            console.log('✅ 所有函数已绑定到 window 对象 (18个函数)');
             
             // 使用事件委托绑定所有按钮
             document.body.addEventListener('click', (e) => {

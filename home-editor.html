@@ -1359,11 +1359,11 @@
             return {
                 scriptures: scriptures,
                 recommendedSermons: recommendedSermons,
-                moreRecommendedSermons: moreRecommendedSermons.length > 0 ? moreRecommendedSermons : recommendedSermons,
+                moreRecommendedSermons: moreRecommendedSermons,
                 featuredTopics: featuredTopics,
-                browseTopics: browseTopics.length > 0 ? browseTopics : featuredTopics,
+                browseTopics: browseTopics,
                 popularSpeakers: popularSpeakers,
-                moreSpeakers: moreSpeakers.length > 0 ? moreSpeakers : popularSpeakers
+                moreSpeakers: moreSpeakers
             };
         }
         
@@ -1399,6 +1399,11 @@
         window.openPublishHistory = openPublishHistory;
         window.saveAndPublish = saveAndPublish;
         window.collectConfigData = collectConfigData;
+        window.clearModuleContent = clearModuleContent;
+        window.loadAllConfigToPage = loadAllConfigToPage;
+        window.loadSermonsByIds = loadSermonsByIds;
+        window.loadTopicsByIds = loadTopicsByIds;
+        window.loadSpeakersByIds = loadSpeakersByIds;
         window.showNotification = showNotification;
         window.handleLogout = handleLogout;
         
@@ -1428,38 +1433,62 @@
                 }
                 
                 // 3. 加载更多推荐页讲道
-                if (config.moreRecommendedSermons && config.moreRecommendedSermons.length > 0) {
-                    console.log(`🔄 加载 ${config.moreRecommendedSermons.length} 个更多推荐页讲道...`);
-                    await loadSermonsByIds(config.moreRecommendedSermons, 'more-recommended');
+                const moreRecommendedSermons = config.moreRecommendedSermons || [];
+                if (moreRecommendedSermons.length > 0) {
+                    console.log(`🔄 加载 ${moreRecommendedSermons.length} 个更多推荐页讲道...`);
+                    await loadSermonsByIds(moreRecommendedSermons, 'more-recommended');
+                } else {
+                    clearModuleContent('more-recommended');
                 }
                 
                 // 4. 加载主题讲道
-                if (config.featuredTopics && config.featuredTopics.length > 0) {
-                    console.log(`🔄 加载 ${config.featuredTopics.length} 个主题讲道...`);
-                    await loadTopicsByIds(config.featuredTopics, 'topic-sermons');
+                const featuredTopics = config.featuredTopics || [];
+                if (featuredTopics.length > 0) {
+                    console.log(`🔄 加载 ${featuredTopics.length} 个主题讲道...`);
+                    await loadTopicsByIds(featuredTopics, 'topic-sermons');
+                } else {
+                    clearModuleContent('topic-sermons');
                 }
                 
                 // 5. 加载浏览主题页
-                if (config.browseTopics && config.browseTopics.length > 0) {
-                    console.log(`🔄 加载 ${config.browseTopics.length} 个浏览主题...`);
-                    await loadTopicsByIds(config.browseTopics, 'browse-topics');
+                const browseTopics = config.browseTopics || [];
+                if (browseTopics.length > 0) {
+                    console.log(`🔄 加载 ${browseTopics.length} 个浏览主题...`);
+                    await loadTopicsByIds(browseTopics, 'browse-topics');
+                } else {
+                    clearModuleContent('browse-topics');
                 }
                 
                 // 6. 加载热门讲员
-                if (config.popularSpeakers && config.popularSpeakers.length > 0) {
-                    console.log(`🔄 加载 ${config.popularSpeakers.length} 个热门讲员...`);
-                    await loadSpeakersByIds(config.popularSpeakers, 'popular-speakers');
+                const popularSpeakers = config.popularSpeakers || [];
+                if (popularSpeakers.length > 0) {
+                    console.log(`🔄 加载 ${popularSpeakers.length} 个热门讲员...`);
+                    await loadSpeakersByIds(popularSpeakers, 'popular-speakers');
+                } else {
+                    clearModuleContent('popular-speakers');
                 }
                 
                 // 7. 加载更多讲员页
-                if (config.moreSpeakers && config.moreSpeakers.length > 0) {
-                    console.log(`🔄 加载 ${config.moreSpeakers.length} 个更多讲员...`);
-                    await loadSpeakersByIds(config.moreSpeakers, 'more-speakers');
+                const moreSpeakers = config.moreSpeakers || [];
+                if (moreSpeakers.length > 0) {
+                    console.log(`🔄 加载 ${moreSpeakers.length} 个更多讲员...`);
+                    await loadSpeakersByIds(moreSpeakers, 'more-speakers');
+                } else {
+                    clearModuleContent('more-speakers');
                 }
                 
                 console.log('✅ 所有配置内容加载完成');
             } catch (error) {
                 console.error('❌ 加载配置内容失败:', error);
+            }
+        }
+        
+        // 清空模块内容
+        function clearModuleContent(moduleId) {
+            const container = document.querySelector(`[data-module-id="${moduleId}"] .grid`);
+            if (container) {
+                container.innerHTML = '';
+                console.log(`🧹 已清空模块: ${moduleId}`);
             }
         }
         
@@ -1591,7 +1620,7 @@
         
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Home Editor 页面已加载 v2.8 (all modules supported)');
+            console.log('✅ Home Editor 页面已加载 v2.9 (fixed data persistence)');
             console.log('📝 新功能: 支持所有 7 个模块的保存和加载');
             console.log('🔧 修复: 更多推荐页、浏览主题页、更多讲员页数据保存和加载');
             console.log('✅ 所有函数已绑定到 window 对象 (15个函数)');

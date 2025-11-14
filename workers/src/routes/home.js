@@ -114,8 +114,11 @@ export async function getCurationHomeConfig(request, env) {
     // 解析JSON字段
     const scriptures = config.scriptures ? JSON.parse(config.scriptures) : [];
     const recommendedSermons = config.recommended_sermons ? JSON.parse(config.recommended_sermons) : [];
+    const moreRecommendedSermons = config.more_recommended_sermons ? JSON.parse(config.more_recommended_sermons) : [];
     const featuredTopics = config.featured_topics ? JSON.parse(config.featured_topics) : [];
+    const browseTopics = config.browse_topics ? JSON.parse(config.browse_topics) : [];
     const featuredSpeakers = config.featured_speakers ? JSON.parse(config.featured_speakers) : [];
+    const moreSpeakers = config.more_speakers ? JSON.parse(config.more_speakers) : [];
 
     return success({
       id: 'home-config',
@@ -123,11 +126,11 @@ export async function getCurationHomeConfig(request, env) {
       config: {
         scriptures: scriptures,
         recommendedSermons: recommendedSermons,
-        moreRecommendedSermons: recommendedSermons, // 暂时用同一个数据
+        moreRecommendedSermons: moreRecommendedSermons,
         featuredTopics: featuredTopics,
-        browseTopics: featuredTopics, // 暂时用同一个数据
+        browseTopics: browseTopics,
         popularSpeakers: featuredSpeakers,
-        moreSpeakers: featuredSpeakers // 暂时用同一个数据
+        moreSpeakers: moreSpeakers
       }
     });
   } catch (e) {

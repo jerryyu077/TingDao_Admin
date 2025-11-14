@@ -993,6 +993,7 @@
                 
                 // 设置 data 属性（非常重要！）
                 if (isSermonsType) {
+                    newCard.setAttribute('data-content-id', item.id);
                     newCard.setAttribute('data-sermon-id', item.id);
                     newCard.innerHTML = `
                         <div class="card-body p-2">
@@ -1004,6 +1005,7 @@
                         </div>
                     `;
                 } else if (isSpeakersType) {
+                    newCard.setAttribute('data-content-id', item.id);
                     newCard.setAttribute('data-speaker-id', item.id);
                     newCard.innerHTML = `
                         <div class="card-body p-2">
@@ -1015,6 +1017,7 @@
                         </div>
                     `;
                 } else if (isTopicsType) {
+                    newCard.setAttribute('data-content-id', item.id);
                     newCard.setAttribute('data-topic-id', item.id);
                     newCard.innerHTML = `
                         <div class="card-body p-2">
@@ -1634,10 +1637,10 @@
         
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Home Editor 页面已加载 v3.0 (selector fix)');
-            console.log('🐛 修复: 使用正确的容器 ID 选择器 (#sermons-grid, #more-sermons-grid 等)');
-            console.log('🐛 修复: collectConfigData() 现在从正确的容器收集数据');
-            console.log('🐛 修复: loadSermonsByIds/loadTopicsByIds/loadSpeakersByIds 使用映射表');
+            console.log('✅ Home Editor 页面已加载 v3.1 (data-content-id fix)');
+            console.log('🐛 修复: confirmContentSelection 现在设置 data-content-id');
+            console.log('🐛 修复: 推荐讲道和更多推荐页现在可以独立修改');
+            console.log('🐛 修复: 所有主题和讲员卡片也设置了 data-content-id');
             console.log('✅ 所有函数已绑定到 window 对象 (18个函数)');
             
             // 使用事件委托绑定所有按钮

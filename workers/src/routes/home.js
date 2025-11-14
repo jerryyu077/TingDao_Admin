@@ -152,6 +152,13 @@ export async function updateCurationHomeConfig(request, env) {
     const popularSpeakers = config.popularSpeakers || [];
     const moreSpeakers = config.moreSpeakers || [];
     
+    console.log('📝 更新首页配置:', {
+      scriptures: scriptures.length,
+      recommendedSermons: recommendedSermons.length,
+      featuredTopics: featuredTopics.length,
+      popularSpeakers: popularSpeakers.length
+    });
+    
     const sql = `
       UPDATE home_config SET
         scriptures = ?,
@@ -162,20 +169,29 @@ export async function updateCurationHomeConfig(request, env) {
       WHERE id = 1
     `;
     
-    await execute(env.DB, sql, [
+    const result = await execute(env.DB, sql, [
       JSON.stringify(scriptures),
       JSON.stringify(recommendedSermons),
       JSON.stringify(featuredTopics),
       JSON.stringify(popularSpeakers),
       now
     ]);
+    
+    console.log('✅ 数据库更新结果:', result);
+    
+    // 验证保存是否成功 - 立即读取回来
+    const verifyResult = await queryOne(env.DB, 'SELECT scriptures, recommended_sermons, featured_topics, featured_speakers FROM home_config WHERE id = 1', []);
+    console.log('🔍 验证保存的数据:', {
+      scriptures_saved: verifyResult?.scriptures ? JSON.parse(verifyResult.scriptures).length : 0,
+      sermons_saved: verifyResult?.recommended_sermons ? JSON.parse(verifyResult.recommended_sermons).length : 0
+    });
 
     return success({ 
       id: 'home-config',
       config: config
     }, { message: '首页配置更新成功' });
   } catch (e) {
-    console.error('Error updating home config:', e);
+    console.error('❌ Error updating home config:', e);
     return error('更新首页配置失败: ' + e.message);
   }
 }

@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>首页模块编辑器 v2.6 - 听道后台管理系统</title>
+    <title>首页模块编辑器 v2.7 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -1381,11 +1381,180 @@
         window.showNotification = showNotification;
         window.handleLogout = handleLogout;
         
+        // 加载所有配置内容到页面
+        async function loadAllConfigToPage() {
+            try {
+                console.log('🔄 加载所有配置内容...');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                if (!result.success || !result.data) {
+                    throw new Error('API 返回格式错误');
+                }
+                
+                const config = result.data.config;
+                
+                // 1. 加载经文（已有函数）
+                await loadExistingScriptures();
+                
+                // 2. 加载推荐讲道
+                if (config.recommendedSermons && config.recommendedSermons.length > 0) {
+                    console.log(`🔄 加载 ${config.recommendedSermons.length} 个推荐讲道...`);
+                    await loadSermonsByIds(config.recommendedSermons, 'recommended-sermons');
+                }
+                
+                // 3. 加载主题讲道
+                if (config.featuredTopics && config.featuredTopics.length > 0) {
+                    console.log(`🔄 加载 ${config.featuredTopics.length} 个主题...`);
+                    await loadTopicsByIds(config.featuredTopics, 'featured-topics');
+                }
+                
+                // 4. 加载热门讲员
+                if (config.popularSpeakers && config.popularSpeakers.length > 0) {
+                    console.log(`🔄 加载 ${config.popularSpeakers.length} 个讲员...`);
+                    await loadSpeakersByIds(config.popularSpeakers, 'popular-speakers');
+                }
+                
+                console.log('✅ 所有配置内容加载完成');
+            } catch (error) {
+                console.error('❌ 加载配置内容失败:', error);
+            }
+        }
+        
+        // 根据 IDs 加载讲道并显示
+        async function loadSermonsByIds(sermonIds, moduleId) {
+            const container = document.querySelector(`[data-module-id="${moduleId}"] .grid`);
+            if (!container) {
+                console.warn(`⚠️ 未找到模块容器: ${moduleId}`);
+                return;
+            }
+            
+            container.innerHTML = ''; // 清空
+            
+            for (const sermonId of sermonIds) {
+                try {
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`);
+                    if (!response.ok) continue;
+                    
+                    const result = await response.json();
+                    const sermon = result.success ? result.data : null;
+                    if (!sermon) continue;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'card card-compact bg-base-200';
+                    card.dataset.contentId = sermon.id;
+                    card.dataset.sermonId = sermon.id;
+                    card.innerHTML = `
+                        <div class="card-body p-2">
+                            <div class="flex items-start gap-2">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">${sermon.title}</p>
+                                    <p class="text-xs text-base-content/60">${sermon.speaker_name || '未知讲员'}</p>
+                                </div>
+                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error">移除</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                    console.log(`✅ 加载讲道: ${sermon.title}`);
+                } catch (error) {
+                    console.error(`❌ 加载讲道 ${sermonId} 失败:`, error);
+                }
+            }
+        }
+        
+        // 根据 IDs 加载主题并显示
+        async function loadTopicsByIds(topicIds, moduleId) {
+            const container = document.querySelector(`[data-module-id="${moduleId}"] .grid`);
+            if (!container) {
+                console.warn(`⚠️ 未找到模块容器: ${moduleId}`);
+                return;
+            }
+            
+            container.innerHTML = ''; // 清空
+            
+            for (const topicId of topicIds) {
+                try {
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}`);
+                    if (!response.ok) continue;
+                    
+                    const result = await response.json();
+                    const topic = result.success ? result.data : null;
+                    if (!topic) continue;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'card card-compact bg-base-200';
+                    card.dataset.contentId = topic.id;
+                    card.dataset.topicId = topic.id;
+                    card.innerHTML = `
+                        <div class="card-body p-2">
+                            <div class="flex items-start gap-2">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">${topic.name}</p>
+                                    <p class="text-xs text-base-content/60">${topic.description || ''}</p>
+                                </div>
+                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error">移除</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                    console.log(`✅ 加载主题: ${topic.name}`);
+                } catch (error) {
+                    console.error(`❌ 加载主题 ${topicId} 失败:`, error);
+                }
+            }
+        }
+        
+        // 根据 IDs 加载讲员并显示
+        async function loadSpeakersByIds(speakerIds, moduleId) {
+            const container = document.querySelector(`[data-module-id="${moduleId}"] .grid`);
+            if (!container) {
+                console.warn(`⚠️ 未找到模块容器: ${moduleId}`);
+                return;
+            }
+            
+            container.innerHTML = ''; // 清空
+            
+            for (const speakerId of speakerIds) {
+                try {
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`);
+                    if (!response.ok) continue;
+                    
+                    const result = await response.json();
+                    const speaker = result.success ? result.data : null;
+                    if (!speaker) continue;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'card card-compact bg-base-200';
+                    card.dataset.contentId = speaker.id;
+                    card.dataset.speakerId = speaker.id;
+                    card.innerHTML = `
+                        <div class="card-body p-2">
+                            <div class="flex items-start gap-2">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">${speaker.name}</p>
+                                    <p class="text-xs text-base-content/60">${speaker.bio || ''}</p>
+                                </div>
+                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error">移除</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                    console.log(`✅ 加载讲员: ${speaker.name}`);
+                } catch (error) {
+                    console.error(`❌ 加载讲员 ${speakerId} 失败:`, error);
+                }
+            }
+        }
+        
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Home Editor 页面已加载 v2.6 (save and publish functionality implemented)');
-            console.log('📝 新功能: 完整的保存并发布功能，自动收集所有模块数据');
-            console.log('🔧 修复: saveAndPublish() 不再依赖 HomeEditorPage 对象');
+            console.log('✅ Home Editor 页面已加载 v2.7 (auto-load saved config)');
+            console.log('📝 新功能: 页面加载时自动从 API 读取并显示所有已保存内容');
+            console.log('🔧 修复: 刷新页面后内容不再丢失');
             console.log('✅ 所有函数已绑定到 window 对象 (15个函数)');
             
             // 使用事件委托绑定所有按钮
@@ -1403,8 +1572,8 @@
             
             console.log('✅ 事件委托已设置');
             
-            // 加载现有的经文数据
-            await loadExistingScriptures();
+            // 加载所有现有配置
+            await loadAllConfigToPage();
         });
         
         // 从 API 加载现有经文

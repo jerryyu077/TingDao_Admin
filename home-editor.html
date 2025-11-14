@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>首页模块编辑器 v2.7 - 听道后台管理系统</title>
+    <title>首页模块编辑器 v2.8 - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -1310,39 +1310,60 @@
                 };
             });
             
-            // 2. 收集推荐讲道 IDs（从推荐讲道卡片读取）
+            // 2. 收集推荐讲道 IDs
             const recommendedSermonCards = document.querySelectorAll('[data-module-id="recommended-sermons"] .grid .card');
             const recommendedSermons = Array.from(recommendedSermonCards).map(card => 
                 card.dataset.contentId || card.dataset.sermonId
             ).filter(id => id);
             
-            // 3. 收集主题讲道 IDs
-            const topicCards = document.querySelectorAll('[data-module-id="featured-topics"] .grid .card');
-            const featuredTopics = Array.from(topicCards).map(card => 
+            // 3. 收集更多推荐页讲道 IDs
+            const moreRecommendedCards = document.querySelectorAll('[data-module-id="more-recommended"] .grid .card');
+            const moreRecommendedSermons = Array.from(moreRecommendedCards).map(card => 
+                card.dataset.contentId || card.dataset.sermonId
+            ).filter(id => id);
+            
+            // 4. 收集主题讲道 IDs
+            const topicSermonCards = document.querySelectorAll('[data-module-id="topic-sermons"] .grid .card');
+            const featuredTopics = Array.from(topicSermonCards).map(card => 
                 card.dataset.contentId || card.dataset.topicId
             ).filter(id => id);
             
-            // 4. 收集热门讲员 IDs
+            // 5. 收集浏览主题页 IDs
+            const browseTopicCards = document.querySelectorAll('[data-module-id="browse-topics"] .grid .card');
+            const browseTopics = Array.from(browseTopicCards).map(card => 
+                card.dataset.contentId || card.dataset.topicId
+            ).filter(id => id);
+            
+            // 6. 收集热门讲员 IDs
             const speakerCards = document.querySelectorAll('[data-module-id="popular-speakers"] .grid .card');
             const popularSpeakers = Array.from(speakerCards).map(card => 
+                card.dataset.contentId || card.dataset.speakerId
+            ).filter(id => id);
+            
+            // 7. 收集更多讲员页 IDs
+            const moreSpeakerCards = document.querySelectorAll('[data-module-id="more-speakers"] .grid .card');
+            const moreSpeakers = Array.from(moreSpeakerCards).map(card => 
                 card.dataset.contentId || card.dataset.speakerId
             ).filter(id => id);
             
             console.log('📊 收集到的配置数据:', {
                 scriptures: scriptures.length,
                 recommendedSermons: recommendedSermons.length,
+                moreRecommendedSermons: moreRecommendedSermons.length,
                 featuredTopics: featuredTopics.length,
-                popularSpeakers: popularSpeakers.length
+                browseTopics: browseTopics.length,
+                popularSpeakers: popularSpeakers.length,
+                moreSpeakers: moreSpeakers.length
             });
             
             return {
                 scriptures: scriptures,
                 recommendedSermons: recommendedSermons,
-                moreRecommendedSermons: recommendedSermons, // 使用相同数据
+                moreRecommendedSermons: moreRecommendedSermons.length > 0 ? moreRecommendedSermons : recommendedSermons,
                 featuredTopics: featuredTopics,
-                browseTopics: featuredTopics, // 使用相同数据
+                browseTopics: browseTopics.length > 0 ? browseTopics : featuredTopics,
                 popularSpeakers: popularSpeakers,
-                moreSpeakers: popularSpeakers // 使用相同数据
+                moreSpeakers: moreSpeakers.length > 0 ? moreSpeakers : popularSpeakers
             };
         }
         
@@ -1397,7 +1418,7 @@
                 
                 const config = result.data.config;
                 
-                // 1. 加载经文（已有函数）
+                // 1. 加载经文
                 await loadExistingScriptures();
                 
                 // 2. 加载推荐讲道
@@ -1406,16 +1427,34 @@
                     await loadSermonsByIds(config.recommendedSermons, 'recommended-sermons');
                 }
                 
-                // 3. 加载主题讲道
-                if (config.featuredTopics && config.featuredTopics.length > 0) {
-                    console.log(`🔄 加载 ${config.featuredTopics.length} 个主题...`);
-                    await loadTopicsByIds(config.featuredTopics, 'featured-topics');
+                // 3. 加载更多推荐页讲道
+                if (config.moreRecommendedSermons && config.moreRecommendedSermons.length > 0) {
+                    console.log(`🔄 加载 ${config.moreRecommendedSermons.length} 个更多推荐页讲道...`);
+                    await loadSermonsByIds(config.moreRecommendedSermons, 'more-recommended');
                 }
                 
-                // 4. 加载热门讲员
+                // 4. 加载主题讲道
+                if (config.featuredTopics && config.featuredTopics.length > 0) {
+                    console.log(`🔄 加载 ${config.featuredTopics.length} 个主题讲道...`);
+                    await loadTopicsByIds(config.featuredTopics, 'topic-sermons');
+                }
+                
+                // 5. 加载浏览主题页
+                if (config.browseTopics && config.browseTopics.length > 0) {
+                    console.log(`🔄 加载 ${config.browseTopics.length} 个浏览主题...`);
+                    await loadTopicsByIds(config.browseTopics, 'browse-topics');
+                }
+                
+                // 6. 加载热门讲员
                 if (config.popularSpeakers && config.popularSpeakers.length > 0) {
-                    console.log(`🔄 加载 ${config.popularSpeakers.length} 个讲员...`);
+                    console.log(`🔄 加载 ${config.popularSpeakers.length} 个热门讲员...`);
                     await loadSpeakersByIds(config.popularSpeakers, 'popular-speakers');
+                }
+                
+                // 7. 加载更多讲员页
+                if (config.moreSpeakers && config.moreSpeakers.length > 0) {
+                    console.log(`🔄 加载 ${config.moreSpeakers.length} 个更多讲员...`);
+                    await loadSpeakersByIds(config.moreSpeakers, 'more-speakers');
                 }
                 
                 console.log('✅ 所有配置内容加载完成');
@@ -1552,9 +1591,9 @@
         
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Home Editor 页面已加载 v2.7 (auto-load saved config)');
-            console.log('📝 新功能: 页面加载时自动从 API 读取并显示所有已保存内容');
-            console.log('🔧 修复: 刷新页面后内容不再丢失');
+            console.log('✅ Home Editor 页面已加载 v2.8 (all modules supported)');
+            console.log('📝 新功能: 支持所有 7 个模块的保存和加载');
+            console.log('🔧 修复: 更多推荐页、浏览主题页、更多讲员页数据保存和加载');
             console.log('✅ 所有函数已绑定到 window 对象 (15个函数)');
             
             // 使用事件委托绑定所有按钮

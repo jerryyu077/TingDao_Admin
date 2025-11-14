@@ -163,8 +163,11 @@ export async function updateCurationHomeConfig(request, env) {
       UPDATE home_config SET
         scriptures = ?,
         recommended_sermons = ?,
+        more_recommended_sermons = ?,
         featured_topics = ?,
+        browse_topics = ?,
         featured_speakers = ?,
+        more_speakers = ?,
         updated_at = ?
       WHERE id = 1
     `;
@@ -172,8 +175,11 @@ export async function updateCurationHomeConfig(request, env) {
     const result = await execute(env.DB, sql, [
       JSON.stringify(scriptures),
       JSON.stringify(recommendedSermons),
+      JSON.stringify(moreRecommendedSermons),
       JSON.stringify(featuredTopics),
+      JSON.stringify(browseTopics),
       JSON.stringify(popularSpeakers),
+      JSON.stringify(moreSpeakers),
       now
     ]);
     

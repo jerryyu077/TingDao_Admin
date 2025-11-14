@@ -169,9 +169,13 @@ CREATE INDEX idx_sermon_topics_topic_id ON sermon_topics(topic_id);
 -- =====================================================
 CREATE TABLE IF NOT EXISTS home_config (
     id INTEGER PRIMARY KEY DEFAULT 1,  -- 永远只有一条记录
+    scriptures TEXT,  -- JSON数组: [{"id": "...", "text": "...", "reference": "..."}]
     recommended_sermons TEXT,  -- JSON数组: ["sermon-001", "sermon-002"]
+    more_recommended_sermons TEXT,  -- JSON数组: ["sermon-003", "sermon-004"] (更多推荐页)
     featured_topics TEXT,  -- JSON数组: ["topic-001", "topic-002"]
+    browse_topics TEXT,  -- JSON数组: ["topic-003", "topic-004"] (浏览主题页)
     featured_speakers TEXT,  -- JSON数组: ["speaker-001", "speaker-002"]
+    more_speakers TEXT,  -- JSON数组: ["speaker-003", "speaker-004"] (更多讲员页)
     discover_tags TEXT,  -- JSON数组: ["最受欢迎", "最新上传"]
     discover_daily_sermon TEXT,  -- 单个sermon_id
     discover_popular_sermons TEXT,  -- JSON数组: sermon_ids

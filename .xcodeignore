@@ -1,0 +1,7 @@
+node_modules/
+workers/node_modules/
+workers/.wrangler/
+cloudflare-setup/node_modules/
+*.log
+.DS_Store
+

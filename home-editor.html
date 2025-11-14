@@ -1359,6 +1359,14 @@
                 moreSpeakers: moreSpeakers.length
             });
             
+            console.log('📋 详细 IDs:');
+            console.log('  推荐讲道:', recommendedSermons);
+            console.log('  更多推荐页:', moreRecommendedSermons);
+            console.log('  主题讲道:', featuredTopics);
+            console.log('  浏览主题页:', browseTopics);
+            console.log('  热门讲员:', popularSpeakers);
+            console.log('  更多讲员页:', moreSpeakers);
+            
             return {
                 scriptures: scriptures,
                 recommendedSermons: recommendedSermons,
@@ -1426,19 +1434,24 @@
                 
                 const config = result.data.config;
                 
+                console.log('🔍 API 返回的配置:', {
+                    recommendedSermons: config.recommendedSermons,
+                    moreRecommendedSermons: config.moreRecommendedSermons
+                });
+                
                 // 1. 加载经文
                 await loadExistingScriptures();
                 
                 // 2. 加载推荐讲道
                 if (config.recommendedSermons && config.recommendedSermons.length > 0) {
-                    console.log(`🔄 加载 ${config.recommendedSermons.length} 个推荐讲道...`);
+                    console.log(`🔄 加载 ${config.recommendedSermons.length} 个推荐讲道...`, config.recommendedSermons);
                     await loadSermonsByIds(config.recommendedSermons, 'recommended-sermons');
                 }
                 
                 // 3. 加载更多推荐页讲道
                 const moreRecommendedSermons = config.moreRecommendedSermons || [];
                 if (moreRecommendedSermons.length > 0) {
-                    console.log(`🔄 加载 ${moreRecommendedSermons.length} 个更多推荐页讲道...`);
+                    console.log(`🔄 加载 ${moreRecommendedSermons.length} 个更多推荐页讲道...`, moreRecommendedSermons);
                     await loadSermonsByIds(moreRecommendedSermons, 'more-recommended');
                 } else {
                     clearModuleContent('more-recommended');
@@ -1637,10 +1650,10 @@
         
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('✅ Home Editor 页面已加载 v3.1 (data-content-id fix)');
-            console.log('🐛 修复: confirmContentSelection 现在设置 data-content-id');
-            console.log('🐛 修复: 推荐讲道和更多推荐页现在可以独立修改');
-            console.log('🐛 修复: 所有主题和讲员卡片也设置了 data-content-id');
+            console.log('✅ Home Editor 页面已加载 v3.2 (debug logging)');
+            console.log('🔍 添加详细日志: 追踪 collectConfigData 收集的 IDs');
+            console.log('🔍 添加详细日志: 追踪 API 返回的配置数据');
+            console.log('🔍 添加详细日志: 追踪 loadSermonsByIds 加载的 IDs');
             console.log('✅ 所有函数已绑定到 window 对象 (18个函数)');
             
             // 使用事件委托绑定所有按钮

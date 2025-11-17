@@ -312,10 +312,6 @@
                                     <span class="iconify" data-icon="heroicons:bars-3" data-width="14"></span>
                                     热门讲员
                                 </div>
-                                <div class="badge badge-lg bg-gray-700 text-gray-300 border-0 tag-item gap-2 cursor-move" draggable="true">
-                                    <span class="iconify" data-icon="heroicons:bars-3" data-width="14"></span>
-                                    热门主题
-                                </div>
                             </div>
                             
                             <div class="alert alert-info mt-4">
@@ -473,43 +469,6 @@
                                                 <button onclick="openContentSelector('popular-speakers')" class="btn btn-outline btn-sm gap-2">
                                                     <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
                                                     选择讲员
-                                                </button>
-                                            </div>
-                                            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                                                <!-- 动态加载 -->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 5. 热门主题模块 -->
-                            <div class="card bg-base-100 shadow-sm border border-base-300" data-module-id="popular-topics">
-                                <div class="card-body p-6">
-                                    <div class="flex items-center gap-4 mb-4">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                                                <span class="iconify text-orange-600" data-icon="heroicons:tag" data-width="16"></span>
-                                            </div>
-                                            <div>
-                                                <h3 class="font-semibold">热门主题</h3>
-                                                <p class="text-sm text-base-content/60">选择热门主题并展示</p>
-                                            </div>
-                                        </div>
-                                        <div class="ml-auto">
-                                            <button onclick="toggleModuleExpand(this)" class="btn btn-ghost btn-sm btn-circle">
-                                                <span class="iconify expand-icon" data-icon="heroicons:chevron-down" data-width="16"></span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="module-content">
-                                        <div class="mt-6">
-                                            <div class="flex items-center justify-between mb-4">
-                                                <label class="label-text font-medium">选择热门主题</label>
-                                                <button onclick="openContentSelector('popular-topics')" class="btn btn-outline btn-sm gap-2">
-                                                    <span class="iconify" data-icon="heroicons:plus" data-width="14"></span>
-                                                    选择主题
                                                 </button>
                                             </div>
                                             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -696,8 +655,7 @@
                 { id: 'daily-recommended', title: '每日推荐' },
                 { id: 'latest-uploads', title: '最新上传' },
                 { id: 'most-popular', title: '最受欢迎' },
-                { id: 'popular-speakers', title: '热门讲员' },
-                { id: 'popular-topics', title: '热门主题' }
+                { id: 'popular-speakers', title: '热门讲员' }
             ];
         }
         
@@ -735,8 +693,7 @@
                 'daily-recommended': 'daily-recommended',
                 'latest-uploads': 'latest-uploads',
                 'most-popular': 'most-popular',
-                'popular-speakers': 'popular-speakers',
-                'popular-topics': 'popular-topics'
+                'popular-speakers': 'popular-speakers'
             };
             
             for (const tag of filterTags) {
@@ -791,44 +748,6 @@
                             addedIds.add(speakerId); // 标记为已添加
                         } catch (error) {
                             console.error(`加载讲员 ${speakerId} 失败:`, error);
-                        }
-                    }
-                } else if (moduleId === 'popular-topics') {
-                    // 热门主题模块：加载主题
-                    const topicIds = tag.topicIds || tag.sermonIds || [];
-                    if (topicIds.length === 0) continue;
-                    
-                    for (const topicId of topicIds) {
-                        // 检查是否已添加
-                        if (addedIds.has(topicId)) {
-                            console.log(`⏭️ 跳过重复主题: ${topicId}`);
-                            continue;
-                        }
-                        
-                        try {
-                            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}`);
-                            if (!response.ok) continue;
-                            
-                            const result = await response.json();
-                            const topic = result.data || result;
-                            
-                            const card = document.createElement('div');
-                            card.className = 'card card-compact bg-base-200';
-                            card.setAttribute('data-topic-id', topic.id);
-                            
-                            card.innerHTML = `
-                                <div class="card-body p-2">
-                                    <h4 class="text-sm font-medium line-clamp-2">${topic.name}</h4>
-                                    <p class="text-xs text-base-content/60 mt-1">${topic.sermon_count || 0} 篇讲道</p>
-                                    <div class="mt-1">
-                                        <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
-                                    </div>
-                                </div>
-                            `;
-                            grid.appendChild(card);
-                            addedIds.add(topicId); // 标记为已添加
-                        } catch (error) {
-                            console.error(`加载主题 ${topicId} 失败:`, error);
                         }
                     }
                 } else {
@@ -1042,8 +961,7 @@
             const titles = {
                 'daily-recommended': '选择每日推荐讲道',
                 'most-popular': '选择热门讲道',
-                'popular-speakers': '选择热门讲员',
-                'popular-topics': '选择热门主题'
+                'popular-speakers': '选择热门讲员'
             };
             title.textContent = titles[type] || '选择内容';
             
@@ -1059,7 +977,6 @@
                 let items = [];
                 
                 const isSpeakersType = type === 'popular-speakers';
-                const isTopicsType = type === 'popular-topics';
                 
                 if (isSpeakersType) {
                     // 从 API 加载讲员列表（包含完整数据）
@@ -1071,17 +988,6 @@
                         name: speaker.name,
                         church: speaker.church || '未知教会',
                         follower_count: speaker.follower_count || 0
-                    }));
-                } else if (isTopicsType) {
-                    // 从 API 加载主题列表（包含完整数据）
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=50`);
-                    const result = await response.json();
-                    const topics = result.data || result;
-                    items = topics.map(topic => ({
-                        id: topic.id,
-                        name: topic.name,
-                        description: topic.description || '',
-                        sermon_count: topic.sermon_count || 0
                     }));
                 } else {
                     // 从 API 加载讲道列表（包含完整数据）
@@ -1121,7 +1027,6 @@
             container.innerHTML = '';
             
             const isSpeakersType = type === 'popular-speakers';
-            const isTopicsType = type === 'popular-topics';
             const showFavorites = type === 'most-popular'; // 只有"最受欢迎"显示收藏数
             const existingIds = window.existingIdsInCurrentGrid || new Set();
             
@@ -1149,15 +1054,6 @@
                             <p class="text-xs text-base-content/60 text-center">${item.church}</p>
                             <div class="badge badge-sm badge-secondary mt-1 w-full">${item.follower_count} 订阅</div>
                             ${isExisting ? '<p class="text-xs text-warning text-center mt-1">已添加</p>' : ''}
-                        </div>
-                    `;
-                } else if (isTopicsType) {
-                    // 主题类型 - 显示讲道数量
-                    content = `
-                        <div class="card-body">
-                            <h4 class="card-title text-sm">${item.name}</h4>
-                            <p class="text-xs text-base-content/60">${item.sermon_count} 篇讲道</p>
-                            ${isExisting ? '<p class="text-xs text-warning mt-1">已添加</p>' : ''}
                         </div>
                     `;
                 } else {
@@ -1209,8 +1105,7 @@
             const moduleMap = {
                 'daily-recommended': 'daily-recommended',
                 'most-popular': 'most-popular',
-                'popular-speakers': 'popular-speakers',
-                'popular-topics': 'popular-topics'
+                'popular-speakers': 'popular-speakers'
             };
             
             const moduleId = moduleMap[currentSelectorType];
@@ -1223,7 +1118,6 @@
             }
             
             const isSpeakersType = currentSelectorType === 'popular-speakers';
-            const isTopicsType = currentSelectorType === 'popular-topics';
             const showFavorites = currentSelectorType === 'most-popular';
             
             // 获取已存在的 ID，避免重复添加
@@ -1252,8 +1146,6 @@
                 // 设置 data 属性（重要！）
                 if (isSpeakersType) {
                     newCard.setAttribute('data-speaker-id', item.id);
-                } else if (isTopicsType) {
-                    newCard.setAttribute('data-topic-id', item.id);
                 } else {
                     newCard.setAttribute('data-sermon-id', item.id);
                 }
@@ -1265,16 +1157,6 @@
                             <h4 class="text-sm font-medium text-center line-clamp-1">${item.name}</h4>
                             <p class="text-xs text-base-content/60 text-center mt-1">${item.church}</p>
                             <div class="badge badge-sm badge-secondary mt-1 w-full">${item.follower_count || 0} 订阅</div>
-                            <div class="mt-1">
-                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
-                            </div>
-                        </div>
-                    `;
-                } else if (isTopicsType) {
-                    cardContent = `
-                        <div class="card-body p-2">
-                            <h4 class="text-sm font-medium line-clamp-2">${item.name}</h4>
-                            <p class="text-xs text-base-content/60 mt-1">${item.sermon_count || 0} 篇讲道</p>
                             <div class="mt-1">
                                 <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
                             </div>

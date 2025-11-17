@@ -362,15 +362,7 @@
                                                 </button>
                                             </div>
                                             <div class="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-2" id="daily-sermons-grid">
-                                                <div class="card card-compact bg-base-200">
-                                                    <div class="card-body p-2">
-                                                        <h4 class="text-sm font-medium line-clamp-2">神的恩典</h4>
-                                                        <p class="text-xs text-base-content/60 mt-1">李牧师</p>
-                                                        <div class="mt-1">
-                                                            <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full">移除</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                <!-- 动态加载 -->
                                             </div>
                                         </div>
                                     </div>
@@ -716,6 +708,8 @@
         
         // 渲染模块讲道/讲员/主题
         async function renderModuleSermons(filterTags) {
+            console.log('🔄 renderModuleSermons 被调用，标签数:', filterTags.length);
+            
             const tagMapping = {
                 'daily-recommended': 'daily-recommended',
                 'latest-uploads': 'latest-uploads',
@@ -727,9 +721,14 @@
             for (const tag of filterTags) {
                 const moduleId = tagMapping[tag.id];
                 const grid = document.querySelector(`[data-module-id="${moduleId}"] .grid`);
-                if (!grid) continue;
+                if (!grid) {
+                    console.warn(`⚠️ 未找到模块 grid: ${moduleId}`);
+                    continue;
+                }
                 
+                const beforeClearCount = grid.children.length;
                 grid.innerHTML = ''; // 清空
+                console.log(`🧹 清空模块 "${tag.title}" (${moduleId}), 清除前: ${beforeClearCount} 个卡片`);
                 
                 // 用于追踪已添加的 ID，防止重复
                 const addedIds = new Set();
@@ -851,12 +850,17 @@
                             `;
                             grid.appendChild(card);
                             addedIds.add(sermonId); // 标记为已添加
+                            console.log(`✅ 添加讲道卡片到 "${tag.title}": ${sermon.title} (${sermonId})`);
                         } catch (error) {
                             console.error(`加载讲道 ${sermonId} 失败:`, error);
                         }
                     }
                 }
+                
+                console.log(`📊 模块 "${tag.title}" 完成，共 ${addedIds.size} 个项目`);
             }
+            
+            console.log('✅ renderModuleSermons 完成');
         }
         
         // 自动加载最新上传的讲道（最多10条）

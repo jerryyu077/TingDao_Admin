@@ -265,7 +265,7 @@ export async function updateDiscoverConfig(request, env) {
 export async function getLaunchScreenConfig(request, env) {
   try {
     const sql = 'SELECT * FROM launch_screen WHERE id = ?';
-    let config = await queryOne(env.DB, sql, ['default']);
+    let config = await queryOne(env.DB, sql, [1]);
     
     if (!config) {
       return success({
@@ -283,7 +283,7 @@ export async function getLaunchScreenConfig(request, env) {
       config: {
         illustrationUrl: config.image_url || '',
         scripture: {
-          text: config.scripture_text || '',
+          text: config.scripture || '',
           reference: config.scripture_reference || ''
         }
       }

@@ -1071,7 +1071,21 @@
                     }));
                 }
                 
-                renderContentItems(items, type, container);
+                // 去重：确保每个 ID 只出现一次
+                const uniqueItems = [];
+                const seenIds = new Set();
+                for (const item of items) {
+                    if (!seenIds.has(item.id)) {
+                        uniqueItems.push(item);
+                        seenIds.add(item.id);
+                    } else {
+                        console.log(`⏭️ 跳过重复项: ${item.id}`, item.title || item.name);
+                    }
+                }
+                
+                console.log(`✅ 加载 ${uniqueItems.length} 个项目（去重前: ${items.length}）`);
+                
+                renderContentItems(uniqueItems, type, container);
             } catch (error) {
                 console.error('加载内容失败:', error);
                 container.innerHTML = '<div class="col-span-3 text-center text-error p-8">加载失败，请刷新重试</div>';

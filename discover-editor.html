@@ -635,7 +635,24 @@
         window.initTagDragDrop = initTagDragDrop;
         
         // 加载发现页配置
+        // 防止重复加载的标志
+        let isLoadingConfig = false;
+        let hasLoadedConfig = false;
+        
         async function loadDiscoverConfig() {
+            // 防止重复调用
+            if (isLoadingConfig) {
+                console.warn('⚠️ loadDiscoverConfig 已在执行中，跳过重复调用');
+                return;
+            }
+            
+            if (hasLoadedConfig) {
+                console.warn('⚠️ 配置已加载，跳过重复调用');
+                return;
+            }
+            
+            isLoadingConfig = true;
+            
             try {
                 console.log('🔄 加载发现页配置...');
                 const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/discover-config`);
@@ -660,11 +677,15 @@
                     await autoLoadLatestSermons();
                 }
                 
+                hasLoadedConfig = true;
+                
             } catch (error) {
                 console.error('❌ 加载配置失败:', error);
                 showNotification('加载配置失败，使用默认配置', 'warning');
                 // 使用默认标签
                 renderFilterTags(getDefaultFilterTags());
+            } finally {
+                isLoadingConfig = false;
             }
         }
         window.loadDiscoverConfig = loadDiscoverConfig;

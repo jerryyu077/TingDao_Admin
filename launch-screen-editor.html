@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>开屏页模块编辑器 v2.0 (R2上传) - 听道后台管理系统</title>
+    <title>开屏页模块编辑器 v2.1 (完整保存) - 听道后台管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
@@ -344,10 +344,19 @@
                 document.getElementById('scripture-text').value = launchConfig.scripture.text || '';
                 document.getElementById('scripture-reference').value = launchConfig.scripture.reference || '';
                 
+                // 显示当前插画
+                if (currentIllustrationUrl) {
+                    document.getElementById('current-illustration').src = currentIllustrationUrl;
+                    document.getElementById('current-illustration').style.display = 'block';
+                    document.getElementById('preview-illustration').src = currentIllustrationUrl;
+                    document.getElementById('preview-illustration').style.opacity = '1';
+                }
+                
                 updateCharCount();
                 updatePreview();
                 
                 console.log('✅ 配置加载成功', launchConfig);
+                console.log('   插画 URL:', currentIllustrationUrl);
             } catch (error) {
                 console.log('⚠️ 使用默认配置', error);
                 // 使用默认配置
@@ -508,9 +517,11 @@
         window.updatePreview = updatePreview;
         window.updateCharCount = updateCharCount;
         
-        console.log('✅ Launch Screen Editor 页面已加载 v2.0 (R2上传)');
+        console.log('✅ Launch Screen Editor 页面已加载 v2.1 (完整保存)');
         console.log('✅ 所有函数已绑定到 window 对象 (7个函数)');
         console.log('✅ 图片将上传到 R2 存储，不再使用 Base64');
+        console.log('✅ 页面加载时自动显示当前插画');
+        console.log('✅ 保存功能已修复（数据库 ID 修正）');
     </script>
 </body>
 </html>

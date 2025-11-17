@@ -300,7 +300,7 @@ export async function updateLaunchScreenConfig(request, env) {
     const data = await request.json();
     const config = data.config || {};
     
-    const existing = await queryOne(env.DB, 'SELECT id FROM launch_screen WHERE id = ?', ['default']);
+    const existing = await queryOne(env.DB, 'SELECT id FROM launch_screen WHERE id = ?', [1]);
     
     const now = new Date().toISOString();
     
@@ -308,7 +308,7 @@ export async function updateLaunchScreenConfig(request, env) {
       const sql = `
         UPDATE launch_screen SET
           image_url = ?,
-          scripture_text = ?,
+          scripture = ?,
           scripture_reference = ?,
           updated_at = ?
         WHERE id = ?
@@ -319,26 +319,25 @@ export async function updateLaunchScreenConfig(request, env) {
         config.scripture?.text || '',
         config.scripture?.reference || '',
         now,
-        'default'
+        1
       ]);
     } else {
       const sql = `
         INSERT INTO launch_screen (
-          id, image_url, scripture_text, scripture_reference, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?)
+          id, image_url, scripture, scripture_reference, updated_at
+        ) VALUES (?, ?, ?, ?, ?)
       `;
       
       await execute(env.DB, sql, [
-        'default',
+        1,
         config.illustrationUrl || '',
         config.scripture?.text || '',
         config.scripture?.reference || '',
-        now,
         now
       ]);
     }
 
-    return success({ id: 'launch-screen-config' }, { message: '启动页配置更新成功' });
+    return success({ config }, { message: '启动页配置更新成功' });
   } catch (e) {
     console.error('Error updating launch screen config:', e);
     return error('更新启动页配置失败: ' + e.message);

@@ -731,12 +731,21 @@
                 
                 grid.innerHTML = ''; // 清空
                 
+                // 用于追踪已添加的 ID，防止重复
+                const addedIds = new Set();
+                
                 // 特殊处理：热门讲员模块使用 speakerIds
                 if (moduleId === 'popular-speakers') {
                     const speakerIds = tag.speakerIds || tag.sermonIds || []; // 兼容旧数据
                     if (speakerIds.length === 0) continue;
                     
                     for (const speakerId of speakerIds) {
+                        // 检查是否已添加
+                        if (addedIds.has(speakerId)) {
+                            console.log(`⏭️ 跳过重复讲员: ${speakerId}`);
+                            continue;
+                        }
+                        
                         try {
                             const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`);
                             if (!response.ok) continue;
@@ -759,6 +768,7 @@
                                 </div>
                             `;
                             grid.appendChild(card);
+                            addedIds.add(speakerId); // 标记为已添加
                         } catch (error) {
                             console.error(`加载讲员 ${speakerId} 失败:`, error);
                         }
@@ -769,6 +779,12 @@
                     if (topicIds.length === 0) continue;
                     
                     for (const topicId of topicIds) {
+                        // 检查是否已添加
+                        if (addedIds.has(topicId)) {
+                            console.log(`⏭️ 跳过重复主题: ${topicId}`);
+                            continue;
+                        }
+                        
                         try {
                             const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}`);
                             if (!response.ok) continue;
@@ -790,6 +806,7 @@
                                 </div>
                             `;
                             grid.appendChild(card);
+                            addedIds.add(topicId); // 标记为已添加
                         } catch (error) {
                             console.error(`加载主题 ${topicId} 失败:`, error);
                         }
@@ -800,6 +817,12 @@
                     if (sermonIds.length === 0) continue;
                     
                     for (const sermonId of sermonIds) {
+                        // 检查是否已添加
+                        if (addedIds.has(sermonId)) {
+                            console.log(`⏭️ 跳过重复讲道: ${sermonId}`);
+                            continue;
+                        }
+                        
                         try {
                             const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`);
                             if (!response.ok) continue;
@@ -827,6 +850,7 @@
                                 </div>
                             `;
                             grid.appendChild(card);
+                            addedIds.add(sermonId); // 标记为已添加
                         } catch (error) {
                             console.error(`加载讲道 ${sermonId} 失败:`, error);
                         }

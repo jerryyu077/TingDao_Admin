@@ -623,14 +623,18 @@
                 const config = result.data.config;
                 console.log('✅ 加载成功:', config);
                 
+                // 过滤掉"热门主题"标签
+                const filteredTags = config.filterTags.filter(tag => tag.id !== 'popular-topics');
+                console.log(`📋 过滤后标签数: ${filteredTags.length} (原始: ${config.filterTags.length})`);
+                
                 // 渲染标签顺序
-                renderFilterTags(config.filterTags);
+                renderFilterTags(filteredTags);
                 
                 // 渲染每个模块的讲道
-                await renderModuleSermons(config.filterTags);
+                await renderModuleSermons(filteredTags);
                 
                 // 特别处理：为"最新上传"模块自动加载最新讲道
-                const latestUploadsTag = config.filterTags.find(tag => tag.id === 'latest-uploads');
+                const latestUploadsTag = filteredTags.find(tag => tag.id === 'latest-uploads');
                 if (latestUploadsTag && (!latestUploadsTag.sermonIds || latestUploadsTag.sermonIds.length === 0)) {
                     console.log('🔄 "最新上传"模块无内容，自动加载最新讲道...');
                     await autoLoadLatestSermons();

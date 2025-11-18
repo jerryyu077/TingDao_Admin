@@ -10,6 +10,9 @@ import * as usersRoute from './routes/users.js';
 import * as topicsRoute from './routes/topics.js';
 import * as homeRoute from './routes/home.js';
 import * as uploadRoute from './routes/upload.js';
+import * as authRoute from './routes/auth.js';
+import * as favoritesRoute from './routes/favorites.js';
+import * as historyRoute from './routes/history.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -233,6 +236,76 @@ export default {
       if (path.match(/^\/api\/v1\/upload\/.+/) && method === 'DELETE') {
         const filePath = path.replace('/api/v1/upload/', '');
         return await uploadRoute.deleteFile(request, env, filePath);
+      }
+
+      // ==================== Auth API ====================
+      
+      // POST /v1/auth/register
+      if (path === '/api/v1/auth/register' && method === 'POST') {
+        return await authRoute.register(request, env);
+      }
+      
+      // POST /v1/auth/login
+      if (path === '/api/v1/auth/login' && method === 'POST') {
+        return await authRoute.login(request, env);
+      }
+      
+      // GET /v1/auth/me
+      if (path === '/api/v1/auth/me' && method === 'GET') {
+        return await authRoute.getCurrentUser(request, env);
+      }
+      
+      // PUT /v1/auth/profile
+      if (path === '/api/v1/auth/profile' && method === 'PUT') {
+        return await authRoute.updateProfile(request, env);
+      }
+
+      // ==================== Favorites API ====================
+      
+      // GET /v1/favorites
+      if (path === '/api/v1/favorites' && method === 'GET') {
+        return await favoritesRoute.getFavorites(request, env);
+      }
+      
+      // POST /v1/favorites
+      if (path === '/api/v1/favorites' && method === 'POST') {
+        return await favoritesRoute.addFavorite(request, env);
+      }
+      
+      // DELETE /v1/favorites/:sermonId
+      if (path.match(/^\/api\/v1\/favorites\/[^/]+$/) && method === 'DELETE') {
+        const sermonId = path.split('/').pop();
+        return await favoritesRoute.removeFavorite(request, env, sermonId);
+      }
+      
+      // GET /v1/favorites/check/:sermonId
+      if (path.match(/^\/api\/v1\/favorites\/check\/[^/]+$/) && method === 'GET') {
+        const sermonId = path.split('/').pop();
+        return await favoritesRoute.checkFavorite(request, env, sermonId);
+      }
+
+      // ==================== Play History API ====================
+      
+      // GET /v1/history
+      if (path === '/api/v1/history' && method === 'GET') {
+        return await historyRoute.getPlayHistory(request, env);
+      }
+      
+      // POST /v1/history
+      if (path === '/api/v1/history' && method === 'POST') {
+        return await historyRoute.updatePlayProgress(request, env);
+      }
+      
+      // GET /v1/history/:sermonId
+      if (path.match(/^\/api\/v1\/history\/[^/]+$/) && method === 'GET') {
+        const sermonId = path.split('/').pop();
+        return await historyRoute.getSermonProgress(request, env, sermonId);
+      }
+      
+      // DELETE /v1/history/:sermonId
+      if (path.match(/^\/api\/v1\/history\/[^/]+$/) && method === 'DELETE') {
+        const sermonId = path.split('/').pop();
+        return await historyRoute.deletePlayHistory(request, env, sermonId);
       }
 
       // ==================== 404 ====================

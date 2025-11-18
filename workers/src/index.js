@@ -259,6 +259,16 @@ export default {
       if (path === '/api/v1/auth/profile' && method === 'PUT') {
         return await authRoute.updateProfile(request, env);
       }
+      
+      // POST /v1/auth/forgot-password
+      if (path === '/api/v1/auth/forgot-password' && method === 'POST') {
+        return await authRoute.forgotPassword(request, env);
+      }
+      
+      // POST /v1/auth/reset-password
+      if (path === '/api/v1/auth/reset-password' && method === 'POST') {
+        return await authRoute.resetPassword(request, env);
+      }
 
       // ==================== Favorites API ====================
       

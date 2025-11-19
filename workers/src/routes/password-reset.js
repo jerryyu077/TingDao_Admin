@@ -94,6 +94,7 @@ async function sendResetEmail(env, email, resetToken) {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
+        'X-Sender-Domain': 'tingdao.app',
       },
       body: JSON.stringify(emailPayload),
     });

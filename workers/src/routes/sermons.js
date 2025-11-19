@@ -21,7 +21,11 @@ export async function getSermons(request, env) {
              sp.name as speaker_name, 
              sp.avatar_url as speaker_avatar,
              u.username as submitter_username,
-             u.name as submitter_name
+             u.name as submitter_name,
+             COALESCE(
+               (SELECT COUNT(*) FROM user_favorites WHERE sermon_id = s.id),
+               0
+             ) as favorites_count
       FROM sermons s
       LEFT JOIN speakers sp ON s.speaker_id = sp.id
       LEFT JOIN users u ON s.submitter_id = u.id
@@ -83,7 +87,11 @@ export async function getSermon(request, env, id) {
              sp.title as speaker_title,
              sp.church as speaker_church,
              u.username as submitter_username,
-             u.name as submitter_name
+             u.name as submitter_name,
+             COALESCE(
+               (SELECT COUNT(*) FROM user_favorites WHERE sermon_id = s.id),
+               0
+             ) as favorites_count
       FROM sermons s
       LEFT JOIN speakers sp ON s.speaker_id = sp.id
       LEFT JOIN users u ON s.submitter_id = u.id

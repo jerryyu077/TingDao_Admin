@@ -41,6 +41,9 @@ npm-debug.log*
 # Node modules (if any)
 node_modules/
 
+# Wrangler local state
+workers/.wrangler/
+
 # Backup files
 *.bak
 *.backup

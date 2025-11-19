@@ -14,6 +14,9 @@ import * as authRoute from './routes/auth.js';
 import * as favoritesRoute from './routes/favorites.js';
 import * as historyRoute from './routes/history.js';
 import * as passwordResetRoute from './routes/password-reset.js';
+import * as statsRoute from './routes/stats.js';
+import * as topicFavoritesRoute from './routes/topic-favorites.js';
+import * as speakerFavoritesRoute from './routes/speaker-favorites.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -137,6 +140,12 @@ export default {
       // POST /v1/topics
       if (path === '/api/v1/topics' && method === 'POST') {
         return await topicsRoute.createTopic(request, env);
+      }
+      
+      // GET /v1/topics/:id/sermons (must be before /v1/topics/:id)
+      if (path.match(/^\/api\/v1\/topics\/[^/]+\/sermons$/) && method === 'GET') {
+        const id = path.split('/')[4]; // /api/v1/topics/:id/sermons
+        return await topicsRoute.getTopicSermons(request, env, id);
       }
       
       // GET /v1/topics/:id
@@ -322,6 +331,88 @@ export default {
       if (path.match(/^\/api\/v1\/history\/[^/]+$/) && method === 'DELETE') {
         const sermonId = path.split('/').pop();
         return await historyRoute.deletePlayHistory(request, env, sermonId);
+      }
+
+      // ==================== Stats API ====================
+      
+      // GET /v1/stats/overview
+      if (path === '/api/v1/stats/overview' && method === 'GET') {
+        return await statsRoute.getOverviewStats(request, env);
+      }
+      
+      // GET /v1/stats/sermons/top-favorited
+      if (path === '/api/v1/stats/sermons/top-favorited' && method === 'GET') {
+        return await statsRoute.getTopFavoritedSermons(request, env);
+      }
+      
+      // GET /v1/stats/speakers/top-favorited
+      if (path === '/api/v1/stats/speakers/top-favorited' && method === 'GET') {
+        return await statsRoute.getTopFavoritedSpeakers(request, env);
+      }
+      
+      // GET /v1/stats/sermons/:id/favorites
+      if (path.match(/^\/api\/v1\/stats\/sermons\/[^/]+\/favorites$/) && method === 'GET') {
+        const sermonId = path.split('/')[5];
+        return await statsRoute.getSermonFavoritesStats(request, env, sermonId);
+      }
+      
+      // GET /v1/stats/speakers/:id/favorites
+      if (path.match(/^\/api\/v1\/stats\/speakers\/[^/]+\/favorites$/) && method === 'GET') {
+        const speakerId = path.split('/')[5];
+        return await statsRoute.getSpeakerFavoritesStats(request, env, speakerId);
+      }
+      
+      // GET /v1/stats/favorites/trends
+      if (path === '/api/v1/stats/favorites/trends' && method === 'GET') {
+        return await statsRoute.getFavoritesTrends(request, env);
+      }
+
+      // ==================== Topic Favorites API ====================
+      
+      // GET /v1/topic-favorites
+      if (path === '/api/v1/topic-favorites' && method === 'GET') {
+        return await topicFavoritesRoute.getTopicFavorites(request, env);
+      }
+      
+      // POST /v1/topic-favorites
+      if (path === '/api/v1/topic-favorites' && method === 'POST') {
+        return await topicFavoritesRoute.addTopicFavorite(request, env);
+      }
+      
+      // DELETE /v1/topic-favorites/:topicId
+      if (path.match(/^\/api\/v1\/topic-favorites\/[^/]+$/) && method === 'DELETE') {
+        const topicId = path.split('/').pop();
+        return await topicFavoritesRoute.removeTopicFavorite(request, env, topicId);
+      }
+      
+      // GET /v1/topic-favorites/check/:topicId
+      if (path.match(/^\/api\/v1\/topic-favorites\/check\/[^/]+$/) && method === 'GET') {
+        const topicId = path.split('/').pop();
+        return await topicFavoritesRoute.checkTopicFavorite(request, env, topicId);
+      }
+
+      // ==================== Speaker Favorites API ====================
+      
+      // GET /v1/speaker-favorites
+      if (path === '/api/v1/speaker-favorites' && method === 'GET') {
+        return await speakerFavoritesRoute.getSpeakerFavorites(request, env);
+      }
+      
+      // POST /v1/speaker-favorites
+      if (path === '/api/v1/speaker-favorites' && method === 'POST') {
+        return await speakerFavoritesRoute.addSpeakerFavorite(request, env);
+      }
+      
+      // DELETE /v1/speaker-favorites/:speakerId
+      if (path.match(/^\/api\/v1\/speaker-favorites\/[^/]+$/) && method === 'DELETE') {
+        const speakerId = path.split('/').pop();
+        return await speakerFavoritesRoute.removeSpeakerFavorite(request, env, speakerId);
+      }
+      
+      // GET /v1/speaker-favorites/check/:speakerId
+      if (path.match(/^\/api\/v1\/speaker-favorites\/check\/[^/]+$/) && method === 'GET') {
+        const speakerId = path.split('/').pop();
+        return await speakerFavoritesRoute.checkSpeakerFavorite(request, env, speakerId);
       }
 
       // ==================== 404 ====================

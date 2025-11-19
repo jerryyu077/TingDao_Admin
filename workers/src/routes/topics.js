@@ -65,6 +65,41 @@ export async function getTopic(request, env, id) {
   }
 }
 
+// GET /v1/topics/:id/sermons - 获取主题的讲道列表（支持分页）
+export async function getTopicSermons(request, env, id) {
+  const url = new URL(request.url);
+  const page = parseInt(url.searchParams.get('_page') || '1');
+  const limit = parseInt(url.searchParams.get('_limit') || '10');
+  
+  try {
+    const sql = `
+      SELECT s.*, sp.name as speaker_name, sp.avatar_url as speaker_avatar
+      FROM sermons s
+      JOIN sermon_topics st ON s.id = st.sermon_id
+      LEFT JOIN speakers sp ON s.speaker_id = sp.id
+      WHERE st.topic_id = ? AND s.status = 'published'
+      ORDER BY s.publish_date DESC
+    `;
+    
+    const result = await queryPaginated(env.DB, sql, [id], page, limit);
+    
+    // 格式化讲道数据
+    result.data = result.data.map(sermon => ({
+      ...sermon,
+      speaker: {
+        id: sermon.speaker_id,
+        name: sermon.speaker_name,
+        avatar_url: sermon.speaker_avatar
+      }
+    }));
+    
+    return paginated(result.data, result.pagination);
+  } catch (e) {
+    console.error('Error fetching topic sermons:', e);
+    return error('获取主题讲道列表失败: ' + e.message);
+  }
+}
+
 // POST /v1/topics - 创建主题
 export async function createTopic(request, env) {
   try {

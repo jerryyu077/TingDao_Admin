@@ -14,25 +14,36 @@ export async function getSpeakers(request, env) {
   const searchTerm = url.searchParams.get('q');
 
   try {
-    let sql = 'SELECT * FROM speakers WHERE 1=1';
+    let sql = `
+      SELECT sp.*,
+             COALESCE(
+               (SELECT COUNT(DISTINCT uf.user_id)
+                FROM user_favorites uf
+                JOIN sermons s ON uf.sermon_id = s.id
+                WHERE s.speaker_id = sp.id),
+               0
+             ) as favorites_count
+      FROM speakers sp
+      WHERE 1=1
+    `;
     const params = [];
 
     if (status) {
-      sql += ' AND status = ?';
+      sql += ' AND sp.status = ?';
       params.push(status);
     }
 
     if (church) {
-      sql += ' AND church = ?';
+      sql += ' AND sp.church = ?';
       params.push(church);
     }
 
     if (searchTerm) {
-      sql += ' AND (name LIKE ? OR name_en LIKE ? OR church LIKE ?)';
+      sql += ' AND (sp.name LIKE ? OR sp.name_en LIKE ? OR sp.church LIKE ?)';
       params.push(`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`);
     }
 
-    sql += ' ORDER BY created_at DESC';
+    sql += ' ORDER BY sp.created_at DESC';
 
     const result = await queryPaginated(env.DB, sql, params, page, limit);
     
@@ -49,7 +60,18 @@ export async function getSpeakers(request, env) {
 // GET /v1/speakers/:id - 获取单个讲员
 export async function getSpeaker(request, env, id) {
   try {
-    const sql = 'SELECT * FROM speakers WHERE id = ?';
+    const sql = `
+      SELECT sp.*,
+             COALESCE(
+               (SELECT COUNT(DISTINCT uf.user_id)
+                FROM user_favorites uf
+                JOIN sermons s ON uf.sermon_id = s.id
+                WHERE s.speaker_id = sp.id),
+               0
+             ) as favorites_count
+      FROM speakers sp
+      WHERE sp.id = ?
+    `;
     let speaker = await queryOne(env.DB, sql, [id]);
     
     if (!speaker) {

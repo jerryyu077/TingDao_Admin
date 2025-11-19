@@ -29,11 +29,31 @@ export async function getFavorites(request, env) {
     
     const favorites = await env.DB.prepare(`
       SELECT 
-        uf.sermon_id,
-        uf.created_at as favorited_at,
-        s.*
+        s.id,
+        s.title,
+        s.description,
+        s.summary,
+        s.scripture,
+        s.audio_url,
+        s.duration,
+        s.series_id,
+        s.publish_date,
+        s.date,
+        s.cover_image_url,
+        s.language,
+        s.tags,
+        s.play_count,
+        s.favorite_count,
+        s.created_at,
+        s.updated_at,
+        sp.id as speaker_id,
+        sp.name as speaker_name,
+        sp.avatar_url as speaker_avatar_url,
+        (SELECT COUNT(DISTINCT user_id) FROM user_favorites WHERE sermon_id = s.id) as favorites_count,
+        uf.created_at as favorited_at
       FROM user_favorites uf
       JOIN sermons s ON uf.sermon_id = s.id
+      LEFT JOIN speakers sp ON s.speaker_id = sp.id
       WHERE uf.user_id = ?
       ORDER BY uf.created_at DESC
       LIMIT ? OFFSET ?
@@ -46,10 +66,54 @@ export async function getFavorites(request, env) {
     const total = countResult?.total || 0;
     const totalPages = Math.ceil(total / limit);
     
+    // 格式化数据以匹配客户端期望的结构
+    const formattedSermons = (favorites.results || []).map(row => {
+      // 将日期转换为 ISO8601 格式
+      let isoDate = row.date;
+      if (row.date && !row.date.includes('T')) {
+        // 如果 date 只是 YYYY-MM-DD 格式，转换为 ISO8601
+        isoDate = `${row.date}T00:00:00Z`;
+      }
+      
+      return {
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        summary: row.summary,
+        scripture: row.scripture,
+        audioURL: row.audio_url, // 注意大小写，客户端使用 audioURL
+        coverImageURL: row.cover_image_url, // 客户端使用 coverImageURL
+        duration: row.duration,
+        series: row.series_id,
+        date: isoDate, // 客户端期望 ISO8601 格式
+        publishDate: row.publish_date || isoDate,
+        language: row.language,
+        tags: row.tags ? row.tags.split(',') : [],
+        playCount: row.play_count || 0,
+        favoriteCount: row.favorite_count || 0,
+        status: 'published', // 默认状态
+        currentTime: 0, // 播放进度默认为 0
+        isPlaying: false, // 默认不在播放
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        favoritesCount: row.favorites_count || 0,
+        speaker: row.speaker_id ? {
+          id: row.speaker_id,
+          name: row.speaker_name,
+          avatarURL: row.speaker_avatar_url, // 注意大小写
+          title: null,
+          bio: null,
+          church: null,
+          followerCount: null
+        } : null,
+        favoritedAt: row.favorited_at
+      };
+    });
+    
     return Response.json({
       success: true,
       data: {
-        sermons: favorites.results || [],
+        sermons: formattedSermons,
         pagination: {
           page,
           limit,

@@ -13,6 +13,7 @@ import * as uploadRoute from './routes/upload.js';
 import * as authRoute from './routes/auth.js';
 import * as favoritesRoute from './routes/favorites.js';
 import * as historyRoute from './routes/history.js';
+import * as passwordResetRoute from './routes/password-reset.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -262,12 +263,17 @@ export default {
       
       // POST /v1/auth/forgot-password
       if (path === '/api/v1/auth/forgot-password' && method === 'POST') {
-        return await authRoute.forgotPassword(request, env);
+        return await passwordResetRoute.requestPasswordReset(request, env);
+      }
+      
+      // GET /v1/auth/verify-reset-token
+      if (path === '/api/v1/auth/verify-reset-token' && method === 'GET') {
+        return await passwordResetRoute.verifyResetToken(request, env);
       }
       
       // POST /v1/auth/reset-password
       if (path === '/api/v1/auth/reset-password' && method === 'POST') {
-        return await authRoute.resetPassword(request, env);
+        return await passwordResetRoute.resetPassword(request, env);
       }
 
       // ==================== Favorites API ====================

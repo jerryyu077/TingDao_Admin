@@ -1,12 +1,11 @@
 /**
  * 用户认证 API
  */
-import { sendPasswordResetEmail, sendWelcomeEmail, generateResetToken, verifyResetToken } from '../utils/email.js';
 
 /**
  * 密码加密（简化版）
  */
-async function hashPassword(password) {
+export async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
@@ -122,13 +121,8 @@ export async function register(request, env) {
     const refreshToken = generateToken({ userId, type: 'refresh' });
     
     const user = await env.DB.prepare(`
-      SELECT id, username, email, avatar_url, created_at FROM users WHERE id = ?
+      SELECT id, username, email, avatar as avatar_url, created_at FROM users WHERE id = ?
     `).bind(userId).first();
-    
-    // 发送欢迎邮件（异步，不阻塞响应）
-    sendWelcomeEmail(email, displayUsername).catch(err => 
-      console.error('Failed to send welcome email:', err)
-    );
     
     return Response.json({ success: true, data: { accessToken, refreshToken, user } }, { status: 201 });
   } catch (error) {
@@ -150,7 +144,7 @@ export async function login(request, env) {
     }
     
     const user = await env.DB.prepare(`
-      SELECT id, username, email, password_hash, avatar_url, created_at FROM users WHERE email = ?
+      SELECT id, username, email, password_hash, avatar as avatar_url, created_at FROM users WHERE email = ?
     `).bind(email).first();
     
     if (!user) {
@@ -185,7 +179,7 @@ export async function getCurrentUser(request, env) {
     }
     
     const user = await env.DB.prepare(`
-      SELECT id, username, email, avatar_url, created_at FROM users WHERE id = ?
+      SELECT id, username, email, avatar as avatar_url, created_at FROM users WHERE id = ?
     `).bind(userId).first();
     
     if (!user) {
@@ -215,137 +209,19 @@ export async function updateProfile(request, env) {
     await env.DB.prepare(`
       UPDATE users 
       SET username = COALESCE(?, username),
-          avatar_url = COALESCE(?, avatar_url),
+          avatar = COALESCE(?, avatar),
           updated_at = datetime('now')
       WHERE id = ?
     `).bind(username, avatar_url, userId).run();
     
     const user = await env.DB.prepare(`
-      SELECT id, username, email, avatar_url, created_at, updated_at FROM users WHERE id = ?
+      SELECT id, username, email, avatar as avatar_url, created_at, updated_at FROM users WHERE id = ?
     `).bind(userId).first();
     
     return Response.json({ success: true, data: user }, { status: 200 });
   } catch (error) {
     console.error('Update profile error:', error);
     return Response.json({ success: false, error: { message: '更新资料失败' } }, { status: 500 });
-  }
-}
-
-/**
- * POST /api/v1/auth/forgot-password - 请求重置密码
- */
-export async function forgotPassword(request, env) {
-  try {
-    const body = await request.json();
-    const { email } = body;
-    
-    if (!email) {
-      return Response.json({ success: false, error: { message: '邮箱为必填项' } }, { status: 400 });
-    }
-    
-    // 检查用户是否存在
-    const user = await env.DB.prepare('SELECT id, email FROM users WHERE email = ?').bind(email).first();
-    
-    // 即使用户不存在也返回成功，避免泄露用户信息
-    if (!user) {
-      console.log(`⚠️ 密码重置请求：用户 ${email} 不存在`);
-      return Response.json({ 
-        success: true, 
-        data: { message: '如果该邮箱已注册，您将收到重置密码的邮件' } 
-      }, { status: 200 });
-    }
-    
-    // 生成重置 Token
-    const resetToken = generateResetToken(email);
-    
-    // 保存 Token 到数据库（可选，用于额外验证）
-    await env.DB.prepare(`
-      INSERT OR REPLACE INTO password_reset_tokens (email, token, expires_at, created_at)
-      VALUES (?, ?, datetime('now', '+24 hours'), datetime('now'))
-    `).bind(email, resetToken).run();
-    
-    // 发送重置邮件
-    const emailSent = await sendPasswordResetEmail(email, resetToken);
-    
-    if (!emailSent) {
-      return Response.json({ 
-        success: false, 
-        error: { message: '邮件发送失败，请稍后重试' } 
-      }, { status: 500 });
-    }
-    
-    return Response.json({ 
-      success: true, 
-      data: { message: '重置密码邮件已发送，请查收' } 
-    }, { status: 200 });
-  } catch (error) {
-    console.error('Forgot password error:', error);
-    return Response.json({ success: false, error: { message: '请求失败' } }, { status: 500 });
-  }
-}
-
-/**
- * POST /api/v1/auth/reset-password - 重置密码
- */
-export async function resetPassword(request, env) {
-  try {
-    const body = await request.json();
-    const { token, newPassword } = body;
-    
-    if (!token || !newPassword) {
-      return Response.json({ 
-        success: false, 
-        error: { message: 'Token 和新密码为必填项' } 
-      }, { status: 400 });
-    }
-    
-    if (newPassword.length < 6) {
-      return Response.json({ 
-        success: false, 
-        error: { message: '密码长度至少为6位' } 
-      }, { status: 400 });
-    }
-    
-    // 验证 Token
-    const tokenData = verifyResetToken(token);
-    if (!tokenData) {
-      return Response.json({ 
-        success: false, 
-        error: { message: 'Token 无效或已过期' } 
-      }, { status: 400 });
-    }
-    
-    const { email } = tokenData;
-    
-    // 验证数据库中的 Token（可选，额外安全层）
-    const dbToken = await env.DB.prepare(`
-      SELECT * FROM password_reset_tokens 
-      WHERE email = ? AND token = ? AND expires_at > datetime('now')
-    `).bind(email, token).first();
-    
-    if (!dbToken) {
-      return Response.json({ 
-        success: false, 
-        error: { message: 'Token 无效或已过期' } 
-      }, { status: 400 });
-    }
-    
-    // 更新密码
-    const passwordHash = await hashPassword(newPassword);
-    await env.DB.prepare(`
-      UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE email = ?
-    `).bind(passwordHash, email).run();
-    
-    // 删除已使用的 Token
-    await env.DB.prepare('DELETE FROM password_reset_tokens WHERE email = ?').bind(email).run();
-    
-    return Response.json({ 
-      success: true, 
-      data: { message: '密码重置成功' } 
-    }, { status: 200 });
-  } catch (error) {
-    console.error('Reset password error:', error);
-    return Response.json({ success: false, error: { message: '密码重置失败' } }, { status: 500 });
   }
 }
 

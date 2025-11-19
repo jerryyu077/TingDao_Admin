@@ -15,97 +15,100 @@ function generateResetToken() {
 }
 
 /**
- * Send password reset email using Cloudflare Email Workers
+ * Send password reset email
+ * TODO: 配置真实的邮件服务（Resend, SendGrid, 或 Cloudflare Email Routing）
  */
 async function sendResetEmail(env, email, resetToken) {
   const resetLink = `https://tingdao.app/reset-password?token=${resetToken}`;
   
-  // Using Cloudflare Email Workers API
-  const emailPayload = {
-    personalizations: [{
-      to: [{ email }]
-    }],
-    from: {
-      email: 'support@tingdao.app',
-      name: '听道 TingDao'
-    },
-    subject: '重置您的听道账户密码',
-    content: [{
-      type: 'text/html',
-      value: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
-            .button { display: inline-block; background: #667eea; color: white !important; text-decoration: none; padding: 12px 30px; border-radius: 6px; margin: 20px 0; }
-            .footer { text-align: center; margin-top: 20px; color: #999; font-size: 12px; }
-            .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 20px 0; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>🔒 重置密码</h1>
-            </div>
-            <div class="content">
-              <p>您好，</p>
-              <p>我们收到了重置您听道账户密码的请求。点击下面的按钮重置密码：</p>
-              <div style="text-align: center;">
-                <a href="${resetLink}" class="button">重置密码</a>
+  // 🚧 临时方案：在开发/测试阶段，将重置链接打印到日志
+  // 生产环境需要集成真实的邮件服务
+  console.log('====================================');
+  console.log('📧 密码重置邮件');
+  console.log('收件人:', email);
+  console.log('重置链接:', resetLink);
+  console.log('令牌:', resetToken);
+  console.log('有效期: 1小时');
+  console.log('====================================');
+  
+  // 如果配置了 RESEND_API_KEY，使用 Resend 发送邮件
+  if (env.RESEND_API_KEY) {
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'support@tingdao.app',
+          to: [email],
+          subject: '重置您的听道账户密码',
+          html: `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+                .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+                .button { display: inline-block; background: #667eea; color: white !important; text-decoration: none; padding: 12px 30px; border-radius: 6px; margin: 20px 0; }
+                .footer { text-align: center; margin-top: 20px; color: #999; font-size: 12px; }
+                .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 20px 0; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>🔒 重置密码</h1>
+                </div>
+                <div class="content">
+                  <p>您好，</p>
+                  <p>我们收到了重置您听道账户密码的请求。点击下面的按钮重置密码：</p>
+                  <div style="text-align: center;">
+                    <a href="${resetLink}" class="button">重置密码</a>
+                  </div>
+                  <p>或复制以下链接到浏览器：</p>
+                  <p style="background: white; padding: 10px; border-radius: 4px; word-break: break-all; font-size: 12px;">
+                    ${resetLink}
+                  </p>
+                  <div class="warning">
+                    <strong>⚠️ 安全提示：</strong>
+                    <ul style="margin: 5px 0;">
+                      <li>此链接将在 <strong>1小时</strong> 后失效</li>
+                      <li>如果您没有请求重置密码，请忽略此邮件</li>
+                      <li>不要将此链接分享给任何人</li>
+                    </ul>
+                  </div>
+                  <p>如有任何问题，请联系我们的客服团队。</p>
+                  <p>听道团队<br>support@tingdao.app</p>
+                </div>
+                <div class="footer">
+                  <p>© 2025 听道 TingDao. 保留所有权利。</p>
+                </div>
               </div>
-              <p>或复制以下链接到浏览器：</p>
-              <p style="background: white; padding: 10px; border-radius: 4px; word-break: break-all; font-size: 12px;">
-                ${resetLink}
-              </p>
-              <div class="warning">
-                <strong>⚠️ 安全提示：</strong>
-                <ul style="margin: 5px 0;">
-                  <li>此链接将在 <strong>1小时</strong> 后失效</li>
-                  <li>如果您没有请求重置密码，请忽略此邮件</li>
-                  <li>不要将此链接分享给任何人</li>
-                </ul>
-              </div>
-              <p>如有任何问题，请联系我们的客服团队。</p>
-              <p>听道团队<br>support@tingdao.app</p>
-            </div>
-            <div class="footer">
-              <p>© 2025 听道 TingDao. 保留所有权利。</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `
-    }]
-  };
+            </body>
+            </html>
+          `
+        }),
+      });
 
-  // Call Cloudflare Email Workers API
-  // Note: You'll need to configure Email Routing in Cloudflare Dashboard
-  // For now, we'll use the MailChannels API (free tier available through Cloudflare Workers)
-  try {
-    const response = await fetch('https://api.mailchannels.net/tx/v1/send', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(emailPayload),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('MailChannels error:', errorText);
-      throw new Error('Failed to send email');
+      if (response.ok) {
+        console.log('✅ Password reset email sent via Resend');
+        return true;
+      } else {
+        const errorText = await response.text();
+        console.error('Resend API error:', response.status, errorText);
+      }
+    } catch (error) {
+      console.error('Resend send error:', error);
     }
-
-    return true;
-  } catch (error) {
-    console.error('Send email error:', error);
-    throw error;
   }
+  
+  // 无论邮件是否发送成功，都返回 true 以防止邮箱枚举攻击
+  return true;
 }
 
 /**

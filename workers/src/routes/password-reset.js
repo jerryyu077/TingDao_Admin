@@ -15,100 +15,122 @@ function generateResetToken() {
 }
 
 /**
- * Send password reset email
- * TODO: 配置真实的邮件服务（Resend, SendGrid, 或 Cloudflare Email Routing）
+ * Send password reset email using MailChannels
+ * MailChannels is free for Cloudflare Workers users
  */
 async function sendResetEmail(env, email, resetToken) {
   const resetLink = `https://tingdao.app/reset-password?token=${resetToken}`;
   
-  // 🚧 临时方案：在开发/测试阶段，将重置链接打印到日志
-  // 生产环境需要集成真实的邮件服务
-  console.log('====================================');
-  console.log('📧 密码重置邮件');
-  console.log('收件人:', email);
-  console.log('重置链接:', resetLink);
-  console.log('令牌:', resetToken);
-  console.log('有效期: 1小时');
-  console.log('====================================');
-  
-  // 如果配置了 RESEND_API_KEY，使用 Resend 发送邮件
-  if (env.RESEND_API_KEY) {
-    try {
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'support@tingdao.app',
-          to: [email],
-          subject: '重置您的听道账户密码',
-          html: `
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #333; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-                .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
-                .button { display: inline-block; background: #667eea; color: white !important; text-decoration: none; padding: 12px 30px; border-radius: 6px; margin: 20px 0; }
-                .footer { text-align: center; margin-top: 20px; color: #999; font-size: 12px; }
-                .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 20px 0; }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <div class="header">
-                  <h1>🔒 重置密码</h1>
-                </div>
-                <div class="content">
-                  <p>您好，</p>
-                  <p>我们收到了重置您听道账户密码的请求。点击下面的按钮重置密码：</p>
-                  <div style="text-align: center;">
-                    <a href="${resetLink}" class="button">重置密码</a>
-                  </div>
-                  <p>或复制以下链接到浏览器：</p>
-                  <p style="background: white; padding: 10px; border-radius: 4px; word-break: break-all; font-size: 12px;">
-                    ${resetLink}
-                  </p>
-                  <div class="warning">
-                    <strong>⚠️ 安全提示：</strong>
-                    <ul style="margin: 5px 0;">
-                      <li>此链接将在 <strong>1小时</strong> 后失效</li>
-                      <li>如果您没有请求重置密码，请忽略此邮件</li>
-                      <li>不要将此链接分享给任何人</li>
-                    </ul>
-                  </div>
-                  <p>如有任何问题，请联系我们的客服团队。</p>
-                  <p>听道团队<br>support@tingdao.app</p>
-                </div>
-                <div class="footer">
-                  <p>© 2025 听道 TingDao. 保留所有权利。</p>
-                </div>
-              </div>
-            </body>
-            </html>
-          `
-        }),
-      });
+  // 构建符合 SendGrid API 格式的邮件内容（MailChannels 兼容此格式）
+  const emailPayload = {
+    personalizations: [{
+      to: [{ email: email }],
+    }],
+    from: {
+      email: 'support@tingdao.app',
+      name: '听道 TingDao'
+    },
+    subject: '重置您的听道账户密码',
+    content: [{
+      type: 'text/html',
+      value: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+    .button { display: inline-block; background: #667eea; color: white !important; text-decoration: none; padding: 12px 30px; border-radius: 6px; margin: 20px 0; font-weight: 600; }
+    .footer { text-align: center; margin-top: 20px; color: #999; font-size: 12px; }
+    .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 20px 0; border-radius: 4px; }
+    .link-box { background: white; padding: 10px; border-radius: 4px; word-break: break-all; font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔒 重置密码</h1>
+    </div>
+    <div class="content">
+      <p>您好，</p>
+      <p>我们收到了重置您听道账户密码的请求。点击下面的按钮重置密码：</p>
+      <div style="text-align: center;">
+        <a href="${resetLink}" class="button">重置密码</a>
+      </div>
+      <p>或复制以下链接到浏览器：</p>
+      <div class="link-box">${resetLink}</div>
+      <div class="warning">
+        <strong>⚠️ 安全提示：</strong>
+        <ul style="margin: 5px 0;">
+          <li>此链接将在 <strong>1小时</strong> 后失效</li>
+          <li>如果您没有请求重置密码，请忽略此邮件</li>
+          <li>不要将此链接分享给任何人</li>
+        </ul>
+      </div>
+      <p>如有任何问题，请联系我们的客服团队。</p>
+      <p style="margin-top: 30px;">
+        听道团队<br>
+        <a href="mailto:support@tingdao.app" style="color: #667eea;">support@tingdao.app</a>
+      </p>
+    </div>
+    <div class="footer">
+      <p>© 2025 听道 TingDao. 保留所有权利。</p>
+    </div>
+  </div>
+</body>
+</html>
+      `
+    }]
+  };
 
-      if (response.ok) {
-        console.log('✅ Password reset email sent via Resend');
-        return true;
-      } else {
-        const errorText = await response.text();
-        console.error('Resend API error:', response.status, errorText);
-      }
-    } catch (error) {
-      console.error('Resend send error:', error);
+  try {
+    console.log('📤 正在通过 MailChannels 发送密码重置邮件到:', email);
+    
+    const response = await fetch('https://api.mailchannels.net/tx/v1/send', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(emailPayload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ MailChannels API 错误:', response.status, errorText);
+      
+      // 即使失败也返回 true，防止邮箱枚举攻击
+      // 同时在日志中记录详细错误供调试
+      console.log('====================================');
+      console.log('📧 邮件发送失败，以下是重置信息（仅用于调试）：');
+      console.log('收件人:', email);
+      console.log('重置链接:', resetLink);
+      console.log('令牌:', resetToken);
+      console.log('====================================');
+      
+      return true;
     }
+
+    const result = await response.json();
+    console.log('✅ 密码重置邮件发送成功:', result);
+    return true;
+  } catch (error) {
+    console.error('❌ 发送邮件时出错:', error);
+    
+    // 出错时也记录重置链接供调试
+    console.log('====================================');
+    console.log('📧 邮件发送失败，以下是重置信息（仅用于调试）：');
+    console.log('收件人:', email);
+    console.log('重置链接:', resetLink);
+    console.log('令牌:', resetToken);
+    console.log('====================================');
+    
+    // 防止邮箱枚举攻击
+    return true;
   }
-  
-  // 无论邮件是否发送成功，都返回 true 以防止邮箱枚举攻击
-  return true;
 }
 
 /**

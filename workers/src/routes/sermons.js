@@ -152,15 +152,9 @@ export async function createSermon(request, env) {
       return error('缺少必填字段', 'MISSING_REQUIRED_FIELDS', 400);
     }
     
-    // 从token获取用户ID（临时禁用 - 使用 Cloudflare Zero Trust 保护）
-    // TODO: 如需重新启用认证，取消下面注释
-    /*
-    const userId = getUserIdFromRequest(request);
-    if (!userId) {
-      return error('未授权', 'UNAUTHORIZED', 401);
-    }
-    */
-    const userId = 'admin'; // 临时使用固定的 admin ID
+    // 从请求体获取 submitter_id（Admin 端可以选择提交者）
+    // 如果没有提供，则使用固定的 admin ID
+    const userId = data.submitter_id || 'admin';
 
     const sql = `
       INSERT INTO sermons (

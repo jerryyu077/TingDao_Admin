@@ -244,8 +244,8 @@
                             <!-- Scripture References -->
                             <div class="form-control">
                                 <label class="label">
-                                    <span class="label-text">经文引用 <span class="text-error">*</span></span>
-                                    <span class="label-text-alt">至少添加一条经文引用</span>
+                                    <span class="label-text">经文引用</span>
+                                    <span class="label-text-alt">例如：约翰福音 3:16（选填）</span>
                                 </label>
                                 <div id="scripturesList" class="space-y-2 mb-3">
                                     <!-- Scripture items will be added here -->
@@ -276,8 +276,8 @@
                             <!-- Summary -->
                             <div class="form-control">
                                 <label class="label">
-                                    <span class="label-text">讲道摘要 <span class="text-error">*</span></span>
-                                    <span class="label-text-alt">建议200字以内，简短介绍讲道的核心内容</span>
+                                    <span class="label-text">讲道摘要</span>
+                                    <span class="label-text-alt">建议200字以内，简短介绍讲道的核心内容（选填）</span>
                                 </label>
                                 <textarea name="summary" rows="4" placeholder="简短介绍讲道的核心内容..." class="textarea textarea-sm textarea-bordered w-full" required></textarea>
                             </div>
@@ -737,20 +737,21 @@
             return;
         }
         
-        if (!scripture) {
-            alert('请至少添加一条经文引用');
-            return;
-        }
+        // 经文和摘要改为非必填
+        // if (!scripture) {
+        //     alert('请至少添加一条经文引用');
+        //     return;
+        // }
         
         if (!date) {
             alert('请选择讲道日期');
             return;
         }
         
-        if (!summary) {
-            alert('请填写讲道摘要');
-            return;
-        }
+        // if (!summary) {
+        //     alert('请填写讲道摘要');
+        //     return;
+        // }
         
         if (!audioFile) {
             alert('请上传音频文件');
@@ -825,15 +826,16 @@
             // Format date as YYYY-MM-DD
             const formattedDate = date; // Already in YYYY-MM-DD format from input
             
-            // Create sermon data (backend will get submitter_id from token)
-            // Note: 不再需要 speaker_name, speaker, submitter 等字段，后端会自动关联
+            // Create sermon data
+            // Admin 端可以选择提交者
             const sermonData = {
                 id: 'sermon-' + Date.now(),
                 title: title,
                 speaker_id: speakerId,
-                scripture: scripture,
+                submitter_id: submitterId, // 从表单选择的提交者
+                scripture: scripture || '', // 非必填
                 date: formattedDate,
-                summary: summary,
+                summary: summary || '', // 非必填
                 tags: tagsArray,
                 topic_ids: selectedTopics,
                 audio_url: audioUrl,

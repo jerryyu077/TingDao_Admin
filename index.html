@@ -5,13 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>听道后台管理系统</title>
     <script>
-        // 自动重定向到登录页或仪表盘
+        // 临时禁用登录检查 - 使用 Cloudflare Zero Trust 保护
+        // TODO: 如需重新启用登录，取消下面注释并注释掉直接跳转
+        /*
         const token = localStorage.getItem('admin_token');
         if (token) {
             window.location.href = 'dashboard.html';
         } else {
             window.location.href = 'login.html';
         }
+        */
+        
+        // 直接跳转到仪表盘（已通过 Cloudflare Zero Trust 保护）
+        window.location.href = 'dashboard.html';
     </script>
 </head>
 <body>

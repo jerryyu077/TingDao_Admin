@@ -16,12 +16,16 @@ function getAuthToken() {
 
 // 检查认证状态
 function checkAuth() {
+    // 临时禁用登录检查 - 使用 Cloudflare Zero Trust 保护
+    // TODO: 如需重新启用登录，取消下面注释
+    /*
     if (!getAuthToken()) {
         alert('请先登录');
         window.location.href = 'login.html';
         return false;
     }
-    return true;
+    */
+    return true; // 始终返回 true，允许访问
 }
 
 // 通用API请求函数

@@ -31,7 +31,6 @@ export async function getFavorites(request, env) {
       SELECT 
         s.id,
         s.title,
-        s.description,
         s.summary,
         s.scripture,
         s.audio_url,
@@ -78,7 +77,6 @@ export async function getFavorites(request, env) {
       return {
         id: row.id,
         title: row.title,
-        description: row.description,
         summary: row.summary,
         scripture: row.scripture,
         audioURL: row.audio_url, // 注意大小写，客户端使用 audioURL

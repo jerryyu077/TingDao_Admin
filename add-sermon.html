@@ -465,20 +465,23 @@
         if (scriptures.length === 0) {
             container.innerHTML = '<div class="text-sm text-base-content/50 py-2">暂无经文引用，请点击"添加经文"按钮添加</div>';
         } else {
-            container.innerHTML = scriptures.map(s => `
-                <div class="flex gap-2 items-center">
-                    <input type="text" 
-                           value="${s.value || ''}" 
-                           placeholder="例如：希伯来书 11:1" 
-                           class="input input-sm input-bordered flex-1" 
-                           oninput="updateScripture(${s.id}, this.value)">
-                    <button type="button" 
-                            class="btn btn-sm btn-ghost btn-circle text-error" 
-                            onclick="removeScripture(${s.id})">
-                        <span class="iconify" data-icon="heroicons:trash" data-width="16"></span>
-                    </button>
-                </div>
-            `).join('');
+            container.innerHTML = scriptures.map(s => {
+                const safeValue = (s.value || '').replace(/"/g, '&quot;');
+                return `
+                    <div class="flex gap-2 items-center">
+                        <input type="text" 
+                               value="${safeValue}" 
+                               placeholder="例如：希伯来书 11:1" 
+                               class="input input-sm input-bordered flex-1" 
+                               oninput="updateScripture(${s.id}, this.value)">
+                        <button type="button" 
+                                class="btn btn-sm btn-ghost btn-circle text-error" 
+                                onclick="removeScripture(${s.id})">
+                            <span class="iconify" data-icon="heroicons:trash" data-width="16"></span>
+                        </button>
+                    </div>
+                `;
+            }).join('');
         }
         updateScriptureHidden();
     }
@@ -911,12 +914,15 @@
         const container = document.getElementById('tagContainer');
         const hiddenInput = document.getElementById('tagsHidden');
         
-        container.innerHTML = tags.map(tag => `
-            <span class="badge badge-md gap-1.5 cursor-pointer hover:badge-error transition-colors" style="font-size: 0.85rem;" onclick="removeTag('${tag}')">
-                ${tag}
-                <span class="iconify" data-icon="heroicons:x-mark" data-width="14"></span>
-            </span>
-        `).join('');
+        container.innerHTML = tags.map(tag => {
+            const safeTag = tag.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            return `
+                <span class="badge badge-md gap-1.5 cursor-pointer hover:badge-error transition-colors" style="font-size: 0.85rem;" onclick="removeTag('${safeTag}')">
+                    ${tag}
+                    <span class="iconify" data-icon="heroicons:x-mark" data-width="14"></span>
+                </span>
+            `;
+        }).join('');
         
         hiddenInput.value = tags.join(',');
     }

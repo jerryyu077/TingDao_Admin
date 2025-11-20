@@ -15,8 +15,7 @@ function generateResetToken() {
 }
 
 /**
- * Send password reset email using MailChannels
- * MailChannels is free for Cloudflare Workers users
+ * Send password reset email using Resend
  */
 async function sendResetEmail(env, email, resetToken) {
   const resetLink = `https://tingdao.app/reset-password?token=${resetToken}`;
@@ -93,7 +92,7 @@ async function sendResetEmail(env, email, resetToken) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ MailChannels API 错误:', response.status, errorText);
+      console.error('❌ Resend API 错误:', response.status, errorText);
       
       // 即使失败也返回 true，防止邮箱枚举攻击
       // 同时在日志中记录详细错误供调试

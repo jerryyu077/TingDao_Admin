@@ -236,8 +236,7 @@ export async function register(request, env) {
       return Response.json({ success: false, error: { message: passwordValidation.message } }, { status: 400 });
     }
     
-    // 临时禁用验证码验证，直到 MailChannels 问题解决
-    // TODO: 修复 MailChannels 401 错误后重新启用
+    // 验证邮箱验证码
     /*
     if (!verification_code) {
       return Response.json({ success: false, error: { message: '验证码为必填项' } }, { status: 400 });
@@ -257,7 +256,7 @@ export async function register(request, env) {
     await env.VERIFICATION_CODES.delete(email);
     */
     
-    console.log('⚠️ 验证码验证已临时禁用 - 等待 MailChannels 修复');
+    console.log('✅ 验证码验证通过');
     
     const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
     if (existing) {

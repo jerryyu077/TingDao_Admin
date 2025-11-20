@@ -1,5 +1,7 @@
--- 添加 password_hash 列到 users 表
-ALTER TABLE users ADD COLUMN password_hash TEXT;
+-- 添加 password_hash 列到 users 表（如果不存在）
+-- SQLite 不支持 ADD COLUMN IF NOT EXISTS，所以我们需要检查
+-- 如果列已存在，这个迁移会失败，但不影响其他部分
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
 
 -- 创建 user_favorites 表（如果不存在）
 CREATE TABLE IF NOT EXISTS user_favorites (

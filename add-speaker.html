@@ -418,10 +418,10 @@
                     church: formData.get('church'),
                     email: formData.get('email'),
                     website: formData.get('website') || '',
-                    social_media: JSON.stringify({
+                    social_media: {
                         wechat: formData.get('wechat') || '',
                         youtube: formData.get('youtube') || ''
-                    }),
+                    },
                     status: formData.get('status'),
                     is_verified: formData.get('is_verified') === 'on' ? 1 : 0
                 };

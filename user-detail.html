@@ -437,7 +437,7 @@
                     statusBadge = '<span class="badge badge-success badge-sm">已发布</span>';
                 } else if (sermon.status === 'pending') {
                     statusBadge = '<span class="badge badge-warning badge-sm">待审核</span>';
-                } else if (sermon.status === 'rejected') {
+                } else if (sermon.status === 'rejected' || sermon.status === 'revision') {
                     statusBadge = '<span class="badge badge-error badge-sm">已退回</span>';
                 } else {
                     statusBadge = `<span class="badge badge-ghost badge-sm">${sermon.status || '未知'}</span>`;
@@ -484,7 +484,11 @@
                     sermon.title.toLowerCase().includes(searchTerm) ||
                     (sermon.speaker?.name && sermon.speaker.name.toLowerCase().includes(searchTerm));
                 
-                const matchStatus = !statusFilter || sermon.status === statusFilter;
+                // Match status - treat 'revision' and 'rejected' as the same
+                let matchStatus = !statusFilter || sermon.status === statusFilter;
+                if (statusFilter === 'rejected') {
+                    matchStatus = sermon.status === 'rejected' || sermon.status === 'revision';
+                }
                 
                 return matchSearch && matchStatus;
             });

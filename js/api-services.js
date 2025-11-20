@@ -28,15 +28,22 @@ const AuthService = {
     },
     
     /**
-     * 登出
+     * 登出（临时禁用 - 使用 Cloudflare Zero Trust 保护）
      */
     async logout() {
+        // TODO: 如需重新启用登出，取消下面注释
+        /*
         try {
             await api.post(APIEndpoints.auth.logout);
         } finally {
             api.removeAuthToken();
             window.location.href = 'login.html';
         }
+        */
+        
+        // 临时禁用登出功能
+        alert('当前使用 Cloudflare Zero Trust 保护，无需手动登出。\n关闭浏览器或清除 Cloudflare 会话即可退出。');
+        return;
     },
     
     /**

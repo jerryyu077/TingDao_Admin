@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>API 连接测试</h1>
+    <div id="results"></div>
+
+    <script src="js/api-config.js"></script>
+    <script>
+        const resultsDiv = document.getElementById('results');
+
+        function addResult(title, success, data) {
+            const div = document.createElement('div');
+            div.className = `result ${success ? 'success' : 'error'}`;
+            div.innerHTML = `
+                <h3>${title}</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            resultsDiv.appendChild(div);
+        }
+
+        async function testAPI() {
+            // Test 1: Check if APIConfig is loaded
+            addResult('APIConfig 加载', !!window.APIConfig, {
+                baseURL: APIConfig?.baseURL,
+                apiVersion: APIConfig?.apiVersion
+            });
+
+            // Test 2: Topics API
+            try {
+                const url = `${APIConfig.baseURL}${APIConfig.apiVersion}/topics`;
+                console.log('Testing URL:', url);
+                const response = await fetch(url);
+                const result = await response.json();
+                addResult('Topics API', result.success, {
+                    url,
+                    status: response.status,
+                    count: result.data?.length,
+                    data: result.data?.slice(0, 3)
+                });
+            } catch (error) {
+                addResult('Topics API', false, { error: error.message });
+            }
+
+            // Test 3: Speakers API
+            try {
+                const url = `${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`;
+                console.log('Testing URL:', url);
+                const response = await fetch(url);
+                const result = await response.json();
+                addResult('Speakers API', result.success, {
+                    url,
+                    status: response.status,
+                    count: result.data?.length,
+                    data: result.data?.slice(0, 3)
+                });
+            } catch (error) {
+                addResult('Speakers API', false, { error: error.message });
+            }
+
+            // Test 4: Users API
+            try {
+                const url = `${APIConfig.baseURL}${APIConfig.apiVersion}/users`;
+                console.log('Testing URL:', url);
+                const response = await fetch(url);
+                const result = await response.json();
+                addResult('Users API', result.success, {
+                    url,
+                    status: response.status,
+                    count: result.data?.length,
+                    data: result.data?.slice(0, 3)
+                });
+            } catch (error) {
+                addResult('Users API', false, { error: error.message });
+            }
+        }
+
+        // Run tests
+        testAPI();
+    </script>
+</body>
+</html>
+

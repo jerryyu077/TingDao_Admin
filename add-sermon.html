@@ -663,18 +663,27 @@
 
     // Load topics from API
     async function loadTopics() {
+        console.log('🔍 开始加载主题列表...');
+        console.log('📍 APIConfig:', APIConfig);
         try {
-            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics');
+            const url = `${APIConfig.baseURL}${APIConfig.apiVersion}/topics`;
+            console.log('📡 请求 URL:', url);
+            const response = await fetch(url);
+            console.log('📥 响应状态:', response.status);
             const result = await response.json();
+            console.log('📦 响应数据:', result);
             
             if (result.success && result.data) {
                 const select = document.getElementById('topicSelect');
                 select.innerHTML = result.data.map(topic => 
                     `<option value="${topic.id}">${topic.name}</option>`
                 ).join('');
+                console.log(`✅ 成功加载 ${result.data.length} 个主题`);
+            } else {
+                console.error('❌ API 返回失败:', result);
             }
         } catch (error) {
-            console.error('Failed to load topics:', error);
+            console.error('❌ 加载主题失败:', error);
         }
     }
 

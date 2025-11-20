@@ -1207,6 +1207,7 @@
                         speakerBio: apiData.speaker?.bio || '',
                         speakerAvatarURL: apiData.speaker?.avatar_url || '',
                         submitter: apiData.submitter?.email || apiData.submitter?.username || '',
+                        submitterId: apiData.submitter?.id || apiData.submitter_id || '',
                         coverImage: apiData.cover_image_url || '',
                         audioUrl: apiData.audio_url || '',
                         audioSize: apiData.audio_size || 0,
@@ -1298,6 +1299,11 @@
                 const submitterView = document.getElementById('submitterView');
                 if (submitterView) {
                     submitterView.textContent = sermonData.submitter;
+                    
+                    // Update link to correct user detail page
+                    if (sermonData.submitterId) {
+                        submitterView.href = `user-detail.html?id=${sermonData.submitterId}`;
+                    }
                 }
             }
             

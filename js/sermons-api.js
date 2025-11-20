@@ -192,8 +192,10 @@ const SermonsPage = {
             const sermonId = sermon.id;
             const speaker = sermon.speaker?.name || '未知讲员';
             const submitter = sermon.submitter?.email || sermon.submitter?.username || '未知用户';
-            const date = sermon.date ? new Date(sermon.date).toISOString().split('T')[0].replace(/-/g, '-') : '';
-            const time = sermon.date ? new Date(sermon.date).toTimeString().slice(0,5) : '';
+            // Use created_at (submission time) instead of date (sermon date)
+            const createdAt = sermon.created_at || sermon.date;
+            const date = createdAt ? new Date(createdAt).toISOString().split('T')[0] : '';
+            const time = createdAt ? new Date(createdAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
             
             // Get status from localStorage or use API status
             const statusKey = `sermon_status_${sermonId}`;

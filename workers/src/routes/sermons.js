@@ -19,14 +19,18 @@ export async function getSermons(request, env) {
   try {
     let sql = `
       SELECT s.*, 
+             sp.id as speaker_id,
              sp.name as speaker_name, 
              sp.avatar_url as speaker_avatar,
+             sp.title as speaker_title,
+             u.id as submitter_user_id,
              u.username as submitter_username,
              u.name as submitter_name,
+             u.email as submitter_email,
              COALESCE(
                (SELECT COUNT(*) FROM user_favorites WHERE sermon_id = s.id),
                0
-             ) as favorites_count
+             ) as favorite_count
       FROM sermons s
       LEFT JOIN speakers sp ON s.speaker_id = sp.id
       LEFT JOIN users u ON s.submitter_id = u.id
@@ -61,13 +65,20 @@ export async function getSermons(request, env) {
     // 解析JSON字段
     result.data = parseJsonFieldsInArray(result.data, ['tags', 'metadata']);
     
-    // 构造submitter对象
+    // 构造 speaker 和 submitter 对象
     result.data = result.data.map(sermon => ({
       ...sermon,
+      speaker: sermon.speaker_id ? {
+        id: sermon.speaker_id,
+        name: sermon.speaker_name,
+        avatar_url: sermon.speaker_avatar,
+        title: sermon.speaker_title
+      } : null,
       submitter: sermon.submitter_id ? {
-        id: sermon.submitter_id,
+        id: sermon.submitter_user_id || sermon.submitter_id,
         username: sermon.submitter_username,
-        name: sermon.submitter_name
+        name: sermon.submitter_name,
+        email: sermon.submitter_email
       } : null
     }));
 
@@ -83,16 +94,20 @@ export async function getSermon(request, env, id) {
   try {
     const sql = `
       SELECT s.*, 
+             sp.id as speaker_id,
              sp.name as speaker_name, 
              sp.avatar_url as speaker_avatar,
              sp.title as speaker_title,
              sp.church as speaker_church,
+             sp.bio as speaker_bio,
+             u.id as submitter_user_id,
              u.username as submitter_username,
              u.name as submitter_name,
+             u.email as submitter_email,
              COALESCE(
                (SELECT COUNT(*) FROM user_favorites WHERE sermon_id = s.id),
                0
-             ) as favorites_count
+             ) as favorite_count
       FROM sermons s
       LEFT JOIN speakers sp ON s.speaker_id = sp.id
       LEFT JOIN users u ON s.submitter_id = u.id
@@ -109,19 +124,21 @@ export async function getSermon(request, env, id) {
     sermon = parseJsonFields(sermon, ['tags', 'metadata']);
     
     // 构造speaker对象
-    sermon.speaker = {
+    sermon.speaker = sermon.speaker_id ? {
       id: sermon.speaker_id,
       name: sermon.speaker_name,
       avatar_url: sermon.speaker_avatar,
       title: sermon.speaker_title,
-      church: sermon.speaker_church
-    };
+      church: sermon.speaker_church,
+      bio: sermon.speaker_bio
+    } : null;
     
     // 构造submitter对象
     sermon.submitter = sermon.submitter_id ? {
-      id: sermon.submitter_id,
+      id: sermon.submitter_user_id || sermon.submitter_id,
       username: sermon.submitter_username,
-      name: sermon.submitter_name
+      name: sermon.submitter_name,
+      email: sermon.submitter_email
     } : null;
 
     // 获取关联的topics

@@ -947,7 +947,7 @@
     // Load speakers from API
     async function loadSpeakers() {
         try {
-            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers');
+            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`);
             const result = await response.json();
             
             if (result.success && result.data) {
@@ -965,7 +965,7 @@
     // Load users from API
     async function loadUsers() {
         try {
-            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users');
+            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users`);
             const result = await response.json();
             
             if (result.success && result.data) {

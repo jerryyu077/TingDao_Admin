@@ -3,6 +3,7 @@
  */
 import { success, paginated, error, notFound } from '../utils/response.js';
 import { queryAll, queryOne, queryPaginated, execute, parseJsonFields, parseJsonFieldsInArray } from '../utils/db.js';
+import { getUserIdFromRequest } from './auth.js';
 
 // GET /v1/sermons - 获取讲道列表（支持分页、搜索、过滤）
 export async function getSermons(request, env) {
@@ -47,7 +48,7 @@ export async function getSermons(request, env) {
 
     // 搜索
     if (searchTerm) {
-      sql += ` AND (s.title LIKE ? OR s.description LIKE ?)`;
+      sql += ` AND (s.title LIKE ? OR s.summary LIKE ?)`;
       params.push(`%${searchTerm}%`, `%${searchTerm}%`);
     }
 
@@ -150,14 +151,20 @@ export async function createSermon(request, env) {
     if (!data.id || !data.title || !data.speaker_id || !data.audio_url) {
       return error('缺少必填字段', 'MISSING_REQUIRED_FIELDS', 400);
     }
+    
+    // 从token获取用户ID
+    const userId = getUserIdFromRequest(request);
+    if (!userId) {
+      return error('未授权', 'UNAUTHORIZED', 401);
+    }
 
     const sql = `
       INSERT INTO sermons (
         id, title, speaker_id, cover_image_url, audio_url, audio_size, audio_format,
-        duration, scripture, summary, description, tags, series_id, series_order,
+        duration, scripture, summary, tags, series_id, series_order,
         language, date, publish_date, status, is_featured, submitter_id, metadata,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const now = new Date().toISOString();
@@ -172,16 +179,15 @@ export async function createSermon(request, env) {
       data.duration || 0,
       data.scripture || null,
       data.summary || null,
-      data.description || null,
       data.tags ? JSON.stringify(data.tags) : null,
       data.series_id || null,
       data.series_order || null,
       data.language || 'zh-CN',
       data.date,
       data.publish_date || now,
-      data.status || 'pending',
+      data.status || 'reviewing',
       data.is_featured ? 1 : 0,
-      data.submitter_id || null,
+      userId,  // 使用从token获取的用户ID
       data.metadata ? JSON.stringify(data.metadata) : null,
       now,
       now
@@ -210,46 +216,104 @@ export async function updateSermon(request, env, id) {
     const data = await request.json();
     
     // 检查讲道是否存在
-    const existing = await queryOne(env.DB, 'SELECT id FROM sermons WHERE id = ?', [id]);
+    const existing = await queryOne(env.DB, 'SELECT * FROM sermons WHERE id = ?', [id]);
     if (!existing) {
       return notFound('讲道不存在');
     }
 
-    const sql = `
-      UPDATE sermons SET
-        title = ?, speaker_id = ?, cover_image_url = ?, audio_url = ?,
-        audio_size = ?, audio_format = ?, duration = ?, scripture = ?,
-        summary = ?, description = ?, tags = ?, series_id = ?, series_order = ?,
-        language = ?, date = ?, publish_date = ?, status = ?, is_featured = ?,
-        submitter_id = ?, metadata = ?, updated_at = ?
-      WHERE id = ?
-    `;
-
+    // 构建动态更新SQL（只更新提供的字段）
+    const updates = [];
+    const params = [];
+    
+    if (data.title !== undefined) {
+      updates.push('title = ?');
+      params.push(data.title);
+    }
+    if (data.speaker_id !== undefined) {
+      updates.push('speaker_id = ?');
+      params.push(data.speaker_id);
+    }
+    if (data.cover_image_url !== undefined) {
+      updates.push('cover_image_url = ?');
+      params.push(data.cover_image_url);
+    }
+    if (data.audio_url !== undefined) {
+      updates.push('audio_url = ?');
+      params.push(data.audio_url);
+    }
+    if (data.audio_size !== undefined) {
+      updates.push('audio_size = ?');
+      params.push(data.audio_size || 0);
+    }
+    if (data.audio_format !== undefined) {
+      updates.push('audio_format = ?');
+      params.push(data.audio_format || 'mp3');
+    }
+    if (data.duration !== undefined) {
+      updates.push('duration = ?');
+      params.push(data.duration || 0);
+    }
+    if (data.scripture !== undefined) {
+      updates.push('scripture = ?');
+      params.push(data.scripture);
+    }
+    if (data.summary !== undefined) {
+      updates.push('summary = ?');
+      params.push(data.summary);
+    }
+    if (data.tags !== undefined) {
+      updates.push('tags = ?');
+      params.push(data.tags ? JSON.stringify(data.tags) : null);
+    }
+    if (data.series_id !== undefined) {
+      updates.push('series_id = ?');
+      params.push(data.series_id);
+    }
+    if (data.series_order !== undefined) {
+      updates.push('series_order = ?');
+      params.push(data.series_order);
+    }
+    if (data.language !== undefined) {
+      updates.push('language = ?');
+      params.push(data.language);
+    }
+    if (data.date !== undefined) {
+      updates.push('date = ?');
+      params.push(data.date);
+    }
+    if (data.publish_date !== undefined) {
+      updates.push('publish_date = ?');
+      params.push(data.publish_date);
+    }
+    if (data.status !== undefined) {
+      updates.push('status = ?');
+      params.push(data.status);
+    }
+    if (data.is_featured !== undefined) {
+      updates.push('is_featured = ?');
+      params.push(data.is_featured ? 1 : 0);
+    }
+    if (data.submitter_id !== undefined) {
+      updates.push('submitter_id = ?');
+      params.push(data.submitter_id);
+    }
+    if (data.metadata !== undefined) {
+      updates.push('metadata = ?');
+      params.push(data.metadata ? JSON.stringify(data.metadata) : null);
+    }
+    
+    // 总是更新 updated_at
     const now = new Date().toISOString();
-    await execute(env.DB, sql, [
-      data.title,
-      data.speaker_id,
-      data.cover_image_url,
-      data.audio_url,
-      data.audio_size || 0,
-      data.audio_format || 'mp3',
-      data.duration || 0,
-      data.scripture,
-      data.summary,
-      data.description,
-      data.tags ? JSON.stringify(data.tags) : null,
-      data.series_id,
-      data.series_order,
-      data.language || 'zh-CN',
-      data.date,
-      data.publish_date,
-      data.status,
-      data.is_featured ? 1 : 0,
-      data.submitter_id,
-      data.metadata ? JSON.stringify(data.metadata) : null,
-      now,
-      id
-    ]);
+    updates.push('updated_at = ?');
+    params.push(now);
+    
+    // 添加 WHERE 条件的 id
+    params.push(id);
+    
+    if (updates.length > 0) {
+      const sql = `UPDATE sermons SET ${updates.join(', ')} WHERE id = ?`;
+      await execute(env.DB, sql, params);
+    }
 
     // 更新topic关联
     if (data.topic_ids) {
@@ -313,6 +377,35 @@ export async function deleteSermon(request, env, id) {
   } catch (e) {
     console.error('Error deleting sermon:', e);
     return error('删除讲道失败: ' + e.message);
+  }
+}
+
+// POST /v1/sermons/:id/play - 增加播放次数
+export async function incrementPlayCount(request, env, id) {
+  try {
+    // 增加播放次数
+    const sql = `
+      UPDATE sermons 
+      SET play_count = play_count + 1 
+      WHERE id = ?
+    `;
+    
+    await execute(env.DB, sql, [id]);
+    
+    // 获取更新后的播放次数
+    const sermon = await queryOne(env.DB, 'SELECT play_count FROM sermons WHERE id = ?', [id]);
+    
+    if (!sermon) {
+      return notFound('讲道不存在');
+    }
+    
+    return success({ 
+      id, 
+      play_count: sermon.play_count 
+    }, { message: '播放次数已更新' });
+  } catch (e) {
+    console.error('Error incrementing play count:', e);
+    return error('更新播放次数失败: ' + e.message);
   }
 }
 

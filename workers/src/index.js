@@ -17,6 +17,7 @@ import * as passwordResetRoute from './routes/password-reset.js';
 import * as statsRoute from './routes/stats.js';
 import * as topicFavoritesRoute from './routes/topic-favorites.js';
 import * as speakerFavoritesRoute from './routes/speaker-favorites.js';
+import * as submissionsRoute from './routes/submissions.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -67,6 +68,12 @@ export default {
       if (path.match(/^\/api\/v1\/sermons\/[^/]+$/) && method === 'DELETE') {
         const id = path.split('/').pop();
         return await sermonsRoute.deleteSermon(request, env, id);
+      }
+      
+      // POST /v1/sermons/:id/play
+      if (path.match(/^\/api\/v1\/sermons\/[^/]+\/play$/) && method === 'POST') {
+        const id = path.split('/')[4];
+        return await sermonsRoute.incrementPlayCount(request, env, id);
       }
 
       // ==================== Speakers API ====================
@@ -250,6 +257,11 @@ export default {
 
       // ==================== Auth API ====================
       
+      // POST /v1/auth/send-verification-code
+      if (path === '/api/v1/auth/send-verification-code' && method === 'POST') {
+        return await authRoute.sendVerificationCode(request, env);
+      }
+      
       // POST /v1/auth/register
       if (path === '/api/v1/auth/register' && method === 'POST') {
         return await authRoute.register(request, env);
@@ -413,6 +425,25 @@ export default {
       if (path.match(/^\/api\/v1\/speaker-favorites\/check\/[^/]+$/) && method === 'GET') {
         const speakerId = path.split('/').pop();
         return await speakerFavoritesRoute.checkSpeakerFavorite(request, env, speakerId);
+      }
+
+      // ==================== Submissions API ====================
+      
+      // GET /v1/submissions
+      if (path === '/api/v1/submissions' && method === 'GET') {
+        return await submissionsRoute.getMySubmissions(request, env);
+      }
+      
+      // GET /v1/submissions/:id
+      if (path.match(/^\/api\/v1\/submissions\/[^/]+$/) && method === 'GET') {
+        const id = path.split('/').pop();
+        return await submissionsRoute.getSubmission(request, env, id);
+      }
+      
+      // DELETE /v1/submissions/:id
+      if (path.match(/^\/api\/v1\/submissions\/[^/]+$/) && method === 'DELETE') {
+        const id = path.split('/').pop();
+        return await submissionsRoute.deleteSubmission(request, env, id);
       }
 
       // ==================== 404 ====================

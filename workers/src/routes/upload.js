@@ -2,97 +2,121 @@
  * 文件上传 API 路由
  */
 import { success, error } from '../utils/response.js';
+import { getUserIdFromRequest } from './auth.js';
 
-// POST /v1/upload/audio - 上传音频文件
-export async function uploadAudio(request, env) {
-  try {
-    const formData = await request.formData();
-    const file = formData.get('file');
-    
-    if (!file) {
-      return error('缺少文件', 'MISSING_FILE', 400);
-    }
-
-    // 生成唯一文件名
-    const timestamp = Date.now();
-    const randomStr = Math.random().toString(36).substring(2, 8);
-    const extension = file.name.split('.').pop();
-    const fileName = `sermon-${timestamp}-${randomStr}.${extension}`;
-    const filePath = `sermons/${fileName}`;
-
-    // 上传到R2
-    await env.STORAGE.put(filePath, file.stream(), {
-      httpMetadata: {
-        contentType: file.type || 'audio/mpeg'
-      }
-    });
-
-    // R2公开访问URL
-    const fileUrl = `https://media.tingdao.app/${filePath}`;
-
-    return success({
-      url: fileUrl,
-      fileName: fileName,
-      size: file.size,
-      type: file.type
-    }, { message: '音频上传成功' });
-  } catch (e) {
-    console.error('Error uploading audio:', e);
-    return error('上传音频失败: ' + e.message);
-  }
-}
-
-// POST /v1/upload/image - 上传图片文件
+/**
+ * POST /v1/upload/image - 上传图片
+ */
 export async function uploadImage(request, env) {
   try {
+    // 验证用户登录
+    const userId = getUserIdFromRequest(request);
+    if (!userId) {
+      return error('未授权', 'UNAUTHORIZED', 401);
+    }
+
+    // 解析表单数据
     const formData = await request.formData();
     const file = formData.get('file');
-    
+    const type = formData.get('type') || 'cover'; // cover, avatar, etc.
+
     if (!file) {
-      return error('缺少文件', 'MISSING_FILE', 400);
+      return error('缺少文件', 'BAD_REQUEST', 400);
     }
 
     // 验证文件类型
-    if (!file.type.startsWith('image/')) {
-      return error('只支持图片文件', 'INVALID_FILE_TYPE', 400);
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      return error('不支持的文件类型，仅支持 JPEG, PNG, WebP', 'BAD_REQUEST', 400);
     }
 
-    // 生成唯一文件名
-    const timestamp = Date.now();
-    const randomStr = Math.random().toString(36).substring(2, 8);
-    const extension = file.name.split('.').pop();
-    const fileName = `image-${timestamp}-${randomStr}.${extension}`;
-    const filePath = `images/${fileName}`;
+    // 验证文件大小（最大 5MB）
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return error('文件过大，最大支持 5MB', 'BAD_REQUEST', 400);
+    }
 
-    // 上传到R2
-    await env.STORAGE.put(filePath, file.stream(), {
+    // 生成文件名
+    const ext = file.name.split('.').pop() || 'jpg';
+    const filename = `${type}s/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+
+    // 上传到 R2
+    const arrayBuffer = await file.arrayBuffer();
+    await env.STORAGE.put(filename, arrayBuffer, {
       httpMetadata: {
-        contentType: file.type
-      }
+        contentType: file.type,
+      },
     });
 
-    const fileUrl = `https://media.tingdao.app/${filePath}`;
+    // 返回公开URL
+    const url = `https://media.tingdao.app/${filename}`;
 
     return success({
-      url: fileUrl,
-      fileName: fileName,
+      url,
+      filename,
       size: file.size,
-      type: file.type
-    }, { message: '图片上传成功' });
+      type: file.type,
+    });
   } catch (e) {
-    console.error('Error uploading image:', e);
-    return error('上传图片失败: ' + e.message);
+    console.error('Upload image error:', e);
+    return error('上传失败: ' + e.message);
   }
 }
 
-// DELETE /v1/upload/:path - 删除文件
-export async function deleteFile(request, env, filePath) {
+/**
+ * POST /v1/upload/audio - 上传音频
+ */
+export async function uploadAudio(request, env) {
   try {
-    await env.STORAGE.delete(filePath);
-    return success({ path: filePath }, { message: '文件删除成功' });
+    // 验证用户登录
+    const userId = getUserIdFromRequest(request);
+    if (!userId) {
+      return error('未授权', 'UNAUTHORIZED', 401);
+    }
+
+    // 解析表单数据
+    const formData = await request.formData();
+    const file = formData.get('file');
+
+    if (!file) {
+      return error('缺少文件', 'BAD_REQUEST', 400);
+    }
+
+    // 验证文件类型
+    const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/m4a', 'audio/wav'];
+    if (!allowedTypes.includes(file.type)) {
+      return error('不支持的文件类型，仅支持 MP3, M4A, WAV', 'BAD_REQUEST', 400);
+    }
+
+    // 验证文件大小（最大 100MB）
+    const maxSize = 100 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return error('文件过大，最大支持 100MB', 'BAD_REQUEST', 400);
+    }
+
+    // 生成文件名
+    const ext = file.name.split('.').pop() || 'mp3';
+    const filename = `audio/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+
+    // 上传到 R2
+    const arrayBuffer = await file.arrayBuffer();
+    await env.STORAGE.put(filename, arrayBuffer, {
+      httpMetadata: {
+        contentType: file.type,
+      },
+    });
+
+    // 返回公开URL
+    const url = `https://media.tingdao.app/${filename}`;
+
+    return success({
+      url,
+      filename,
+      size: file.size,
+      type: file.type,
+    });
   } catch (e) {
-    console.error('Error deleting file:', e);
-    return error('删除文件失败: ' + e.message);
+    console.error('Upload audio error:', e);
+    return error('上传失败: ' + e.message);
   }
 }
-

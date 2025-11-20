@@ -13,6 +13,11 @@ database_id = "d6954ace-9f75-4135-8814-8ad08c12d499"
 binding = "STORAGE"
 bucket_name = "tingdao-media"
 
+# KV Namespace for verification codes
+[[kv_namespaces]]
+binding = "VERIFICATION_CODES"
+id = "c4f77cc8a7804d65b8ca766a213983c5"
+
 # Environment Variables
 [vars]
 API_VERSION = "1.0.0"

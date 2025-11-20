@@ -83,15 +83,41 @@ function generateId(prefix) {
 }
 
 /**
- * POST /api/v1/auth/register - 用户注册
+ * 生成6位验证码
  */
-export async function register(request, env) {
+function generateVerificationCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+/**
+ * 验证密码强度
+ */
+function validatePasswordStrength(password) {
+  if (password.length < 8) {
+    return { valid: false, message: '密码至少需要8位字符' };
+  }
+  
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  
+  if (!hasUppercase || !hasLowercase || !hasNumber) {
+    return { valid: false, message: '密码必须包含大小写字母和数字' };
+  }
+  
+  return { valid: true };
+}
+
+/**
+ * POST /api/v1/auth/send-verification-code - 发送验证码
+ */
+export async function sendVerificationCode(request, env) {
   try {
     const body = await request.json();
-    const { email, password, username } = body;
+    const { email } = body;
     
-    if (!email || !password) {
-      return Response.json({ success: false, error: { message: '邮箱和密码为必填项' } }, { status: 400 });
+    if (!email) {
+      return Response.json({ success: false, error: { message: '邮箱为必填项' } }, { status: 400 });
     }
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -99,9 +125,126 @@ export async function register(request, env) {
       return Response.json({ success: false, error: { message: '邮箱格式不正确' } }, { status: 400 });
     }
     
-    if (password.length < 6) {
-      return Response.json({ success: false, error: { message: '密码长度至少为6位' } }, { status: 400 });
+    // 检查是否在60秒内已发送过验证码
+    const existingCode = await env.VERIFICATION_CODES.get(email, { type: 'json' });
+    if (existingCode) {
+      const now = Date.now();
+      const timeSinceLastSend = now - existingCode.timestamp;
+      if (timeSinceLastSend < 60000) { // 60秒
+        const remainingSeconds = Math.ceil((60000 - timeSinceLastSend) / 1000);
+        return Response.json({ 
+          success: false, 
+          error: { message: `请等待${remainingSeconds}秒后再试` } 
+        }, { status: 429 });
+      }
     }
+    
+    // 生成验证码
+    const code = generateVerificationCode();
+    const timestamp = Date.now();
+    
+    // 存储验证码到 KV，有效期10分钟
+    await env.VERIFICATION_CODES.put(email, JSON.stringify({ code, timestamp }), {
+      expirationTtl: 600 // 10分钟
+    });
+    
+    // 发送邮件（使用 MailChannels）
+    try {
+      const emailContent = {
+        personalizations: [{
+          to: [{ email }]
+        }],
+        from: {
+          email: 'noreply@tingdao.app',
+          name: '听道'
+        },
+        subject: '【听道】邮箱验证码',
+        content: [{
+          type: 'text/html',
+          value: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #333;">【听道】邮箱验证码</h2>
+              <p>您的验证码是：</p>
+              <h1 style="color: #4F46E5; font-size: 32px; letter-spacing: 5px;">${code}</h1>
+              <p style="color: #666;">验证码有效期为 10 分钟，请勿泄露给他人。</p>
+              <p style="color: #999; font-size: 14px;">如果这不是您的操作，请忽略此邮件。</p>
+              <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+              <p style="color: #999; font-size: 12px;">听道团队</p>
+            </div>
+          `
+        }]
+      };
+      
+      const mailResponse = await fetch('https://api.mailchannels.net/tx/v1/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(emailContent)
+      });
+      
+      if (!mailResponse.ok) {
+        console.error('MailChannels error:', await mailResponse.text());
+        throw new Error('邮件发送失败');
+      }
+      
+      console.log('✅ 验证码邮件已发送:', email);
+      
+    } catch (emailError) {
+      console.error('Email send error:', emailError);
+      // 即使邮件发送失败，也返回成功（为了安全，不暴露邮件发送失败）
+    }
+    
+    return Response.json({ 
+      success: true, 
+      data: { message: '验证码已发送' } 
+    }, { status: 200 });
+    
+  } catch (error) {
+    console.error('Send verification code error:', error);
+    return Response.json({ success: false, error: { message: '发送失败' } }, { status: 500 });
+  }
+}
+
+/**
+ * POST /api/v1/auth/register - 用户注册
+ */
+export async function register(request, env) {
+  try {
+    const body = await request.json();
+    const { email, password, username, verification_code } = body;
+    
+    if (!email || !password) {
+      return Response.json({ success: false, error: { message: '邮箱和密码为必填项' } }, { status: 400 });
+    }
+    
+    if (!verification_code) {
+      return Response.json({ success: false, error: { message: '验证码为必填项' } }, { status: 400 });
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return Response.json({ success: false, error: { message: '邮箱格式不正确' } }, { status: 400 });
+    }
+    
+    // 验证密码强度
+    const passwordValidation = validatePasswordStrength(password);
+    if (!passwordValidation.valid) {
+      return Response.json({ success: false, error: { message: passwordValidation.message } }, { status: 400 });
+    }
+    
+    // 验证验证码
+    const storedCodeData = await env.VERIFICATION_CODES.get(email, { type: 'json' });
+    if (!storedCodeData) {
+      return Response.json({ success: false, error: { message: '验证码错误或已过期' } }, { status: 400 });
+    }
+    
+    if (storedCodeData.code !== verification_code) {
+      return Response.json({ success: false, error: { message: '验证码错误' } }, { status: 400 });
+    }
+    
+    // 验证码正确，删除验证码
+    await env.VERIFICATION_CODES.delete(email);
     
     const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
     if (existing) {
@@ -121,8 +264,13 @@ export async function register(request, env) {
     const refreshToken = generateToken({ userId, type: 'refresh' });
     
     const user = await env.DB.prepare(`
-      SELECT id, username, email, avatar as avatar_url, created_at FROM users WHERE id = ?
+      SELECT id, username, email, avatar as avatar_url, created_at, can_upload FROM users WHERE id = ?
     `).bind(userId).first();
+    
+    // 转换 can_upload 为布尔值
+    if (user) {
+      user.can_upload = Boolean(user.can_upload);
+    }
     
     return Response.json({ success: true, data: { accessToken, refreshToken, user } }, { status: 201 });
   } catch (error) {
@@ -144,7 +292,7 @@ export async function login(request, env) {
     }
     
     const user = await env.DB.prepare(`
-      SELECT id, username, email, password_hash, avatar as avatar_url, created_at FROM users WHERE email = ?
+      SELECT id, username, email, password_hash, avatar as avatar_url, created_at, can_upload FROM users WHERE email = ?
     `).bind(email).first();
     
     if (!user) {
@@ -160,6 +308,11 @@ export async function login(request, env) {
     const refreshToken = generateToken({ userId: user.id, type: 'refresh' });
     
     delete user.password_hash;
+    
+    // 转换 can_upload 为布尔值
+    if (user) {
+      user.can_upload = Boolean(user.can_upload);
+    }
     
     return Response.json({ success: true, data: { accessToken, refreshToken, user } }, { status: 200 });
   } catch (error) {
@@ -179,12 +332,15 @@ export async function getCurrentUser(request, env) {
     }
     
     const user = await env.DB.prepare(`
-      SELECT id, username, email, avatar as avatar_url, created_at FROM users WHERE id = ?
+      SELECT id, username, email, avatar as avatar_url, created_at, can_upload FROM users WHERE id = ?
     `).bind(userId).first();
     
     if (!user) {
       return Response.json({ success: false, error: { message: '用户不存在' } }, { status: 404 });
     }
+    
+    // 转换 can_upload 为布尔值
+    user.can_upload = Boolean(user.can_upload);
     
     return Response.json({ success: true, data: user }, { status: 200 });
   } catch (error) {
@@ -215,8 +371,13 @@ export async function updateProfile(request, env) {
     `).bind(username, avatar_url, userId).run();
     
     const user = await env.DB.prepare(`
-      SELECT id, username, email, avatar as avatar_url, created_at, updated_at FROM users WHERE id = ?
+      SELECT id, username, email, avatar as avatar_url, created_at, updated_at, can_upload FROM users WHERE id = ?
     `).bind(userId).first();
+    
+    // 转换 can_upload 为布尔值
+    if (user) {
+      user.can_upload = Boolean(user.can_upload);
+    }
     
     return Response.json({ success: true, data: user }, { status: 200 });
   } catch (error) {

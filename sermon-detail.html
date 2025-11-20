@@ -1206,9 +1206,12 @@
                         speakerTitle: apiData.speaker?.title || '',
                         speakerBio: apiData.speaker?.bio || '',
                         speakerAvatarURL: apiData.speaker?.avatar_url || '',
-                        submitter: apiData.submitter?.username || '',
+                        submitter: apiData.submitter?.email || apiData.submitter?.username || '',
                         coverImage: apiData.cover_image_url || '',
                         audioUrl: apiData.audio_url || '',
+                        audioSize: apiData.audio_size || 0,
+                        playCount: apiData.play_count || 0,
+                        favoriteCount: apiData.favorite_count || 0,
                         createdAt: apiData.created_at || ''
                     };
                     

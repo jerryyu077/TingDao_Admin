@@ -33,7 +33,45 @@ const SermonsPage = {
         this.setupEventListeners();
         
         // Load initial data
+        await this.loadStats();
         await this.loadSermons();
+    },
+    
+    async loadStats() {
+        try {
+            const url = `${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`;
+            const response = await fetch(url);
+            const jsonData = await response.json();
+            const allSermons = jsonData.success ? jsonData.data : jsonData;
+            
+            // Calculate stats from all sermons
+            const stats = {
+                total: allSermons.length,
+                pending: 0,
+                published: 0,
+                revision: 0
+            };
+            
+            allSermons.forEach(sermon => {
+                const statusKey = `sermon_status_${sermon.id}`;
+                const savedStatus = localStorage.getItem(statusKey);
+                const currentStatus = savedStatus || sermon.status;
+                
+                if (currentStatus === 'pending') stats.pending++;
+                else if (currentStatus === 'published') stats.published++;
+                else if (currentStatus === 'revision') stats.revision++;
+            });
+            
+            // Update UI
+            document.getElementById('statTotal').textContent = stats.total.toLocaleString();
+            document.getElementById('statPending').textContent = stats.pending.toLocaleString();
+            document.getElementById('statPublished').textContent = stats.published.toLocaleString();
+            document.getElementById('statRevision').textContent = stats.revision.toLocaleString();
+            
+            console.log('[Stats] Loaded:', stats);
+        } catch (error) {
+            console.error('[Stats] Failed to load:', error);
+        }
     },
     
     setupEventListeners() {
@@ -153,7 +191,7 @@ const SermonsPage = {
         tbody.innerHTML = sermons.map(sermon => {
             const sermonId = sermon.id;
             const speaker = sermon.speaker?.name || '未知讲员';
-            const submitter = sermon.submitter?.username || '未知用户';
+            const submitter = sermon.submitter?.email || sermon.submitter?.username || '未知用户';
             const date = sermon.date ? new Date(sermon.date).toISOString().split('T')[0].replace(/-/g, '-') : '';
             const time = sermon.date ? new Date(sermon.date).toTimeString().slice(0,5) : '';
             

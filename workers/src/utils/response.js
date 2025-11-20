@@ -54,6 +54,7 @@ export function badRequest(message = '请求参数错误') {
 export function corsHeaders(origin) {
   // 允许的域名列表
   const allowedOrigins = [
+    'https://tingdao.app',
     'https://admin.tingdao.app',
     'https://1a11308b.tingdao-admin-1.pages.dev',
     'http://localhost:3000',

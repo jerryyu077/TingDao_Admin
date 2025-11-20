@@ -1,6 +1,7 @@
 // Password Reset Routes
 import { generateId } from '../utils/helpers.js';
 import { hashPassword } from './auth.js';
+import { corsHeaders } from '../utils/response.js';
 
 /**
  * Generate a random reset token
@@ -136,26 +137,57 @@ async function sendResetEmail(env, email, resetToken) {
  * POST /api/v1/auth/forgot-password
  */
 export async function requestPasswordReset(request, env) {
+  const origin = request.headers.get('Origin');
+  
   try {
     const body = await request.json();
     const { email } = body;
     
     if (!email) {
-      return Response.json({ success: false, error: { message: '邮箱为必填项' } }, { status: 400 });
+      return new Response(JSON.stringify({ success: false, error: { message: '邮箱为必填项' } }), { 
+        status: 400,
+        headers: corsHeaders(origin)
+      });
     }
+    
+    // Rate limiting: 60 seconds per IP
+    const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
+    const rateLimitKey = `password_reset_rate_limit:${clientIP}`;
+    
+    const lastRequestTime = await env.VERIFICATION_CODES.get(rateLimitKey);
+    if (lastRequestTime) {
+      const timeSinceLastRequest = Date.now() - parseInt(lastRequestTime);
+      if (timeSinceLastRequest < 60000) { // 60 seconds
+        const remainingSeconds = Math.ceil((60000 - timeSinceLastRequest) / 1000);
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: { message: `请求过于频繁，请 ${remainingSeconds} 秒后再试` }
+        }), { 
+          status: 429,
+          headers: corsHeaders(origin)
+        });
+      }
+    }
+    
+    // Store current request time
+    await env.VERIFICATION_CODES.put(rateLimitKey, Date.now().toString(), {
+      expirationTtl: 60 // 60 seconds
+    });
     
     // Check if user exists
     const user = await env.DB.prepare(`
       SELECT id, email FROM users WHERE email = ?
     `).bind(email).first();
     
-    // For security, always return success even if user doesn't exist
-    // This prevents email enumeration attacks
+    // If user doesn't exist, return error
     if (!user) {
-      return Response.json({ 
-        success: true, 
-        message: '如果该邮箱已注册，您将收到重置密码的邮件' 
-      }, { status: 200 });
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: { message: '该邮箱未注册，请先注册账号' }
+      }), { 
+        status: 404,
+        headers: corsHeaders(origin)
+      });
     }
     
     // Generate reset token
@@ -172,16 +204,22 @@ export async function requestPasswordReset(request, env) {
     // Send reset email
     await sendResetEmail(env, email, resetToken);
     
-    return Response.json({ 
+    return new Response(JSON.stringify({ 
       success: true, 
       message: '如果该邮箱已注册，您将收到重置密码的邮件' 
-    }, { status: 200 });
+    }), { 
+      status: 200,
+      headers: corsHeaders(origin)
+    });
   } catch (error) {
     console.error('Request password reset error:', error);
-    return Response.json({ 
+    return new Response(JSON.stringify({ 
       success: false, 
       error: { message: '发送重置邮件失败，请稍后重试' } 
-    }, { status: 500 });
+    }), { 
+      status: 500,
+      headers: corsHeaders(origin)
+    });
   }
 }
 
@@ -190,12 +228,17 @@ export async function requestPasswordReset(request, env) {
  * GET /api/v1/auth/verify-reset-token?token=xxx
  */
 export async function verifyResetToken(request, env) {
+  const origin = request.headers.get('Origin');
+  
   try {
     const url = new URL(request.url);
     const token = url.searchParams.get('token');
     
     if (!token) {
-      return Response.json({ success: false, error: { message: '缺少重置令牌' } }, { status: 400 });
+      return new Response(JSON.stringify({ success: false, error: { message: '缺少重置令牌' } }), { 
+        status: 400,
+        headers: corsHeaders(origin)
+      });
     }
     
     // Check if token exists and is valid
@@ -206,21 +249,36 @@ export async function verifyResetToken(request, env) {
     `).bind(token).first();
     
     if (!resetToken) {
-      return Response.json({ success: false, error: { message: '无效的重置链接' } }, { status: 400 });
+      return new Response(JSON.stringify({ success: false, error: { message: '无效的重置链接' } }), { 
+        status: 400,
+        headers: corsHeaders(origin)
+      });
     }
     
     if (resetToken.used === 1) {
-      return Response.json({ success: false, error: { message: '该重置链接已被使用' } }, { status: 400 });
+      return new Response(JSON.stringify({ success: false, error: { message: '该重置链接已被使用' } }), { 
+        status: 400,
+        headers: corsHeaders(origin)
+      });
     }
     
     if (new Date(resetToken.expires_at) < new Date()) {
-      return Response.json({ success: false, error: { message: '重置链接已过期' } }, { status: 400 });
+      return new Response(JSON.stringify({ success: false, error: { message: '重置链接已过期' } }), { 
+        status: 400,
+        headers: corsHeaders(origin)
+      });
     }
     
-    return Response.json({ success: true, data: { valid: true } }, { status: 200 });
+    return new Response(JSON.stringify({ success: true, data: { valid: true } }), { 
+      status: 200,
+      headers: corsHeaders(origin)
+    });
   } catch (error) {
     console.error('Verify reset token error:', error);
-    return Response.json({ success: false, error: { message: '验证失败' } }, { status: 500 });
+    return new Response(JSON.stringify({ success: false, error: { message: '验证失败' } }), { 
+      status: 500,
+      headers: corsHeaders(origin)
+    });
   }
 }
 
@@ -229,16 +287,36 @@ export async function verifyResetToken(request, env) {
  * POST /api/v1/auth/reset-password
  */
 export async function resetPassword(request, env) {
+  const origin = request.headers.get('Origin');
+  
   try {
     const body = await request.json();
     const { token, newPassword } = body;
     
     if (!token || !newPassword) {
-      return Response.json({ success: false, error: { message: '令牌和新密码为必填项' } }, { status: 400 });
+      return new Response(JSON.stringify({ success: false, error: { message: '令牌和新密码为必填项' } }), { 
+        status: 400,
+        headers: corsHeaders(origin)
+      });
     }
     
-    if (newPassword.length < 6) {
-      return Response.json({ success: false, error: { message: '密码长度至少为6位' } }, { status: 400 });
+    // 验证密码强度
+    if (newPassword.length < 8) {
+      return new Response(JSON.stringify({ success: false, error: { message: '密码长度至少为8位' } }), { 
+        status: 400,
+        headers: corsHeaders(origin)
+      });
+    }
+    
+    const hasUppercase = /[A-Z]/.test(newPassword);
+    const hasLowercase = /[a-z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    
+    if (!hasUppercase || !hasLowercase || !hasNumber) {
+      return new Response(JSON.stringify({ success: false, error: { message: '密码必须包含大写字母、小写字母和数字' } }), { 
+        status: 400,
+        headers: corsHeaders(origin)
+      });
     }
     
     // Check if token exists and is valid
@@ -249,15 +327,24 @@ export async function resetPassword(request, env) {
     `).bind(token).first();
     
     if (!resetToken) {
-      return Response.json({ success: false, error: { message: '无效的重置链接' } }, { status: 400 });
+      return new Response(JSON.stringify({ success: false, error: { message: '无效的重置链接' } }), { 
+        status: 400,
+        headers: corsHeaders(origin)
+      });
     }
     
     if (resetToken.used === 1) {
-      return Response.json({ success: false, error: { message: '该重置链接已被使用' } }, { status: 400 });
+      return new Response(JSON.stringify({ success: false, error: { message: '该重置链接已被使用' } }), { 
+        status: 400,
+        headers: corsHeaders(origin)
+      });
     }
     
     if (new Date(resetToken.expires_at) < new Date()) {
-      return Response.json({ success: false, error: { message: '重置链接已过期' } }, { status: 400 });
+      return new Response(JSON.stringify({ success: false, error: { message: '重置链接已过期' } }), { 
+        status: 400,
+        headers: corsHeaders(origin)
+      });
     }
     
     // Hash new password
@@ -277,16 +364,22 @@ export async function resetPassword(request, env) {
       WHERE id = ?
     `).bind(resetToken.id).run();
     
-    return Response.json({ 
+    return new Response(JSON.stringify({ 
       success: true, 
       message: '密码重置成功，请使用新密码登录' 
-    }, { status: 200 });
+    }), { 
+      status: 200,
+      headers: corsHeaders(origin)
+    });
   } catch (error) {
     console.error('Reset password error:', error);
-    return Response.json({ 
+    return new Response(JSON.stringify({ 
       success: false, 
       error: { message: '密码重置失败，请重试' } 
-    }, { status: 500 });
+    }), { 
+      status: 500,
+      headers: corsHeaders(origin)
+    });
   }
 }
 

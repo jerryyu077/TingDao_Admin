@@ -909,15 +909,25 @@
         const container = document.getElementById('tagContainer');
         const hiddenInput = document.getElementById('tagsHidden');
         
-        container.innerHTML = tags.map((tag, index) => {
-            const safeTag = tag.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-            return `
-                <span class="badge badge-md gap-1.5 cursor-pointer hover:badge-error transition-colors tag-item" style="font-size: 0.85rem;" data-tag-index="${index}">
-                    ${safeTag}
-                    <span class="iconify" data-icon="heroicons:x-mark" data-width="14"></span>
-                </span>
-            `;
-        }).join('');
+        // Clear container first
+        container.innerHTML = '';
+        
+        // Create elements programmatically to avoid HTML injection issues
+        tags.forEach((tag, index) => {
+            const span = document.createElement('span');
+            span.className = 'badge badge-md gap-1.5 cursor-pointer hover:badge-error transition-colors tag-item';
+            span.style.fontSize = '0.85rem';
+            span.dataset.tagIndex = index;
+            span.textContent = tag;
+            
+            const icon = document.createElement('span');
+            icon.className = 'iconify';
+            icon.setAttribute('data-icon', 'heroicons:x-mark');
+            icon.setAttribute('data-width', '14');
+            
+            span.appendChild(icon);
+            container.appendChild(span);
+        });
         
         hiddenInput.value = tags.join(',');
     }

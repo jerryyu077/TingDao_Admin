@@ -21,6 +21,9 @@
             white-space: nowrap;
         }
     </style>
+    
+    <!-- API Client -->
+    <script src="js/api-config.js?v=20251120"></script>
 </head>
 <body class="bg-base-200 flex flex-col min-h-screen">
     <div class="flex flex-1">
@@ -183,8 +186,8 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <h2 class="text-2xl font-bold mb-1" id="displayName">张伟</h2>
-                                        <p class="text-base-content/60">用户ID: <span class="font-mono" id="displayUserId">#10245</span></p>
+                                        <h2 class="text-2xl font-bold mb-1" id="displayEmail">加载中...</h2>
+                                        <p class="text-base-content/60">用户ID: <span class="font-mono" id="displayUserId">--</span></p>
                                     </div>
                                 </div>
                                 <div class="flex gap-2">
@@ -204,44 +207,34 @@
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Name Field -->
-                                <div class="form-control">
-                                    <label class="label">
-                                        <span class="label-text font-medium">用户名</span>
-                                    </label>
-                                    <div data-mode="view">
-                                        <p class="text-base-content" id="viewName">张伟</p>
-                                    </div>
-                                    <div data-mode="edit" style="display: none;">
-                                        <input type="text" id="editName" class="input input-bordered w-full" value="张伟">
-                                    </div>
-                                </div>
-
-                                <!-- Email Field -->
+                                <!-- Email Field (Read-only) -->
                                 <div class="form-control">
                                     <label class="label">
                                         <span class="label-text font-medium">邮箱</span>
                                     </label>
-                                    <div data-mode="view">
-                                        <p class="text-base-content" id="viewEmail">zhang.wei@example.com</p>
-                                    </div>
-                                    <div data-mode="edit" style="display: none;">
-                                        <input type="email" id="editEmail" class="input input-bordered w-full" value="zhang.wei@example.com">
-                                    </div>
+                                    <p class="text-base-content" id="userEmail">--</p>
                                 </div>
 
-                                <!-- Status Field -->
+                                <!-- User ID (Read-only) -->
                                 <div class="form-control">
                                     <label class="label">
-                                        <span class="label-text font-medium">账户状态</span>
+                                        <span class="label-text font-medium">用户ID</span>
+                                    </label>
+                                    <p class="text-base-content font-mono" id="userId">--</p>
+                                </div>
+
+                                <!-- Upload Permission -->
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text font-medium">上传权限</span>
                                     </label>
                                     <div data-mode="view">
-                                        <span class="badge badge-success" id="viewStatus">活跃</span>
+                                        <span class="badge badge-lg" id="viewCanUpload">--</span>
                                     </div>
                                     <div data-mode="edit" style="display: none;">
-                                        <select id="editStatus" class="select select-bordered w-full">
-                                            <option value="active">活跃</option>
-                                            <option value="banned">已禁用</option>
+                                        <select id="editCanUpload" class="select select-bordered w-full">
+                                            <option value="1">可上传</option>
+                                            <option value="0">普通用户</option>
                                         </select>
                                     </div>
                                 </div>
@@ -251,7 +244,7 @@
                                     <label class="label">
                                         <span class="label-text font-medium">注册时间</span>
                                     </label>
-                                    <p class="text-base-content" data-field="registered_at">2024-10-15 10:30:00</p>
+                                    <p class="text-base-content" id="registeredAt">--</p>
                                 </div>
 
                                 <!-- Last Login (Read-only) -->
@@ -259,7 +252,7 @@
                                     <label class="label">
                                         <span class="label-text font-medium">最后登录</span>
                                     </label>
-                                    <p class="text-base-content" data-field="last_login">2024-11-01 14:30:00</p>
+                                    <p class="text-base-content" id="lastLogin">--</p>
                                 </div>
 
                                 <!-- Upload Count (Read-only) -->
@@ -267,7 +260,7 @@
                                     <label class="label">
                                         <span class="label-text font-medium">上传讲道数</span>
                                     </label>
-                                    <p class="text-base-content"><span class="badge badge-lg" data-field="sermon_count">15</span></p>
+                                    <p class="text-base-content"><span class="badge badge-lg" id="sermonCount">0</span></p>
                                 </div>
                             </div>
                         </div>
@@ -279,18 +272,18 @@
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-xl font-semibold">用户上传的讲道</h3>
                                 <div class="flex gap-2">
-                                    <input type="text" placeholder="搜索讲道..." class="input input-sm input-bordered w-64">
-                                    <select class="select select-sm select-bordered">
-                                        <option>全部状态</option>
-                                        <option>已发布</option>
-                                        <option>待审核</option>
-                                        <option>已退回</option>
+                                    <input type="text" id="sermonSearch" placeholder="搜索讲道..." class="input input-sm input-bordered w-64" onkeyup="filterSermons()">
+                                    <select id="sermonStatusFilter" class="select select-sm select-bordered" onchange="filterSermons()">
+                                        <option value="">全部状态</option>
+                                        <option value="published">已发布</option>
+                                        <option value="pending">待审核</option>
+                                        <option value="rejected">已退回</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="overflow-x-auto">
-                                <table class="table table-sm">
+                                <table class="table table-sm" id="sermonsTable">
                                     <thead>
                                         <tr class="border-b border-base-300">
                                             <th>标题</th>
@@ -303,58 +296,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr class="hover border-b border-base-300">
-                                            <td>
-                                                <div class="flex items-center gap-2">
-                                                    <span class="font-medium">十诫与现代生活</span>
-                                                </div>
-                                            </td>
-                                            <td>张三牧师</td>
-                                            <td>2025-10-21 14:30</td>
-                                            <td>出埃及记 20:1-17</td>
-                                            <td class="text-center">45:12</td>
-                                            <td class="text-center"><span class="badge badge-success badge-sm">已发布</span></td>
-                                            <td class="text-center">
-                                                <button class="btn btn-ghost btn-xs" onclick="location.href='sermon-detail.html'">
-                                                    <span class="iconify" data-icon="heroicons:eye" data-width="14"></span>
-                                                    查看
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr class="hover border-b border-base-300">
-                                            <td>
-                                                <div class="flex items-center gap-2">
-                                                    <span class="font-medium">登山宝训的智慧</span>
-                                                </div>
-                                            </td>
-                                            <td>李四长老</td>
-                                            <td>2025-10-20 09:15</td>
-                                            <td>马太福音 5-7章</td>
-                                            <td class="text-center">55:30</td>
-                                            <td class="text-center"><span class="badge badge-warning badge-sm">待审核</span></td>
-                                            <td class="text-center">
-                                                <button class="btn btn-ghost btn-xs" onclick="location.href='sermon-detail.html'">
-                                                    <span class="iconify" data-icon="heroicons:eye" data-width="14"></span>
-                                                    查看
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr class="hover border-b border-base-300">
-                                            <td>
-                                                <div class="flex items-center gap-2">
-                                                    <span class="font-medium">因信称义的真理</span>
-                                                </div>
-                                            </td>
-                                            <td>王五牧师</td>
-                                            <td>2025-10-19 18:00</td>
-                                            <td>罗马书 3:21-31</td>
-                                            <td class="text-center">38:45</td>
-                                            <td class="text-center"><span class="badge badge-error badge-sm">已退回</span></td>
-                                            <td class="text-center">
-                                                <button class="btn btn-ghost btn-xs" onclick="location.href='sermon-detail.html'">
-                                                    <span class="iconify" data-icon="heroicons:eye" data-width="14"></span>
-                                                    查看
-                                                </button>
+                                        <tr>
+                                            <td colspan="7" class="text-center py-8">
+                                                <span class="loading loading-spinner loading-md"></span>
+                                                <div class="mt-2">加载中...</div>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -381,12 +326,236 @@
 
     <script>
         let isEditMode = false;
-        let originalData = {};
         let currentUserId = null;
         let currentUserData = null;
+        let allSermons = [];
 
-        // Mock user data (matching users.html and API data)
-        const mockUsers = {
+        function handleLogout() {
+            alert('退出登录功能已禁用');
+        }
+
+        // Load user data from API
+        async function loadUserData(userId) {
+            try {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users/${userId}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    currentUserData = result.data;
+                    displayUserData(result.data);
+                    await loadUserSermons(userId);
+                } else {
+                    alert('加载用户数据失败');
+                    window.location.href = 'users.html';
+                }
+            } catch (error) {
+                console.error('Error loading user:', error);
+                alert('加载用户数据失败：' + error.message);
+                window.location.href = 'users.html';
+            }
+        }
+
+        // Display user data
+        function displayUserData(user) {
+            // Avatar
+            const avatarText = user.email ? user.email.charAt(0).toUpperCase() : 'U';
+            document.getElementById('avatarText').textContent = avatarText;
+            
+            // Header
+            document.getElementById('displayEmail').textContent = user.email || '--';
+            document.getElementById('displayUserId').textContent = user.id || '--';
+            
+            // Fields
+            document.getElementById('userEmail').textContent = user.email || '--';
+            document.getElementById('userId').textContent = user.id || '--';
+            
+            // Upload permission
+            const canUpload = user.can_upload === 1;
+            const uploadBadge = document.getElementById('viewCanUpload');
+            if (canUpload) {
+                uploadBadge.textContent = '可上传';
+                uploadBadge.className = 'badge badge-lg badge-success';
+            } else {
+                uploadBadge.textContent = '普通用户';
+                uploadBadge.className = 'badge badge-lg badge-ghost';
+            }
+            document.getElementById('editCanUpload').value = user.can_upload || 0;
+            
+            // Registration date
+            const regDate = user.created_at ? new Date(user.created_at).toLocaleString('zh-CN') : '--';
+            document.getElementById('registeredAt').textContent = regDate;
+            
+            // Last login
+            const lastLogin = user.last_login ? new Date(user.last_login).toLocaleString('zh-CN') : '从未登录';
+            document.getElementById('lastLogin').textContent = lastLogin;
+            
+            // Sermon count
+            document.getElementById('sermonCount').textContent = user.sermon_count || 0;
+        }
+
+        // Load user's sermons
+        async function loadUserSermons(userId) {
+            try {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?submitter_id=${userId}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    allSermons = result.data;
+                    renderSermons(allSermons);
+                } else {
+                    allSermons = [];
+                    renderSermons([]);
+                }
+            } catch (error) {
+                console.error('Error loading sermons:', error);
+                allSermons = [];
+                renderSermons([]);
+            }
+        }
+
+        // Render sermons table
+        function renderSermons(sermons) {
+            const tbody = document.querySelector('#sermonsTable tbody');
+            
+            if (sermons.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-base-content/70">暂无讲道数据</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = sermons.map(sermon => {
+                const createdAt = sermon.created_at ? new Date(sermon.created_at).toLocaleString('zh-CN') : '--';
+                const duration = formatDuration(sermon.duration);
+                const scripture = sermon.scripture_references || '--';
+                const speakerName = sermon.speaker?.name || '未知讲员';
+                
+                // Status badge
+                let statusBadge = '';
+                if (sermon.status === 'published') {
+                    statusBadge = '<span class="badge badge-success badge-sm">已发布</span>';
+                } else if (sermon.status === 'pending') {
+                    statusBadge = '<span class="badge badge-warning badge-sm">待审核</span>';
+                } else if (sermon.status === 'rejected') {
+                    statusBadge = '<span class="badge badge-error badge-sm">已退回</span>';
+                } else {
+                    statusBadge = '<span class="badge badge-ghost badge-sm">草稿</span>';
+                }
+                
+                return `
+                    <tr class="hover border-b border-base-300">
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium">${sermon.title}</span>
+                            </div>
+                        </td>
+                        <td>${speakerName}</td>
+                        <td>${createdAt}</td>
+                        <td>${scripture}</td>
+                        <td class="text-center">${duration}</td>
+                        <td class="text-center">${statusBadge}</td>
+                        <td class="text-center">
+                            <button class="btn btn-ghost btn-xs" onclick="location.href='sermon-detail.html?id=${sermon.id}'">
+                                <span class="iconify" data-icon="heroicons:eye" data-width="14"></span>
+                                查看
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Format duration (seconds to MM:SS)
+        function formatDuration(seconds) {
+            if (!seconds) return '--';
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Filter sermons
+        function filterSermons() {
+            const searchTerm = document.getElementById('sermonSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('sermonStatusFilter').value;
+            
+            const filtered = allSermons.filter(sermon => {
+                const matchSearch = !searchTerm || 
+                    sermon.title.toLowerCase().includes(searchTerm) ||
+                    (sermon.speaker?.name && sermon.speaker.name.toLowerCase().includes(searchTerm));
+                
+                const matchStatus = !statusFilter || sermon.status === statusFilter;
+                
+                return matchSearch && matchStatus;
+            });
+            
+            renderSermons(filtered);
+        }
+
+        // Toggle edit mode
+        function toggleEditMode() {
+            isEditMode = true;
+            document.querySelectorAll('[data-mode="view"]').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('[data-mode="edit"]').forEach(el => el.style.display = 'block');
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'inline-flex';
+            document.getElementById('cancelBtn').style.display = 'inline-flex';
+        }
+
+        // Cancel edit
+        function cancelEdit() {
+            isEditMode = false;
+            document.querySelectorAll('[data-mode="view"]').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('[data-mode="edit"]').forEach(el => el.style.display = 'none');
+            document.getElementById('editBtn').style.display = 'inline-flex';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+            
+            // Restore original values
+            if (currentUserData) {
+                document.getElementById('editCanUpload').value = currentUserData.can_upload || 0;
+            }
+        }
+
+        // Save changes
+        async function saveChanges() {
+            try {
+                const canUpload = parseInt(document.getElementById('editCanUpload').value);
+                
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users/${currentUserId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ can_upload: canUpload })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('用户信息已保存！');
+                    cancelEdit();
+                    // Reload user data
+                    await loadUserData(currentUserId);
+                } else {
+                    alert('保存失败：' + (result.message || '未知错误'));
+                }
+            } catch (error) {
+                console.error('Failed to save user changes:', error);
+                alert(`保存失败：${error.message}`);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            currentUserId = urlParams.get('id');
+            
+            if (currentUserId) {
+                loadUserData(currentUserId);
+            } else {
+                alert('缺少用户ID参数');
+                window.location.href = 'users.html';
+            }
+        });
+    </script>
             '10245': {
                 id: '10245',
                 name: '张伟',

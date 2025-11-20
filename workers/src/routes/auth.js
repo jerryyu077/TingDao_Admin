@@ -156,55 +156,46 @@ export async function sendVerificationCode(request, env) {
       expirationTtl: 600 // 10分钟
     });
     
-    // 发送邮件（使用 MailChannels）
+    // 发送邮件（使用 Resend）
     try {
       const emailContent = {
-        personalizations: [{
-          to: [{ email }]
-        }],
-        from: {
-          email: 'support@tingdao.app',
-          name: '听道'
-        },
+        from: 'TingDao <support@tingdao.app>',
+        to: [email],
         subject: '【听道】邮箱验证码',
-        content: [{
-          type: 'text/html',
-          value: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #333;">【听道】邮箱验证码</h2>
-              <p>您的验证码是：</p>
-              <h1 style="color: #4F46E5; font-size: 32px; letter-spacing: 5px;">${code}</h1>
-              <p style="color: #666;">验证码有效期为 10 分钟，请勿泄露给他人。</p>
-              <p style="color: #999; font-size: 14px;">如果这不是您的操作，请忽略此邮件。</p>
-              <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-              <p style="color: #999; font-size: 12px;">听道团队</p>
-            </div>
-          `
-        }]
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #333;">【听道】邮箱验证码</h2>
+            <p>您的验证码是：</p>
+            <h1 style="color: #4F46E5; font-size: 32px; letter-spacing: 5px;">${code}</h1>
+            <p style="color: #666;">验证码有效期为 10 分钟，请勿泄露给他人。</p>
+            <p style="color: #999; font-size: 14px;">如果这不是您的操作，请忽略此邮件。</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+            <p style="color: #999; font-size: 12px;">听道团队</p>
+          </div>
+        `
       };
       
-      console.log('📤 准备发送验证码邮件到:', email);
-      console.log('📧 邮件内容:', JSON.stringify(emailContent, null, 2));
+      console.log('📤 准备通过 Resend 发送验证码邮件到:', email);
       
-      const mailResponse = await fetch('https://api.mailchannels.net/tx/v1/send', {
+      const mailResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Sender-Domain': 'tingdao.app'
+          'Authorization': `Bearer ${env.RESEND_API_KEY}`
         },
         body: JSON.stringify(emailContent)
       });
       
-      const responseText = await mailResponse.text();
-      console.log('📬 MailChannels 响应状态:', mailResponse.status);
-      console.log('📬 MailChannels 响应内容:', responseText);
+      const responseData = await mailResponse.json();
+      console.log('📬 Resend 响应状态:', mailResponse.status);
+      console.log('📬 Resend 响应内容:', JSON.stringify(responseData));
       
       if (!mailResponse.ok) {
-        console.error('❌ MailChannels 错误:', responseText);
+        console.error('❌ Resend 错误:', responseData);
         throw new Error('邮件发送失败');
       }
       
-      console.log('✅ 验证码邮件已成功发送到:', email);
+      console.log('✅ 验证码邮件已成功发送到:', email, '邮件ID:', responseData.id);
       
     } catch (emailError) {
       console.error('Email send error:', emailError);

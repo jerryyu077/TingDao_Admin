@@ -21,19 +21,12 @@ function generateResetToken() {
 async function sendResetEmail(env, email, resetToken) {
   const resetLink = `https://tingdao.app/reset-password?token=${resetToken}`;
   
-  // 构建符合 SendGrid API 格式的邮件内容（MailChannels 兼容此格式）
+  // 使用 Resend API 格式
   const emailPayload = {
-    personalizations: [{
-      to: [{ email: email }]
-    }],
-    from: {
-      email: 'support@tingdao.app',
-      name: '听道 TingDao'
-    },
+    from: 'TingDao <support@tingdao.app>',
+    to: [email],
     subject: '重置您的听道账户密码',
-    content: [{
-      type: 'text/html',
-      value: `
+    html: `
 <!DOCTYPE html>
 <html>
 <head>
@@ -83,18 +76,17 @@ async function sendResetEmail(env, email, resetToken) {
   </div>
 </body>
 </html>
-      `
-    }]
+    `
   };
 
   try {
-    console.log('📤 正在通过 MailChannels 发送密码重置邮件到:', email);
+    console.log('📤 正在通过 Resend 发送密码重置邮件到:', email);
     
-    const response = await fetch('https://api.mailchannels.net/tx/v1/send', {
+    const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'content-type': 'application/json',
-        'X-Sender-Domain': 'tingdao.app',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`
       },
       body: JSON.stringify(emailPayload),
     });
@@ -116,8 +108,14 @@ async function sendResetEmail(env, email, resetToken) {
     }
 
     const result = await response.json();
-    console.log('✅ 密码重置邮件发送成功:', result);
-    return true;
+    
+    if (response.ok) {
+      console.log('✅ 密码重置邮件发送成功:', result);
+      return true;
+    } else {
+      console.error('❌ Resend 邮件发送失败:', response.status, result);
+      throw new Error(`邮件发送失败: ${response.status}`);
+    }
   } catch (error) {
     console.error('❌ 发送邮件时出错:', error);
     

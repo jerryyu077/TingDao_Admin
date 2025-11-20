@@ -23,11 +23,7 @@
     </style>
 
     <!-- API Client -->
-    <!-- 暂时禁用 API 脚本以使用静态 HTML -->
-    <!-- <script src="js/api-config.js?v=20251104v5"></script>
-    <script src="js/api-client.js?v=20251104v5"></script>
-    <script src="js/api-services.js?v=20251104v5"></script>
-    <script src="js/users-api.js?v=20251104v5"></script> -->
+    <script src="js/api-config.js?v=20251120"></script>
     </head>
 <body class="bg-base-200 flex flex-col min-h-screen">
     <div class="flex flex-1">
@@ -305,11 +301,10 @@
                                             <th class="w-12">
                                                 <input type="checkbox" class="checkbox checkbox-sm" onchange="toggleSelectAll(this)">
                                             </th>
-                                            <th class="w-24">用户ID</th>
-                                            <th class="w-64">用户信息</th>
+                                            <th class="w-64">用户信息（邮箱）</th>
                                             <th class="w-32">注册时间</th>
                                             <th class="w-32 text-center">上传讲道数</th>
-                                            <th class="w-24 text-center">状态</th>
+                                            <th class="w-24 text-center">上传权限</th>
                                             <th class="w-20 text-right">操作</th>
                                         </tr>
                                     </thead>
@@ -457,6 +452,8 @@
     </div>
 
     <script>
+        let allUsers = [];
+        
         function handleLogout() {
             localStorage.removeItem('admin_token');
             localStorage.removeItem('admin_username');
@@ -466,6 +463,95 @@
         function toggleSelectAll(checkbox) {
             const checkboxes = document.querySelectorAll('.row-checkbox');
             checkboxes.forEach(cb => cb.checked = checkbox.checked);
+        }
+        
+        // Load users from API
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    allUsers = result.data;
+                    updateStats(allUsers);
+                    renderUsers(allUsers);
+                } else {
+                    console.error('Failed to load users:', result);
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+        
+        // Update statistics
+        function updateStats(users) {
+            const total = users.length;
+            const canUpload = users.filter(u => u.can_upload === 1).length;
+            
+            // Calculate new users this month
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            const newThisMonth = users.filter(u => {
+                const createdAt = new Date(u.created_at);
+                return createdAt >= monthStart;
+            }).length;
+            
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statActive').textContent = canUpload;
+            document.getElementById('statNew').textContent = newThisMonth;
+        }
+        
+        // Render users table
+        function renderUsers(users) {
+            const tbody = document.querySelector('#usersTable tbody');
+            if (!tbody) return;
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-base-content/70">暂无用户数据</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = users.map(user => {
+                const createdAt = user.created_at ? new Date(user.created_at).toLocaleDateString('zh-CN') : '--';
+                const canUpload = user.can_upload === 1;
+                const uploadBadge = canUpload 
+                    ? '<span class="badge badge-success badge-sm">可上传</span>'
+                    : '<span class="badge badge-ghost badge-sm">普通用户</span>';
+                
+                // Count sermons submitted by this user
+                const sermonCount = user.sermon_count || 0;
+                
+                return `
+                    <tr class="hover border-b border-base-300">
+                        <td><input type="checkbox" class="checkbox checkbox-sm row-checkbox"></td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="avatar placeholder">
+                                    <div class="bg-primary text-white rounded-full w-8">
+                                        <span class="text-xs">${user.username ? user.username.charAt(0) : 'U'}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="font-medium">${user.username || user.email}</div>
+                                    <div class="text-xs text-base-content/60">${user.email}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${createdAt}</td>
+                        <td class="text-center">${sermonCount}</td>
+                        <td class="text-center">${uploadBadge}</td>
+                        <td class="text-right">
+                            <button class="btn btn-ghost btn-xs" onclick="viewUser('${user.id}')" title="查看详情">
+                                <span class="iconify" data-icon="heroicons:eye" data-width="16"></span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function viewUser(userId) {
+            window.location.href = `user-detail.html?id=${userId}`;
         }
 
         function searchUsers() {
@@ -811,12 +897,10 @@
         });
     
     // Initialize page when DOM is ready
-    // 注释掉 UsersPage.init() 以使用静态 HTML 内容
-    // if (typeof UsersPage !== 'undefined') {
-    //     document.addEventListener('DOMContentLoaded', () => {
-    //         UsersPage.init();
-    //     });
-    // }
+    // Load users on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadUsers();
+    });
 </script>
 </body>
 </html>

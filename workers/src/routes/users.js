@@ -13,20 +13,28 @@ export async function getUsers(request, env) {
   const searchTerm = url.searchParams.get('q');
 
   try {
-    let sql = 'SELECT * FROM users WHERE 1=1';
+    let sql = `
+      SELECT u.*,
+             COALESCE(
+               (SELECT COUNT(*) FROM sermons WHERE submitter_id = u.id),
+               0
+             ) as sermon_count
+      FROM users u
+      WHERE 1=1
+    `;
     const params = [];
 
     if (status) {
-      sql += ' AND status = ?';
+      sql += ' AND u.status = ?';
       params.push(status);
     }
 
     if (searchTerm) {
-      sql += ' AND (name LIKE ? OR username LIKE ? OR email LIKE ?)';
+      sql += ' AND (u.name LIKE ? OR u.username LIKE ? OR u.email LIKE ?)';
       params.push(`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`);
     }
 
-    sql += ' ORDER BY created_at DESC';
+    sql += ' ORDER BY u.created_at DESC';
 
     const result = await queryPaginated(env.DB, sql, params, page, limit);
 

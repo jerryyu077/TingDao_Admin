@@ -189,7 +189,8 @@ export async function sendVerificationCode(request, env) {
       const mailResponse = await fetch('https://api.mailchannels.net/tx/v1/send', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-Sender-Domain': 'tingdao.app'
         },
         body: JSON.stringify(emailContent)
       });
@@ -233,10 +234,6 @@ export async function register(request, env) {
       return Response.json({ success: false, error: { message: '邮箱和密码为必填项' } }, { status: 400 });
     }
     
-    if (!verification_code) {
-      return Response.json({ success: false, error: { message: '验证码为必填项' } }, { status: 400 });
-    }
-    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return Response.json({ success: false, error: { message: '邮箱格式不正确' } }, { status: 400 });
@@ -246,6 +243,13 @@ export async function register(request, env) {
     const passwordValidation = validatePasswordStrength(password);
     if (!passwordValidation.valid) {
       return Response.json({ success: false, error: { message: passwordValidation.message } }, { status: 400 });
+    }
+    
+    // 临时禁用验证码验证，直到 MailChannels 问题解决
+    // TODO: 修复 MailChannels 401 错误后重新启用
+    /*
+    if (!verification_code) {
+      return Response.json({ success: false, error: { message: '验证码为必填项' } }, { status: 400 });
     }
     
     // 验证验证码
@@ -260,6 +264,9 @@ export async function register(request, env) {
     
     // 验证码正确，删除验证码
     await env.VERIFICATION_CODES.delete(email);
+    */
+    
+    console.log('⚠️ 验证码验证已临时禁用 - 等待 MailChannels 修复');
     
     const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
     if (existing) {

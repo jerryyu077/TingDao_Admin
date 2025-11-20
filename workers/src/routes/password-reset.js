@@ -25,6 +25,8 @@ async function sendResetEmail(env, email, resetToken) {
   const emailPayload = {
     personalizations: [{
       to: [{ email: email }],
+      dkim_domain: 'tingdao.app',
+      dkim_selector: 'mailchannels'
     }],
     from: {
       email: 'support@tingdao.app',

@@ -114,7 +114,7 @@ function validatePasswordStrength(password) {
 export async function sendVerificationCode(request, env) {
   try {
     const body = await request.json();
-    const { email } = body;
+    const { email, checkExisting = true } = body;
     
     if (!email) {
       return Response.json({ success: false, error: { message: '邮箱为必填项' } }, { status: 400 });
@@ -123,6 +123,14 @@ export async function sendVerificationCode(request, env) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return Response.json({ success: false, error: { message: '邮箱格式不正确' } }, { status: 400 });
+    }
+    
+    // 检查邮箱是否已注册（用于注册场景）
+    if (checkExisting) {
+      const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
+      if (existing) {
+        return Response.json({ success: false, error: { message: '该邮箱已被注册' } }, { status: 409 });
+      }
     }
     
     // 检查是否在60秒内已发送过验证码
@@ -152,7 +160,9 @@ export async function sendVerificationCode(request, env) {
     try {
       const emailContent = {
         personalizations: [{
-          to: [{ email }]
+          to: [{ email }],
+          dkim_domain: 'tingdao.app',
+          dkim_selector: 'mailchannels'
         }],
         from: {
           email: 'support@tingdao.app',

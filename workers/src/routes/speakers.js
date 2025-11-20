@@ -17,12 +17,16 @@ export async function getSpeakers(request, env) {
     let sql = `
       SELECT sp.*,
              COALESCE(
+               (SELECT COUNT(*) FROM sermons WHERE speaker_id = sp.id),
+               0
+             ) as sermon_count,
+             COALESCE(
                (SELECT COUNT(DISTINCT uf.user_id)
                 FROM user_favorites uf
                 JOIN sermons s ON uf.sermon_id = s.id
                 WHERE s.speaker_id = sp.id),
                0
-             ) as favorites_count
+             ) as favorite_count
       FROM speakers sp
       WHERE 1=1
     `;
@@ -63,12 +67,16 @@ export async function getSpeaker(request, env, id) {
     const sql = `
       SELECT sp.*,
              COALESCE(
+               (SELECT COUNT(*) FROM sermons WHERE speaker_id = sp.id),
+               0
+             ) as sermon_count,
+             COALESCE(
                (SELECT COUNT(DISTINCT uf.user_id)
                 FROM user_favorites uf
                 JOIN sermons s ON uf.sermon_id = s.id
                 WHERE s.speaker_id = sp.id),
                0
-             ) as favorites_count
+             ) as favorite_count
       FROM speakers sp
       WHERE sp.id = ?
     `;

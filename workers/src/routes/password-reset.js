@@ -24,10 +24,7 @@ async function sendResetEmail(env, email, resetToken) {
   // 构建符合 SendGrid API 格式的邮件内容（MailChannels 兼容此格式）
   const emailPayload = {
     personalizations: [{
-      to: [{ email: email }],
-      dkim_domain: 'tingdao.app',
-      dkim_selector: 'mailchannels',
-      dkim_private_key: env.DKIM_PRIVATE_KEY
+      to: [{ email: email }]
     }],
     from: {
       email: 'support@tingdao.app',

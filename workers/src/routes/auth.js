@@ -160,10 +160,7 @@ export async function sendVerificationCode(request, env) {
     try {
       const emailContent = {
         personalizations: [{
-          to: [{ email }],
-          dkim_domain: 'tingdao.app',
-          dkim_selector: 'mailchannels',
-          dkim_private_key: env.DKIM_PRIVATE_KEY
+          to: [{ email }]
         }],
         from: {
           email: 'support@tingdao.app',

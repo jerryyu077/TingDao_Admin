@@ -53,7 +53,7 @@
                             <summary><span class="iconify text-green-600" data-icon="heroicons:users" data-width="18"></span><span class="sidebar-text">讲员管理</span></summary>
                             <ul>
                                 <li><a href="speakers.html">讲员列表</a></li>
-                                <li><a href="speaker-detail.html">讲员审核</a></li>
+                                <li><a href="add-speaker.html">添加讲员</a></li>
                             </ul>
                         </details>
                     </li>
@@ -954,7 +954,8 @@
                 speakers = result.data.map(speaker => ({
                     id: speaker.id,
                     name: speaker.name,
-                    title: speaker.title || '讲员'
+                    title: speaker.title || '讲员',
+                    status: speaker.status || 'active'
                 }));
             }
         } catch (error) {
@@ -1018,9 +1019,13 @@
             // Show matches
             dropdown.innerHTML = filtered.map(s => {
                 const safeName = s.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                const isInactive = s.status === 'inactive';
+                const statusBadge = isInactive ? '<span class="badge badge-error badge-xs ml-2">已停用</span>' : '';
+                const itemClass = isInactive ? 'p-3 hover:bg-base-200 cursor-pointer opacity-60' : 'p-3 hover:bg-base-200 cursor-pointer';
+                
                 return `
-                    <div class="p-3 hover:bg-base-200 cursor-pointer" data-action="select" data-id="${s.id}" data-name="${safeName}">
-                        <div class="text-sm font-medium">${s.name}</div>
+                    <div class="${itemClass}" data-action="select" data-id="${s.id}" data-name="${safeName}" data-status="${s.status || 'active'}">
+                        <div class="text-sm font-medium">${s.name}${statusBadge}</div>
                         <div class="text-xs text-base-content/70">${s.title}</div>
                     </div>
                 `;

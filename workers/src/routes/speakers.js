@@ -26,7 +26,11 @@ export async function getSpeakers(request, env) {
                 JOIN sermons s ON uf.sermon_id = s.id
                 WHERE s.speaker_id = sp.id),
                0
-             ) as favorite_count
+             ) as favorite_count,
+             COALESCE(
+               (SELECT SUM(play_count) FROM sermons WHERE speaker_id = sp.id),
+               0
+             ) as total_play_count
       FROM speakers sp
       WHERE 1=1
     `;
@@ -76,7 +80,11 @@ export async function getSpeaker(request, env, id) {
                 JOIN sermons s ON uf.sermon_id = s.id
                 WHERE s.speaker_id = sp.id),
                0
-             ) as favorite_count
+             ) as favorite_count,
+             COALESCE(
+               (SELECT SUM(play_count) FROM sermons WHERE speaker_id = sp.id),
+               0
+             ) as total_play_count
       FROM speakers sp
       WHERE sp.id = ?
     `;

@@ -318,15 +318,15 @@
                                 <!-- Stats -->
                                 <div class="grid grid-cols-3 gap-4">
                                     <div class="text-center p-4 bg-base-200 rounded-lg">
-                                        <div class="text-2xl font-bold text-primary">45</div>
+                                        <div id="sermonCountCard" class="text-2xl font-bold text-primary">--</div>
                                         <div class="text-sm text-base-content/70">讲道数量</div>
                                     </div>
                                     <div class="text-center p-4 bg-base-200 rounded-lg">
-                                        <div class="text-2xl font-bold text-success">1.3K</div>
+                                        <div id="favoriteCountCard" class="text-2xl font-bold text-success">--</div>
                                         <div class="text-sm text-base-content/70">关注人数</div>
                                     </div>
                                     <div class="text-center p-4 bg-base-200 rounded-lg">
-                                        <div class="text-2xl font-bold text-info">56.8K</div>
+                                        <div id="totalPlayCountCard" class="text-2xl font-bold text-info">--</div>
                                         <div class="text-sm text-base-content/70">总播放量</div>
                                     </div>
                                 </div>
@@ -617,9 +617,16 @@
                 verifiedEdit.checked = false;
             }
             
-            // Stats
+            // Stats - Card view (top section)
+            document.getElementById('sermonCountCard').textContent = speaker.sermon_count || 0;
+            document.getElementById('favoriteCountCard').textContent = speaker.favorite_count || 0;
+            document.getElementById('totalPlayCountCard').textContent = speaker.total_play_count || 0;
+            
+            // Stats - Detail view (side panel)
             document.getElementById('sermonCountView').textContent = speaker.sermon_count || 0;
-            document.getElementById('followerCountView').textContent = speaker.follower_count || 0;
+            if (document.getElementById('followerCountView')) {
+                document.getElementById('followerCountView').textContent = speaker.favorite_count || 0;
+            }
             
             // Dates
             if (speaker.created_at) {

@@ -864,7 +864,7 @@
             
             console.log('Submitting sermon data:', sermonData);
             
-            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons', {
+            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

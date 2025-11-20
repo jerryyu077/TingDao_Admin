@@ -905,20 +905,15 @@
         }
     }
 
-    function removeTag(tag) {
-        tags = tags.filter(t => t !== tag);
-        renderTags();
-    }
-
     function renderTags() {
         const container = document.getElementById('tagContainer');
         const hiddenInput = document.getElementById('tagsHidden');
         
-        container.innerHTML = tags.map(tag => {
-            const safeTag = tag.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        container.innerHTML = tags.map((tag, index) => {
+            const safeTag = tag.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             return `
-                <span class="badge badge-md gap-1.5 cursor-pointer hover:badge-error transition-colors" style="font-size: 0.85rem;" onclick="removeTag('${safeTag}')">
-                    ${tag}
+                <span class="badge badge-md gap-1.5 cursor-pointer hover:badge-error transition-colors tag-item" style="font-size: 0.85rem;" data-tag-index="${index}">
+                    ${safeTag}
                     <span class="iconify" data-icon="heroicons:x-mark" data-width="14"></span>
                 </span>
             `;
@@ -933,6 +928,7 @@
             renderTags();
         }
     }
+    
 
     // Speaker search & autocomplete
     let speakers = [];
@@ -1101,12 +1097,23 @@
         document.getElementById('submitterDropdown').classList.add('hidden');
     }
 
-    // Handle dropdown clicks
+    // Handle dropdown clicks and tag removal
     document.addEventListener('click', function(event) {
         const speakerDropdown = document.getElementById('speakerDropdown');
         const speakerInput = document.getElementById('speakerInput');
         const submitterDropdown = document.getElementById('submitterDropdown');
         const submitterInput = document.getElementById('submitterInput');
+        
+        // Handle tag removal
+        const tagItem = event.target.closest('.tag-item');
+        if (tagItem) {
+            const index = parseInt(tagItem.dataset.tagIndex);
+            if (!isNaN(index)) {
+                tags.splice(index, 1);
+                renderTags();
+            }
+            return;
+        }
         
         // Check if clicked inside dropdown
         const dropdownItem = event.target.closest('[data-action]');

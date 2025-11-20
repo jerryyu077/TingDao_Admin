@@ -364,10 +364,13 @@
 
 <script src="assets/js/common.js"></script>
 <script>
-    // Check authentication
+    // Check authentication（临时禁用 - 使用 Cloudflare Zero Trust 保护）
+    // TODO: 如需重新启用认证，取消下面注释
+    /*
     if (!localStorage.getItem('admin_token')) {
         window.location.href = 'login.html';
     }
+    */
 
     // Handle logout
     function handleLogout() {

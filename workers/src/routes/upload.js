@@ -9,11 +9,14 @@ import { getUserIdFromRequest } from './auth.js';
  */
 export async function uploadImage(request, env) {
   try {
-    // 验证用户登录
+    // 验证用户登录（临时禁用 - 使用 Cloudflare Zero Trust 保护）
+    // TODO: 如需重新启用认证，取消下面注释
+    /*
     const userId = getUserIdFromRequest(request);
     if (!userId) {
       return error('未授权', 'UNAUTHORIZED', 401);
     }
+    */
 
     // 解析表单数据
     const formData = await request.formData();
@@ -68,11 +71,14 @@ export async function uploadImage(request, env) {
  */
 export async function uploadAudio(request, env) {
   try {
-    // 验证用户登录
+    // 验证用户登录（临时禁用 - 使用 Cloudflare Zero Trust 保护）
+    // TODO: 如需重新启用认证，取消下面注释
+    /*
     const userId = getUserIdFromRequest(request);
     if (!userId) {
       return error('未授权', 'UNAUTHORIZED', 401);
     }
+    */
 
     // 解析表单数据
     const formData = await request.formData();

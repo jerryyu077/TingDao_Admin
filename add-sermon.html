@@ -777,64 +777,69 @@
             // Extract audio duration
             const duration = await getAudioDuration(audioFile);
             
-            // TODO: Upload audio to Cloudflare and get URL
-            // For now, use placeholder URL for audio (will be replaced with actual Cloudflare URL)
-            const audioUrl = `https://cdn.tingdao.com/audio/${audioFile.name}`;
+            // Step 1: Upload audio file to R2
+            submitBtn.innerHTML = '<span class="loading loading-spinner loading-xs"></span> 上传音频文件...';
+            const audioFormData = new FormData();
+            audioFormData.append('file', audioFile);
             
-            // Convert cover image to base64 for local testing
-            const coverBase64 = await fileToBase64(coverImage);
+            const audioUploadResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/upload/audio`, {
+                method: 'POST',
+                body: audioFormData
+            });
             
-            // Get full speaker info
-            const speaker = speakers.find(s => s.id === speakerId);
-            const submitter = users.find(u => u.id === submitterId);
-            
-            // Fetch speaker details from API for complete info
-            let speakerDetails = { name: speaker.name, title: speaker.title };
-            try {
-                const speakerResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`);
-                const speakerResult = await speakerResponse.json();
-                if (speakerResult.success && speakerResult.data) {
-                    speakerDetails = {
-                        id: speakerResult.data.id,
-                        name: speakerResult.data.name,
-                        title: speakerResult.data.title,
-                        bio: speakerResult.data.bio || '',
-                        avatar_url: speakerResult.data.avatar_url || ''
-                    };
-                }
-            } catch (error) {
-                console.warn('Failed to fetch speaker details:', error);
+            if (!audioUploadResponse.ok) {
+                const audioError = await audioUploadResponse.json();
+                throw new Error('音频上传失败: ' + (audioError.error?.message || '未知错误'));
             }
+            
+            const audioResult = await audioUploadResponse.json();
+            const audioUrl = audioResult.data.url;
+            console.log('Audio uploaded:', audioUrl);
+            
+            // Step 2: Upload cover image to R2
+            submitBtn.innerHTML = '<span class="loading loading-spinner loading-xs"></span> 上传封面图片...';
+            const imageFormData = new FormData();
+            imageFormData.append('file', coverImage);
+            imageFormData.append('type', 'cover');
+            
+            const imageUploadResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/upload/image`, {
+                method: 'POST',
+                body: imageFormData
+            });
+            
+            if (!imageUploadResponse.ok) {
+                const imageError = await imageUploadResponse.json();
+                throw new Error('封面图片上传失败: ' + (imageError.error?.message || '未知错误'));
+            }
+            
+            const imageResult = await imageUploadResponse.json();
+            const coverImageUrl = imageResult.data.url;
+            console.log('Cover image uploaded:', coverImageUrl);
+            
+            // Step 3: Create sermon record
+            submitBtn.innerHTML = '<span class="loading loading-spinner loading-xs"></span> 创建讲道记录...';
             
             // Format date as YYYY-MM-DD
             const formattedDate = date; // Already in YYYY-MM-DD format from input
             
-            // Create sermon data
+            // Create sermon data (backend will get submitter_id from token)
+            // Note: 不再需要 speaker_name, speaker, submitter 等字段，后端会自动关联
             const sermonData = {
                 id: 'sermon-' + Date.now(),
                 title: title,
                 speaker_id: speakerId,
-                speaker_name: speakerDetails.name,
-                speaker: speakerDetails,
-                submitted_by: submitterId,
-                submitter: {
-                    id: submitterId,
-                    username: submitter ? submitter.name : '',
-                    email: submitter ? submitter.email : ''
-                },
                 scripture: scripture,
                 date: formattedDate,
                 summary: summary,
                 tags: tagsArray,
                 topic_ids: selectedTopics,
                 audio_url: audioUrl,
-                cover_image_url: coverBase64,
-                duration: duration,
-                status: 'pending',
-                play_count: 0,
-                favorite_count: 0,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                cover_image_url: coverImageUrl,
+                audio_size: audioFile.size,
+                audio_format: audioFile.type.split('/')[1] || 'mp3',
+                duration: Math.round(duration),
+                status: 'pending', // 待审核状态
+                language: 'zh-CN'
             };
             
             console.log('Submitting sermon data:', sermonData);

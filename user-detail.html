@@ -247,14 +247,6 @@
                                     <p class="text-base-content" id="registeredAt">--</p>
                                 </div>
 
-                                <!-- Last Login (Read-only) -->
-                                <div class="form-control">
-                                    <label class="label">
-                                        <span class="label-text font-medium">最后登录</span>
-                                    </label>
-                                    <p class="text-base-content" id="lastLogin">--</p>
-                                </div>
-
                                 <!-- Upload Count (Read-only) -->
                                 <div class="form-control">
                                     <label class="label">
@@ -385,10 +377,6 @@
             const regDate = user.created_at ? new Date(user.created_at).toLocaleString('zh-CN') : '--';
             document.getElementById('registeredAt').textContent = regDate;
             
-            // Last login
-            const lastLogin = user.last_login ? new Date(user.last_login).toLocaleString('zh-CN') : '从未登录';
-            document.getElementById('lastLogin').textContent = lastLogin;
-            
             // Sermon count
             document.getElementById('sermonCount').textContent = user.sermon_count || 0;
         }
@@ -430,7 +418,7 @@
             tbody.innerHTML = sermons.map(sermon => {
                 const createdAt = sermon.created_at ? new Date(sermon.created_at).toLocaleString('zh-CN') : '--';
                 const duration = formatDuration(sermon.duration);
-                const scripture = sermon.scripture_references || '--';
+                const scripture = sermon.scripture || '--';
                 const speakerName = sermon.speaker?.name || '未知讲员';
                 
                 // Status badge
@@ -555,6 +543,366 @@
             
             if (currentUserId) {
                 loadUserData(currentUserId);
+            } else {
+                alert('缺少用户ID参数');
+                window.location.href = 'users.html';
+            }
+        });
+    </script>
+            '10245': {
+                id: '10245',
+                name: '张伟',
+                username: '王小明',  // API submitter.username
+                email: 'zhang.wei@example.com',
+                registered_at: '2024-10-15',
+                last_login: '2024-11-01 14:30',
+                sermon_count: 0,  // Will be calculated from API
+                status: 'active'
+            },
+            '10244': {
+                id: '10244',
+                name: '李娜',
+                username: '李娜',
+                email: 'li.na@example.com',
+                registered_at: '2024-10-12',
+                last_login: '2024-10-31 09:15',
+                sermon_count: 0,
+                status: 'active'
+            },
+            '10243': {
+                id: '10243',
+                name: '王芳',
+                username: '王芳',
+                email: 'wang.fang@example.com',
+                registered_at: '2024-10-08',
+                last_login: '2024-10-28 16:45',
+                sermon_count: 0,
+                status: 'active'
+            },
+            '10242': {
+                id: '10242',
+                name: '刘强',
+                username: '刘强',
+                email: 'liu.qiang@example.com',
+                registered_at: '2024-09-25',
+                last_login: '2024-10-15 11:20',
+                sermon_count: 0,
+                status: 'active'
+            },
+            '10241': {
+                id: '10241',
+                name: '赵敏',
+                username: '赵敏',
+                email: 'zhao.min@example.com',
+                registered_at: '2024-08-10',
+                last_login: '2024-08-15 10:00',
+                sermon_count: 0,
+                status: 'banned'
+            }
+        };
+
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        }
+
+        function loadUserData(userId) {
+            // Extract numeric ID from userId (e.g., "user-10245" -> "10245")
+            const numericId = userId.replace('user-', '');
+            
+            // Check localStorage first for saved data
+            const allUsersData = JSON.parse(localStorage.getItem('usersData') || '{}');
+            const savedData = allUsersData[userId];
+            
+            const userStatuses = JSON.parse(localStorage.getItem('userStatuses') || '{}');
+            const savedStatus = userStatuses[`#${numericId}`];
+            
+            // Get user data from mockUsers using numeric ID
+            const user = mockUsers[numericId];
+            if (!user) {
+                alert('用户不存在');
+                window.location.href = 'users.html';
+                return;
+            }
+
+            // Override with saved data from localStorage
+            if (savedData) {
+                user.name = savedData.name;
+                user.email = savedData.email;
+                user.status = savedData.status;
+            } else if (savedStatus) {
+                // Override status only if saved
+                if (savedStatus === 'active') {
+                    user.status = 'active';
+                } else if (savedStatus === 'banned') {
+                    user.status = 'banned';
+                }
+            }
+
+            currentUserData = user;
+            currentUserId = userId;
+
+            // Update UI
+            const firstChar = user.name.charAt(0);
+            document.getElementById('avatarText').textContent = firstChar;
+            document.getElementById('displayName').textContent = user.name;
+            document.getElementById('displayUserId').textContent = '#' + user.id;
+            
+            // View mode
+            document.getElementById('viewName').textContent = user.name;
+            document.getElementById('viewEmail').textContent = user.email;
+            
+            // Edit mode
+            document.getElementById('editName').value = user.name;
+            document.getElementById('editEmail').value = user.email;
+            document.getElementById('editStatus').value = user.status;
+            
+            // Status badge
+            const statusBadge = document.getElementById('viewStatus');
+            if (user.status === 'active') {
+                statusBadge.textContent = '活跃';
+                statusBadge.className = 'badge badge-success';
+            } else {
+                statusBadge.textContent = '已禁用';
+                statusBadge.className = 'badge badge-error';
+            }
+            
+            // Read-only fields
+            document.querySelector('[data-field="registered_at"]').textContent = user.registered_at + ' 10:30:00';
+            document.querySelector('[data-field="last_login"]').textContent = user.last_login;
+            document.querySelector('[data-field="sermon_count"]').textContent = user.sermon_count;
+
+            // Load user's sermons
+            loadUserSermons(userId);
+        }
+
+        async function loadUserSermons(userId) {
+            try {
+                // Fetch all sermons from API
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
+                const data = await response.json();
+                const allSermons = data.data || data;
+
+                // Filter sermons by submitter.username matching user's username
+                const userUsername = currentUserData.username;
+                const userSermons = allSermons.filter(sermon => {
+                    return sermon.submitter && sermon.submitter.username === userUsername;
+                });
+
+                // Update sermon count with real data
+                currentUserData.sermon_count = userSermons.length;
+                document.querySelector('[data-field="sermon_count"]').textContent = userSermons.length;
+
+                // Render sermons table
+                renderSermonsTable(userSermons);
+            } catch (error) {
+                console.error('Failed to load user sermons:', error);
+                // Keep the table but show message
+                document.querySelector('tbody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-8 text-base-content/70">
+                            加载讲道数据失败
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function renderSermonsTable(sermons) {
+            const tbody = document.querySelector('tbody');
+            
+            if (sermons.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-8 text-base-content/70">
+                            该用户暂无上传的讲道
+                        </td>
+                    </tr>
+                `;
+                document.querySelector('[data-pagination]').style.display = 'none';
+                return;
+            }
+
+            // Map status
+            function getStatusBadge(status) {
+                const statusMap = {
+                    '已发布': '<span class="badge badge-success badge-sm">已发布</span>',
+                    '待审核': '<span class="badge badge-warning badge-sm">待审核</span>',
+                    '已退回': '<span class="badge badge-error badge-sm">已退回</span>',
+                    '已拒绝': '<span class="badge badge-ghost badge-sm">已拒绝</span>'
+                };
+                return statusMap[status] || '<span class="badge badge-sm">' + status + '</span>';
+            }
+
+            // Format duration
+            function formatDuration(seconds) {
+                if (!seconds) return '--:--';
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            tbody.innerHTML = sermons.map(sermon => `
+                <tr class="hover border-b border-base-300">
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <span class="font-medium">${sermon.title}</span>
+                        </div>
+                    </td>
+                    <td>${sermon.speaker?.name || '未知讲员'}</td>
+                    <td>${new Date(sermon.created_at).toLocaleString('zh-CN', { 
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}</td>
+                    <td>${(sermon.scripture_references || []).map(s => s.reference).join('; ') || '无'}</td>
+                    <td class="text-center">${formatDuration(sermon.duration)}</td>
+                    <td class="text-center">${getStatusBadge(sermon.status)}</td>
+                    <td class="text-center">
+                        <button class="btn btn-ghost btn-xs" onclick="location.href='sermon-detail.html?id=${sermon.id}'">
+                            <span class="iconify" data-icon="heroicons:eye" data-width="14"></span>
+                            查看
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Update pagination info
+            const paginationInfo = document.querySelector('[data-pagination-info]');
+            if (paginationInfo) {
+                paginationInfo.textContent = `显示 1-${sermons.length} / 共 ${sermons.length} 条`;
+            }
+        }
+
+        function toggleEditMode() {
+            isEditMode = true;
+            
+            // Save original data
+            originalData = {
+                name: document.getElementById('editName').value,
+                email: document.getElementById('editEmail').value,
+                status: document.getElementById('editStatus').value
+            };
+            
+            // Show edit mode elements
+            document.querySelectorAll('[data-mode="view"]').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('[data-mode="edit"]').forEach(el => el.style.display = 'block');
+            
+            // Toggle buttons
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'inline-flex';
+            document.getElementById('cancelBtn').style.display = 'inline-flex';
+        }
+
+        async function saveChanges() {
+            const name = document.getElementById('editName').value;
+            const email = document.getElementById('editEmail').value;
+            const status = document.getElementById('editStatus').value;
+            
+            try {
+                // Call API to update user
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users/${currentUserId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        status: status
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error?.message || '保存失败');
+                }
+                
+                console.log('✅ User updated via API:', result.data);
+                
+                // Extract numeric ID for localStorage
+                const numericId = currentUserId.replace('user-', '');
+                
+                // Also save to localStorage for backup
+                const userStatuses = JSON.parse(localStorage.getItem('userStatuses') || '{}');
+                userStatuses[`#${numericId}`] = status;
+                localStorage.setItem('userStatuses', JSON.stringify(userStatuses));
+
+                const allUsersData = JSON.parse(localStorage.getItem('usersData') || '{}');
+                allUsersData[currentUserId] = {
+                    name: name,
+                    email: email,
+                    status: status
+                };
+                localStorage.setItem('usersData', JSON.stringify(allUsersData));
+
+                // Update mock data using numeric ID
+                if (mockUsers[numericId]) {
+                    mockUsers[numericId].name = name;
+                    mockUsers[numericId].email = email;
+                    mockUsers[numericId].status = status;
+                }
+                
+                // Update view mode elements
+                document.getElementById('viewName').textContent = name;
+                document.getElementById('displayName').textContent = name;
+                document.getElementById('avatarText').textContent = name.charAt(0);
+                document.getElementById('viewEmail').textContent = email;
+                
+                const statusBadge = document.getElementById('viewStatus');
+                if (status === 'active') {
+                    statusBadge.textContent = '活跃';
+                    statusBadge.className = 'badge badge-success';
+                } else {
+                    statusBadge.textContent = '已禁用';
+                    statusBadge.className = 'badge badge-error';
+                }
+                
+                exitEditMode();
+                
+                // Show success message
+                alert('用户信息已保存！');
+            } catch (error) {
+                console.error('Failed to save user changes:', error);
+                alert(`保存失败：${error.message}`);
+            }
+        }
+
+        function cancelEdit() {
+            // Restore original data
+            document.getElementById('editName').value = originalData.name;
+            document.getElementById('editEmail').value = originalData.email;
+            document.getElementById('editStatus').value = originalData.status;
+            
+            exitEditMode();
+        }
+
+        function exitEditMode() {
+            isEditMode = false;
+            
+            // Show view mode elements
+            document.querySelectorAll('[data-mode="view"]').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('[data-mode="edit"]').forEach(el => el.style.display = 'none');
+            
+            // Toggle buttons
+            document.getElementById('editBtn').style.display = 'inline-flex';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        // Load user data on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userIdParam = urlParams.get('id');
+            
+            if (userIdParam) {
+                // Convert numeric ID to full user ID format
+                const userId = `user-${userIdParam}`;
+                loadUserData(userId);
             } else {
                 alert('缺少用户ID参数');
                 window.location.href = 'users.html';

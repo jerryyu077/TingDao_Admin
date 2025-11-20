@@ -12,6 +12,7 @@ export async function getSermons(request, env) {
   const limit = parseInt(url.searchParams.get('_limit') || '10');
   const status = url.searchParams.get('status');
   const speakerId = url.searchParams.get('speaker_id');
+  const submitterId = url.searchParams.get('submitter_id');
   const searchTerm = url.searchParams.get('q');
   const sort = url.searchParams.get('_sort') || 'publish_date';
   const order = url.searchParams.get('_order') || 'desc';
@@ -48,6 +49,12 @@ export async function getSermons(request, env) {
     if (speakerId) {
       sql += ` AND s.speaker_id = ?`;
       params.push(speakerId);
+    }
+
+    // 提交者过滤
+    if (submitterId) {
+      sql += ` AND s.submitter_id = ?`;
+      params.push(submitterId);
     }
 
     // 搜索

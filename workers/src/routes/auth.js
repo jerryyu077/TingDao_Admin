@@ -155,7 +155,7 @@ export async function sendVerificationCode(request, env) {
           to: [{ email }]
         }],
         from: {
-          email: 'noreply@tingdao.app',
+          email: 'support@tingdao.app',
           name: '听道'
         },
         subject: '【听道】邮箱验证码',
@@ -175,6 +175,9 @@ export async function sendVerificationCode(request, env) {
         }]
       };
       
+      console.log('📤 准备发送验证码邮件到:', email);
+      console.log('📧 邮件内容:', JSON.stringify(emailContent, null, 2));
+      
       const mailResponse = await fetch('https://api.mailchannels.net/tx/v1/send', {
         method: 'POST',
         headers: {
@@ -183,12 +186,16 @@ export async function sendVerificationCode(request, env) {
         body: JSON.stringify(emailContent)
       });
       
+      const responseText = await mailResponse.text();
+      console.log('📬 MailChannels 响应状态:', mailResponse.status);
+      console.log('📬 MailChannels 响应内容:', responseText);
+      
       if (!mailResponse.ok) {
-        console.error('MailChannels error:', await mailResponse.text());
+        console.error('❌ MailChannels 错误:', responseText);
         throw new Error('邮件发送失败');
       }
       
-      console.log('✅ 验证码邮件已发送:', email);
+      console.log('✅ 验证码邮件已成功发送到:', email);
       
     } catch (emailError) {
       console.error('Email send error:', emailError);

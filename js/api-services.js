@@ -47,14 +47,17 @@ const AuthService = {
     },
     
     /**
-     * 检查认证状态
+     * 检查认证状态（临时禁用 - 使用 Cloudflare Zero Trust 保护）
      */
     checkAuth() {
+        // TODO: 如需重新启用认证，取消下面注释
+        /*
         if (!api.isAuthenticated()) {
             window.location.href = 'login.html';
             return false;
         }
-        return true;
+        */
+        return true; // 始终返回 true，允许访问
     }
 };
 

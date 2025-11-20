@@ -72,24 +72,50 @@ export async function updateUser(request, env, id) {
       return notFound('用户不存在');
     }
 
-    const sql = `
-      UPDATE users SET
-        name = ?, username = ?, email = ?, avatar_url = ?,
-        bio = ?, status = ?, updated_at = ?
-      WHERE id = ?
-    `;
-
+    // Build dynamic SQL based on provided fields
+    const updates = [];
+    const params = [];
+    
+    if (data.name !== undefined) {
+      updates.push('name = ?');
+      params.push(data.name);
+    }
+    if (data.username !== undefined) {
+      updates.push('username = ?');
+      params.push(data.username);
+    }
+    if (data.email !== undefined) {
+      updates.push('email = ?');
+      params.push(data.email);
+    }
+    if (data.avatar_url !== undefined) {
+      updates.push('avatar_url = ?');
+      params.push(data.avatar_url);
+    }
+    if (data.bio !== undefined) {
+      updates.push('bio = ?');
+      params.push(data.bio);
+    }
+    if (data.status !== undefined) {
+      updates.push('status = ?');
+      params.push(data.status);
+    }
+    if (data.can_upload !== undefined) {
+      updates.push('can_upload = ?');
+      params.push(data.can_upload);
+    }
+    
+    if (updates.length === 0) {
+      return error('没有提供要更新的字段');
+    }
+    
+    updates.push('updated_at = ?');
     const now = new Date().toISOString();
-    await execute(env.DB, sql, [
-      data.name,
-      data.username,
-      data.email,
-      data.avatar_url,
-      data.bio,
-      data.status,
-      now,
-      id
-    ]);
+    params.push(now);
+    params.push(id);
+
+    const sql = `UPDATE users SET ${updates.join(', ')} WHERE id = ?`;
+    await execute(env.DB, sql, params);
 
     return success({ id }, { message: '用户更新成功' });
   } catch (e) {

@@ -237,7 +237,6 @@ export async function register(request, env) {
     }
     
     // 验证邮箱验证码
-    /*
     if (!verification_code) {
       return Response.json({ success: false, error: { message: '验证码为必填项' } }, { status: 400 });
     }
@@ -252,11 +251,10 @@ export async function register(request, env) {
       return Response.json({ success: false, error: { message: '验证码错误' } }, { status: 400 });
     }
     
-    // 验证码正确，删除验证码
-    await env.VERIFICATION_CODES.delete(email);
-    */
-    
     console.log('✅ 验证码验证通过');
+    
+    // 验证码正确，删除验证码（防止重复使用）
+    await env.VERIFICATION_CODES.delete(email);
     
     const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
     if (existing) {

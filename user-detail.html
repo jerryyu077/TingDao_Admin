@@ -349,6 +349,9 @@
 
         // Display user data
         function displayUserData(user) {
+            console.log('Displaying user data:', user);
+            console.log('User sermon_count from API:', user.sermon_count);
+            
             // Avatar
             const avatarText = user.email ? user.email.charAt(0).toUpperCase() : 'U';
             document.getElementById('avatarText').textContent = avatarText;
@@ -377,7 +380,7 @@
             const regDate = user.created_at ? new Date(user.created_at).toLocaleString('zh-CN') : '--';
             document.getElementById('registeredAt').textContent = regDate;
             
-            // Sermon count
+            // Sermon count - use actual loaded sermons count after loading
             document.getElementById('sermonCount').textContent = user.sermon_count || 0;
         }
 
@@ -393,15 +396,22 @@
                 if (result.success && result.data) {
                     allSermons = result.data;
                     console.log('Loaded sermons:', allSermons.length);
+                    
+                    // Update sermon count with actual loaded count
+                    document.getElementById('sermonCount').textContent = allSermons.length;
+                    console.log('Updated sermon count to:', allSermons.length);
+                    
                     renderSermons(allSermons);
                 } else {
                     console.warn('No sermons found or API error');
                     allSermons = [];
+                    document.getElementById('sermonCount').textContent = 0;
                     renderSermons([]);
                 }
             } catch (error) {
                 console.error('Error loading sermons:', error);
                 allSermons = [];
+                document.getElementById('sermonCount').textContent = 0;
                 renderSermons([]);
             }
         }
@@ -430,7 +440,7 @@
                 } else if (sermon.status === 'rejected') {
                     statusBadge = '<span class="badge badge-error badge-sm">已退回</span>';
                 } else {
-                    statusBadge = '<span class="badge badge-ghost badge-sm">草稿</span>';
+                    statusBadge = `<span class="badge badge-ghost badge-sm">${sermon.status || '未知'}</span>`;
                 }
                 
                 return `

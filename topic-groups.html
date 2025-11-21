@@ -590,7 +590,7 @@
         // Load topics from API
         async function loadTopics(page = 1) {
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=1000`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics');
                 const data = await response.json();
                 let apiTopics = data.data || data;
                 
@@ -780,34 +780,48 @@
         }
 
         async function openEditModal(topicId, topicName, sermonCount) {
-            currentTopic = allTopics.find(t => t.id === topicId);
-            if (!currentTopic) {
-                alert('主题组不存在');
+            try {
+                // Fetch topic data from API
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to load topic data');
+                }
+                const result = await response.json();
+                currentTopic = result.data || result;
+                
+                if (!currentTopic) {
+                    alert('主题组不存在');
+                    return;
+                }
+                
+                document.getElementById('modal-title').textContent = `编辑主题组 - ${currentTopic.name}`;
+                document.getElementById('sermon-count').textContent = `${currentTopic.sermon_count || 0}篇`;
+                document.getElementById('topic-status').value = currentTopic.status || 'active';
+                
+                // Reset icon preview and uploaded data
+                uploadedIconData = null;
+                const iconPreview = document.getElementById('topic-icon-preview');
+                
+                // Set icon preview based on current topic's cover_image_url
+                if (currentTopic.cover_image_url) {
+                    // Real image URL from R2 or external source
+                    iconPreview.style.backgroundImage = `url(${currentTopic.cover_image_url})`;
+                    iconPreview.style.backgroundSize = 'cover';
+                    iconPreview.style.backgroundPosition = 'center';
+                    iconPreview.innerHTML = '';
+                    iconPreview.className = 'w-16 h-16 rounded-lg flex items-center justify-center cursor-pointer';
+                } else {
+                    // Default gradient icon
+                    const gradient = getTopicGradient(currentTopic.id);
+                    const iconName = getTopicIcon(currentTopic.id);
+                    iconPreview.className = `w-16 h-16 ${gradient} rounded-lg flex items-center justify-center cursor-pointer`;
+                    iconPreview.style.backgroundImage = '';
+                    iconPreview.innerHTML = `<span class="iconify text-white" data-icon="heroicons:${iconName}" data-width="32"></span>`;
+                }
+            } catch (error) {
+                console.error('Failed to load topic:', error);
+                alert('加载主题数据失败，请重试');
                 return;
-            }
-            
-            document.getElementById('modal-title').textContent = `编辑主题组 - ${topicName}`;
-            document.getElementById('sermon-count').textContent = `${sermonCount}篇`;
-            document.getElementById('topic-status').value = currentTopic.status;
-            
-            // Reset icon preview and uploaded data
-            uploadedIconData = null;
-            const iconPreview = document.getElementById('topic-icon-preview');
-            
-            // Set icon preview based on current topic
-            if (currentTopic.cover_image_url && currentTopic.cover_image_url.startsWith('data:')) {
-                // Base64 image
-                iconPreview.style.backgroundImage = `url(${currentTopic.cover_image_url})`;
-                iconPreview.style.backgroundSize = 'cover';
-                iconPreview.style.backgroundPosition = 'center';
-                iconPreview.innerHTML = '';
-            } else {
-                // Default gradient icon
-                const gradient = getTopicGradient(currentTopic.id);
-                const iconName = getTopicIcon(currentTopic.id);
-                iconPreview.className = `w-16 h-16 ${gradient} rounded-lg flex items-center justify-center cursor-pointer`;
-                iconPreview.style.backgroundImage = '';
-                iconPreview.innerHTML = `<span class="iconify text-white" data-icon="heroicons:${iconName}" data-width="32"></span>`;
             }
             
             // Reset file input
@@ -838,7 +852,7 @@
                 console.log('Loading sermons for topic:', topicId);
                 
                 // Fetch all sermons
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -980,8 +994,11 @@
 
         let uploadedIconData = null;
         
-        function previewIcon(input) {
+        async function previewIcon(input) {
             if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                // Preview the image immediately
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const preview = document.getElementById('topic-icon-preview');
@@ -989,11 +1006,33 @@
                     preview.style.backgroundSize = 'cover';
                     preview.style.backgroundPosition = 'center';
                     preview.innerHTML = '';
-                    
-                    // Store the base64 data for saving
-                    uploadedIconData = e.target.result;
+                    preview.className = 'w-16 h-16 rounded-lg flex items-center justify-center cursor-pointer';
                 };
-                reader.readAsDataURL(input.files[0]);
+                reader.readAsDataURL(file);
+                
+                // Upload to R2
+                try {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    
+                    const uploadResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/upload/image`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!uploadResponse.ok) {
+                        throw new Error('Upload failed');
+                    }
+                    
+                    const uploadResult = await uploadResponse.json();
+                    uploadedIconData = uploadResult.url;
+                    
+                    console.log('Icon uploaded to R2:', uploadedIconData);
+                } catch (error) {
+                    console.error('Failed to upload icon:', error);
+                    alert('图标上传失败，请重试');
+                    uploadedIconData = null;
+                }
             }
         }
 
@@ -1250,7 +1289,7 @@
         
         async function loadAvailableSermons() {
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=1000`);
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1385,7 +1424,7 @@
 
             // Fetch full sermon data for duration and status
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1556,40 +1595,52 @@
             const name = document.getElementById('new-topic-name').value.trim();
             const description = document.getElementById('new-topic-description').value.trim();
             const status = document.getElementById('new-topic-status').value;
+            const iconFile = document.getElementById('new-topic-icon').files[0];
             
             if (!name) {
                 alert('请输入主题组名称');
                 return;
             }
             
-            // Generate topic ID
-            const topicId = `topic-${Date.now()}`;
+            // Upload icon to R2 if provided
+            let iconUrl = null;
+            if (iconFile) {
+                try {
+                    const formData = new FormData();
+                    formData.append('image', iconFile);
+                    
+                    const uploadResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/upload/image`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!uploadResponse.ok) {
+                        throw new Error('Icon upload failed');
+                    }
+                    
+                    const uploadResult = await uploadResponse.json();
+                    iconUrl = uploadResult.url;
+                    console.log('Icon uploaded to R2:', iconUrl);
+                } catch (error) {
+                    console.error('Failed to upload icon:', error);
+                    alert('图标上传失败，请重试');
+                    return;
+                }
+            }
             
             // Create new topic object
             const newTopic = {
-                id: topicId,
                 name: name,
                 name_en: name,
                 slug: name.toLowerCase().replace(/\s+/g, '-'),
-                description: description || '暂无描述',
-                cover_image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
+                description: description || '',
+                cover_image_url: iconUrl || null,
                 icon: 'folder',
                 color: '#60A5FA',
                 parent_id: null,
-                sermon_count: 0,
-                follower_count: 0,
-                total_play_count: 0,
-                total_duration: 0,
-                speaker_count: 0,
                 is_featured: false,
                 display_order: allTopics.length + 1,
-                status: status,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-                metadata: {
-                    keywords: [],
-                    related_topics: []
-                }
+                status: status
             };
             
             try {
@@ -1621,6 +1672,7 @@
                 // Re-render
                 currentPage = Math.ceil(allTopics.length / pageSize);
                 renderTopics();
+                updateStats();
                 
                 alert(`主题组创建成功！\n\n名称: ${name}\n状态: ${status === 'active' ? '已启用' : '已禁用'}`);
                 document.getElementById('create-topic-modal').close();

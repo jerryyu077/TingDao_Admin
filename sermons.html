@@ -626,29 +626,7 @@
                 }
             }
             
-            // Update title
-            const titleElement = row.querySelector('td:nth-child(2) .font-medium');
-            if (titleElement) {
-                const sermonDataKey = `sermon_data_${sermonId}`;
-                const savedData = localStorage.getItem(sermonDataKey);
-                
-                if (savedData) {
-                    try {
-                        const sermonData = JSON.parse(savedData);
-                        if (sermonData.title) {
-                            titleElement.textContent = sermonData.title;
-                        }
-                    } catch (e) {
-                        console.error('Error parsing saved sermon data:', e);
-                    }
-                } else {
-                    // Use default title if no saved data
-                    const defaultTitle = defaultSermonTitles[sermonId];
-                    if (defaultTitle) {
-                        titleElement.textContent = defaultTitle;
-                    }
-                }
-            }
+            // Title is already loaded from API, no need to override from localStorage
         });
         
         console.log('Updated sermon statuses and titles from localStorage');

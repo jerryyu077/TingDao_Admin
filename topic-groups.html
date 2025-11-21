@@ -186,7 +186,7 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-xs text-base-content/60">主题组总数</p>
-                                        <p class="text-2xl font-bold">28</p>
+                                        <p id="statTotalTopics" class="text-2xl font-bold">-</p>
                                     </div>
                                     <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                                         <span class="iconify text-purple-600" data-icon="heroicons:folder" data-width="24"></span>
@@ -199,7 +199,7 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-xs text-base-content/60">总讲道数</p>
-                                        <p class="text-2xl font-bold">1,245</p>
+                                        <p id="statTotalSermons" class="text-2xl font-bold">-</p>
                                     </div>
                                     <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                                         <span class="iconify text-blue-600" data-icon="heroicons:microphone" data-width="24"></span>
@@ -212,7 +212,7 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-xs text-base-content/60">平均讲道数</p>
-                                        <p class="text-2xl font-bold">44</p>
+                                        <p id="statAvgSermons" class="text-2xl font-bold">-</p>
                                     </div>
                                     <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                                         <span class="iconify text-green-600" data-icon="heroicons:chart-bar" data-width="24"></span>
@@ -555,10 +555,42 @@
             window.location.href = 'login.html';
         }
 
+        // Update statistics
+        async function updateStats() {
+            try {
+                // Get all topics
+                const topicsResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=1000`);
+                const topicsData = await topicsResponse.json();
+                const topics = topicsData.data || topicsData;
+                
+                // Calculate total topics
+                const totalTopics = topics.length;
+                
+                // Calculate total sermons across all topics
+                let totalSermons = 0;
+                for (const topic of topics) {
+                    totalSermons += topic.sermon_count || 0;
+                }
+                
+                // Calculate average sermons per topic
+                const avgSermons = totalTopics > 0 ? Math.round(totalSermons / totalTopics) : 0;
+                
+                // Update UI
+                document.getElementById('statTotalTopics').textContent = totalTopics;
+                document.getElementById('statTotalSermons').textContent = totalSermons.toLocaleString();
+                document.getElementById('statAvgSermons').textContent = avgSermons;
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+                document.getElementById('statTotalTopics').textContent = '-';
+                document.getElementById('statTotalSermons').textContent = '-';
+                document.getElementById('statAvgSermons').textContent = '-';
+            }
+        }
+
         // Load topics from API
         async function loadTopics(page = 1) {
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=1000`);
                 const data = await response.json();
                 let apiTopics = data.data || data;
                 
@@ -577,6 +609,7 @@
                 
                 currentPage = page;
                 renderTopics();
+                updateStats();
             } catch (error) {
                 console.error('Failed to load topics:', error);
                 alert('加载主题组失败，请刷新页面重试');
@@ -668,7 +701,7 @@
             }
             
             // Update stats
-            updateStats();
+                updateStats();
             
             // Update pagination
             renderPagination(filteredTopics.length, totalPages);

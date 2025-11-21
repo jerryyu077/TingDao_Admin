@@ -590,7 +590,7 @@
         // Load topics from API
         async function loadTopics(page = 1) {
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=1000`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics');
                 const data = await response.json();
                 let apiTopics = data.data || data;
                 
@@ -830,7 +830,7 @@
                 console.log('Loading sermons for topic:', topicId);
                 
                 // Fetch all sermons
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1231,7 +1231,7 @@
         
         async function loadAvailableSermons() {
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=1000`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1366,7 +1366,7 @@
 
             // Fetch full sermon data for duration and status
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1573,13 +1573,15 @@
             }
             
             // Create new topic object
+            const topicId = `topic-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
             const newTopic = {
+                id: topicId,
                 name: name,
                 name_en: name,
                 slug: name.toLowerCase().replace(/\s+/g, '-'),
                 description: description || '',
                 cover_image_url: iconUrl || null,
-                icon: 'folder',
+                icon: iconUrl || 'folder',
                 color: '#60A5FA',
                 parent_id: null,
                 is_featured: false,

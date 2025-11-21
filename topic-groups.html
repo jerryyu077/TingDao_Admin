@@ -590,7 +590,7 @@
         // Load topics from API
         async function loadTopics(page = 1) {
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=1000`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics');
                 const data = await response.json();
                 let apiTopics = data.data || data;
                 
@@ -852,7 +852,7 @@
                 console.log('Loading sermons for topic:', topicId);
                 
                 // Fetch all sermons
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1058,31 +1058,11 @@
                     
                     console.log('✅ Topic deleted via API:', result.data);
                     
-                    // Update localStorage
-                    if (isCustomTopic) {
-                        // For custom topics, remove from localStorage customTopics
-                        const customTopics = JSON.parse(localStorage.getItem('customTopics') || '[]');
-                        const updatedTopics = customTopics.filter(t => t.id !== currentTopic.id);
-                        localStorage.setItem('customTopics', JSON.stringify(updatedTopics));
-                    } else {
-                        // For system topics, add to deletedSystemTopics list
-                        const deletedSystemTopics = JSON.parse(localStorage.getItem('deletedSystemTopics') || '[]');
-                        if (!deletedSystemTopics.includes(currentTopic.id)) {
-                            deletedSystemTopics.push(currentTopic.id);
-                            localStorage.setItem('deletedSystemTopics', JSON.stringify(deletedSystemTopics));
-                            console.log('Added to deleted system topics:', currentTopic.id);
-                        }
-                    }
-                    
-                    // Remove sermon associations
-                    localStorage.removeItem(`topic-${currentTopic.id}-sermons`);
-                    
-                    // Remove from allTopics array
-                    allTopics = allTopics.filter(t => t.id !== currentTopic.id);
+                    // Reload all topics from API
+                    await loadTopics(currentPage);
                     
                     alert(`${topicType}"${topicName}"已删除。讲道未被删除，只是解除了关联。`);
                     document.getElementById('edit-topic-modal').close();
-                    renderTopics();
                 } catch (error) {
                     console.error('Failed to delete topic:', error);
                     alert(`删除失败：${error.message}`);
@@ -1252,26 +1232,8 @@
                 
                 console.log('✅ Topic sermons updated via API:', sermonsResult.data);
                 
-                // Update localStorage
-                localStorage.setItem(`topic-${currentTopic.id}-sermons`, JSON.stringify(sermon_ids));
-                
-                if (currentTopic.id.startsWith('topic-1')) {
-                    const customTopics = JSON.parse(localStorage.getItem('customTopics') || '[]');
-                    const index = customTopics.findIndex(t => t.id === currentTopic.id);
-                    if (index !== -1) {
-                        customTopics[index] = result.data;
-                        localStorage.setItem('customTopics', JSON.stringify(customTopics));
-                    }
-                }
-                
-                // Update in allTopics array
-                const allTopicsIndex = allTopics.findIndex(t => t.id === currentTopic.id);
-                if (allTopicsIndex !== -1) {
-                    allTopics[allTopicsIndex] = result.data;
-                }
-                
-                // Re-render topics list
-                renderTopics();
+                // Reload all topics from API to get fresh data
+                await loadTopics(currentPage);
                 
                 alert('主题组更改已保存！\n\n状态: ' + (status === 'active' ? '已启用' : '已禁用'));
                 document.getElementById('edit-topic-modal').close();
@@ -1289,7 +1251,7 @@
         
         async function loadAvailableSermons() {
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=1000`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1424,7 +1386,7 @@
 
             // Fetch full sermon data for duration and status
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1661,20 +1623,10 @@
                 
                 console.log('✅ Topic created via API:', result.data);
                 
-                // Add to allTopics array
-                allTopics.push(result.data);
+                // Reload all topics from API to get fresh data
+                await loadTopics(1);
                 
-                // Also save to localStorage customTopics for offline access
-                const savedTopics = JSON.parse(localStorage.getItem('customTopics') || '[]');
-                savedTopics.push(result.data);
-                localStorage.setItem('customTopics', JSON.stringify(savedTopics));
-                
-                // Re-render
-                currentPage = Math.ceil(allTopics.length / pageSize);
-                renderTopics();
-                updateStats();
-                
-                alert(`主题组创建成功！\n\n名称: ${name}\n状态: ${status === 'active' ? '已启用' : '已禁用'}`);
+                alert(`主题组创建成功！\n\n名称: ${result.data.name}\n状态: ${result.data.status === 'active' ? '已启用' : '已禁用'}`);
                 document.getElementById('create-topic-modal').close();
             } catch (error) {
                 console.error('Failed to create topic:', error);

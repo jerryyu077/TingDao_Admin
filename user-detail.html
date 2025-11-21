@@ -267,10 +267,10 @@
                                     <input type="text" id="sermonSearch" placeholder="搜索讲道..." class="input input-sm input-bordered w-64" onkeyup="filterSermons()">
                                     <select id="sermonStatusFilter" class="select select-sm select-bordered" onchange="filterSermons()">
                                         <option value="">全部状态</option>
-                                        <option value="published">已发布</option>
                                         <option value="pending">待审核</option>
-                                        <option value="rejected">已退回</option>
-                                        <option value="revision">需修改</option>
+                                        <option value="published">已发布</option>
+                                        <option value="rejected">已拒绝</option>
+                                        <option value="revision">已退回</option>
                                     </select>
                                 </div>
                             </div>
@@ -432,16 +432,16 @@
                 const scripture = sermon.scripture || '--';
                 const speakerName = sermon.speaker?.name || '未知讲员';
                 
-                // Status badge - 只有4种状态
+                // Status badge - 4种标准状态
                 let statusBadge = '';
                 if (sermon.status === 'published') {
                     statusBadge = '<span class="badge badge-success badge-sm">已发布</span>';
                 } else if (sermon.status === 'pending') {
                     statusBadge = '<span class="badge badge-warning badge-sm">待审核</span>';
                 } else if (sermon.status === 'rejected') {
-                    statusBadge = '<span class="badge badge-error badge-sm">已退回</span>';
+                    statusBadge = '<span class="badge badge-error badge-sm">已拒绝</span>';
                 } else if (sermon.status === 'revision') {
-                    statusBadge = '<span class="badge badge-info badge-sm">需修改</span>';
+                    statusBadge = '<span class="badge badge-info badge-sm">已退回</span>';
                 } else {
                     statusBadge = `<span class="badge badge-ghost badge-sm">${sermon.status || '未知'}</span>`;
                 }

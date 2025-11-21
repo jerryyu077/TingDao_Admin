@@ -851,76 +851,21 @@
             try {
                 console.log('Loading sermons for topic:', topicId);
                 
-                // Fetch all sermons
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
+                // Fetch sermons for this topic from API
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}/sermons?_limit=1000`);
                 const data = await response.json();
-                const allSermons = data.data || data;
-                
-                console.log('All sermons fetched:', allSermons.length);
-                
-                let topicSermons = [];
-                
-                // Check if there's a localStorage override for this topic
-                const localStorageSermons = localStorage.getItem(`topic-${topicId}-sermons`);
-                
-                if (localStorageSermons) {
-                    // Use localStorage sermon list (for both custom and modified API topics)
-                    const sermonIds = JSON.parse(localStorageSermons);
-                    console.log('Using localStorage sermon IDs:', sermonIds);
-                    topicSermons = allSermons.filter(sermon => sermonIds.includes(sermon.id));
-                } else if (topicId.startsWith('topic-1')) {
-                    // Custom topic without localStorage (shouldn't happen, but handle it)
-                    console.log('Custom topic without localStorage');
-                    topicSermons = [];
-                } else {
-                    // API topic without localStorage override - use default topic_ids
-                    console.log('API topic, filtering by topic_ids field');
-                    
-                    // Check the first sermon's structure
-                    if (allSermons.length > 0) {
-                        console.log('Sample sermon topics:', allSermons[0].topics);
-                    }
-                    
-                    topicSermons = allSermons.filter(sermon => {
-                        // API uses topic_ids (array of strings)
-                        const topicArray = sermon.topic_ids || sermon.topics;
-                        
-                        if (!topicArray) {
-                            console.log(`Sermon ${sermon.id} has no topics field`);
-                            return false;
-                        }
-                        
-                        // Check if topicArray is an array of strings or objects
-                        const hasThisTopic = topicArray.some(t => {
-                            // If t is a string, compare directly
-                            if (typeof t === 'string') {
-                                return t === topicId;
-                            }
-                            // If t is an object with id, compare id
-                            if (t && typeof t === 'object' && t.id) {
-                                return t.id === topicId;
-                            }
-                            return false;
-                        });
-                        
-                        if (hasThisTopic) {
-                            console.log(`Sermon ${sermon.id} (${sermon.title}) belongs to topic ${topicId}`);
-                        }
-                        
-                        return hasThisTopic;
-                    });
-                }
+                const topicSermons = data.data || data;
                 
                 console.log('Found topic sermons:', topicSermons.length);
                 
-                // Update topic's sermon count cache
+                // Update topic's sermon count
                 if (currentTopic) {
-                    currentTopic.topic_sermons_cache = topicSermons.length;
+                    currentTopic.sermon_count = topicSermons.length;
                     
                     // Update in allTopics array
                     const topicIndex = allTopics.findIndex(t => t.id === currentTopic.id);
                     if (topicIndex !== -1) {
-                        allTopics[topicIndex].topic_sermons_cache = topicSermons.length;
+                        allTopics[topicIndex].sermon_count = topicSermons.length;
                     }
                 }
                 

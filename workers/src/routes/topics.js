@@ -70,18 +70,28 @@ export async function getTopicSermons(request, env, id) {
   const url = new URL(request.url);
   const page = parseInt(url.searchParams.get('_page') || '1');
   const limit = parseInt(url.searchParams.get('_limit') || '10');
+  const status = url.searchParams.get('status'); // 可选的状态过滤
   
   try {
-    const sql = `
+    let sql = `
       SELECT s.*, sp.name as speaker_name, sp.avatar_url as speaker_avatar
       FROM sermons s
       JOIN sermon_topics st ON s.id = st.sermon_id
       LEFT JOIN speakers sp ON s.speaker_id = sp.id
-      WHERE st.topic_id = ? AND s.status = 'published'
-      ORDER BY s.publish_date DESC
+      WHERE st.topic_id = ?
     `;
     
-    const result = await queryPaginated(env.DB, sql, [id], page, limit);
+    const params = [id];
+    
+    // 如果指定了状态，则过滤；否则返回所有状态
+    if (status) {
+      sql += ' AND s.status = ?';
+      params.push(status);
+    }
+    
+    sql += ' ORDER BY s.publish_date DESC';
+    
+    const result = await queryPaginated(env.DB, sql, params, page, limit);
     
     // 格式化讲道数据
     result.data = result.data.map(sermon => ({

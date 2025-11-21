@@ -827,69 +827,19 @@
         
         async function loadTopicSermons(topicId) {
             try {
-                console.log('Loading sermons for topic:', topicId);
+                console.log('📡 Loading sermons for topic:', topicId);
                 
-                // Fetch all sermons
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
-                const data = await response.json();
-                const allSermons = data.data || data;
+                // 直接从 API 获取该主题的讲道列表
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}/sermons`);
                 
-                console.log('All sermons fetched:', allSermons.length);
-                
-                let topicSermons = [];
-                
-                // Check if there's a localStorage override for this topic
-                const localStorageSermons = localStorage.getItem(`topic-${topicId}-sermons`);
-                
-                if (localStorageSermons) {
-                    // Use localStorage sermon list (for both custom and modified API topics)
-                    const sermonIds = JSON.parse(localStorageSermons);
-                    console.log('Using localStorage sermon IDs:', sermonIds);
-                    topicSermons = allSermons.filter(sermon => sermonIds.includes(sermon.id));
-                } else if (topicId.startsWith('topic-1')) {
-                    // Custom topic without localStorage (shouldn't happen, but handle it)
-                    console.log('Custom topic without localStorage');
-                    topicSermons = [];
-                } else {
-                    // API topic without localStorage override - use default topic_ids
-                    console.log('API topic, filtering by topic_ids field');
-                    
-                    // Check the first sermon's structure
-                    if (allSermons.length > 0) {
-                        console.log('Sample sermon topics:', allSermons[0].topics);
-                    }
-                    
-                    topicSermons = allSermons.filter(sermon => {
-                        // API uses topic_ids (array of strings)
-                        const topicArray = sermon.topic_ids || sermon.topics;
-                        
-                        if (!topicArray) {
-                            console.log(`Sermon ${sermon.id} has no topics field`);
-                            return false;
-                        }
-                        
-                        // Check if topicArray is an array of strings or objects
-                        const hasThisTopic = topicArray.some(t => {
-                            // If t is a string, compare directly
-                            if (typeof t === 'string') {
-                                return t === topicId;
-                            }
-                            // If t is an object with id, compare id
-                            if (t && typeof t === 'object' && t.id) {
-                                return t.id === topicId;
-                            }
-                            return false;
-                        });
-                        
-                        if (hasThisTopic) {
-                            console.log(`Sermon ${sermon.id} (${sermon.title}) belongs to topic ${topicId}`);
-                        }
-                        
-                        return hasThisTopic;
-                    });
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
                 }
                 
-                console.log('Found topic sermons:', topicSermons.length);
+                const data = await response.json();
+                const topicSermons = data.data || data;
+                
+                console.log('✅ Loaded sermons from API:', topicSermons.length);
                 
                 // Update topic's sermon count cache
                 if (currentTopic) {
@@ -1112,43 +1062,10 @@
                     checkbox.closest('tr').remove();
                 });
                 
-                // Save updated sermon list to localStorage
-                if (currentTopic) {
-                    const tbody = document.getElementById('sermons-table-body');
-                    const remainingCheckboxes = tbody.querySelectorAll('input[data-id]');
-                    const topicSermons = Array.from(remainingCheckboxes).map(cb => cb.getAttribute('data-id'));
-                    
-                    localStorage.setItem(`topic-${currentTopic.id}-sermons`, JSON.stringify(topicSermons));
-                    
-                    // Update sermon count in currentTopic and cache
-                    currentTopic.sermon_count = topicSermons.length;
-                    currentTopic.topic_sermons_cache = topicSermons.length;
-                    
-                    // Update in allTopics array
-                    const allTopicsIndex = allTopics.findIndex(t => t.id === currentTopic.id);
-                    if (allTopicsIndex !== -1) {
-                        allTopics[allTopicsIndex].sermon_count = topicSermons.length;
-                        allTopics[allTopicsIndex].topic_sermons_cache = topicSermons.length;
-                    }
-                    
-                    // If custom topic, also update in customTopics
-                    if (currentTopic.id.startsWith('topic-1')) {
-                        const customTopics = JSON.parse(localStorage.getItem('customTopics') || '[]');
-                        const topicIndex = customTopics.findIndex(t => t.id === currentTopic.id);
-                        if (topicIndex !== -1) {
-                            customTopics[topicIndex].sermon_count = topicSermons.length;
-                            customTopics[topicIndex].topic_sermons_cache = topicSermons.length;
-                            localStorage.setItem('customTopics', JSON.stringify(customTopics));
-                        }
-                    }
-                    
-                    // Refresh the topics list to show updated count
-                    renderTopics();
-                }
-                
+                // 更新显示的讲道数量（实际保存会在点击"保存更改"时通过 API 完成）
                 updateSermonCount();
                 updateSelectedCount();
-                alert('选中的讲道已移除');
+                alert('选中的讲道已移除（请点击"保存更改"以保存到数据库）');
             }
         }
 
@@ -1412,44 +1329,9 @@
                     document.getElementById('sermons-table-body').appendChild(newRow);
                 });
 
-                // Save sermon IDs to localStorage for both custom and API topics
-                if (currentTopic) {
-                    // Get all sermon IDs currently in the table (including existing ones)
-                    const tbody = document.getElementById('sermons-table-body');
-                    const allRowCheckboxes = tbody.querySelectorAll('input[data-id]');
-                    const topicSermons = Array.from(allRowCheckboxes).map(cb => cb.getAttribute('data-id'));
-                    
-                    console.log('Saving sermon IDs to localStorage:', topicSermons);
-                    localStorage.setItem(`topic-${currentTopic.id}-sermons`, JSON.stringify(topicSermons));
-                    
-                    // Update sermon count in currentTopic and cache
-                    currentTopic.sermon_count = topicSermons.length;
-                    currentTopic.topic_sermons_cache = topicSermons.length;
-                    
-                    // Update in allTopics array
-                    const allTopicsIndex = allTopics.findIndex(t => t.id === currentTopic.id);
-                    if (allTopicsIndex !== -1) {
-                        allTopics[allTopicsIndex].sermon_count = topicSermons.length;
-                        allTopics[allTopicsIndex].topic_sermons_cache = topicSermons.length;
-                    }
-                    
-                    // If custom topic, also update in customTopics
-                    if (currentTopic.id.startsWith('topic-1')) {
-                        const customTopics = JSON.parse(localStorage.getItem('customTopics') || '[]');
-                        const index = customTopics.findIndex(t => t.id === currentTopic.id);
-                        if (index !== -1) {
-                            customTopics[index].sermon_count = topicSermons.length;
-                            customTopics[index].topic_sermons_cache = topicSermons.length;
-                            localStorage.setItem('customTopics', JSON.stringify(customTopics));
-                        }
-                    }
-                }
-
+                // 更新显示的讲道数量（实际保存会在点击"保存更改"时通过 API 完成）
                 updateSermonCount();
                 updateAddSelectedCount();
-                
-                // Refresh the topics list to show updated count
-                renderTopics();
                 
                 // Close the "该主题组暂无讲道" message by updating the UI
                 // Check if the table is showing empty state
@@ -1463,7 +1345,7 @@
                 // Uncheck checkboxes
                 checkboxes.forEach(cb => cb.checked = false);
                 
-                alert(`成功添加 ${checkboxes.length} 篇讲道到主题组`);
+                alert(`成功添加 ${checkboxes.length} 篇讲道到主题组（请点击"保存更改"以保存到数据库）`);
                 document.getElementById('add-sermon-modal').close();
             } catch (error) {
                 console.error('Failed to add sermons:', error);
@@ -1482,44 +1364,10 @@
                 row.remove();
             }
             
-            // Remove sermon ID from localStorage for both custom and API topics
-            if (currentTopic) {
-                const topicSermons = JSON.parse(localStorage.getItem(`topic-${currentTopic.id}-sermons`) || '[]');
-                const index = topicSermons.indexOf(sermonId);
-                if (index !== -1) {
-                    topicSermons.splice(index, 1);
-                    localStorage.setItem(`topic-${currentTopic.id}-sermons`, JSON.stringify(topicSermons));
-                    
-                    // Update sermon count in currentTopic and cache
-                    currentTopic.sermon_count = topicSermons.length;
-                    currentTopic.topic_sermons_cache = topicSermons.length;
-                    
-                    // Update in allTopics array
-                    const allTopicsIndex = allTopics.findIndex(t => t.id === currentTopic.id);
-                    if (allTopicsIndex !== -1) {
-                        allTopics[allTopicsIndex].sermon_count = topicSermons.length;
-                        allTopics[allTopicsIndex].topic_sermons_cache = topicSermons.length;
-                    }
-                    
-                    // If custom topic, also update in customTopics
-                    if (currentTopic.id.startsWith('topic-1')) {
-                        const customTopics = JSON.parse(localStorage.getItem('customTopics') || '[]');
-                        const topicIndex = customTopics.findIndex(t => t.id === currentTopic.id);
-                        if (topicIndex !== -1) {
-                            customTopics[topicIndex].sermon_count = topicSermons.length;
-                            customTopics[topicIndex].topic_sermons_cache = topicSermons.length;
-                            localStorage.setItem('customTopics', JSON.stringify(customTopics));
-                        }
-                    }
-                }
-            }
-            
+            // 更新显示的讲道数量（实际保存会在点击"保存更改"时通过 API 完成）
             updateSermonCount();
             
-            // Refresh the topics list to show updated count
-            renderTopics();
-            
-            alert('讲道已移除');
+            alert('讲道已移除（请点击"保存更改"以保存到数据库）');
         }
 
         // Create Topic Modal Functions

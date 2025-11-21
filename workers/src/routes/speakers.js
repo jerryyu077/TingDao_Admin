@@ -171,16 +171,16 @@ export async function updateSpeaker(request, env, id) {
     const now = new Date().toISOString();
     await execute(env.DB, sql, [
       data.name,
-      data.name_en,
+      data.name_en || null,
       data.title,
-      data.avatar_url,
-      data.bio,
-      data.bio_long,
+      data.avatar_url || null,
+      data.bio || null,
+      data.bio_long || null,
       data.church,
-      data.email,
-      data.website,
+      data.email || null,
+      data.website || null,
       data.social_media ? JSON.stringify(data.social_media) : null,
-      data.status,
+      data.status || 'active',
       data.is_verified ? 1 : 0,
       now,
       id

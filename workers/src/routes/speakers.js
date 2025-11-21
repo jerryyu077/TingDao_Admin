@@ -95,7 +95,9 @@ export async function getSpeaker(request, env, id) {
     }
 
     // 解析JSON字段
+    console.log('Before parse:', typeof speaker.social_media, speaker.social_media);
     speaker = parseJsonFields(speaker, ['social_media']);
+    console.log('After parse:', typeof speaker.social_media, speaker.social_media);
 
     return success(speaker);
   } catch (e) {

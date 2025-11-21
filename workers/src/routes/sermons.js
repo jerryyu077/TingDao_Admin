@@ -207,7 +207,7 @@ export async function createSermon(request, env) {
       data.language || 'zh-CN',
       data.date,
       data.publish_date || now,
-      data.status || 'reviewing',
+      data.status || 'pending',
       data.is_featured ? 1 : 0,
       userId,  // 使用从token获取的用户ID
       data.metadata ? JSON.stringify(data.metadata) : null,

@@ -82,7 +82,7 @@ export async function getMySubmissions(request, env) {
         coverImageUrl: row.cover_image_url,
         audioUrl: row.audio_url,
         duration: row.duration || 0,
-        status: row.status || 'draft',
+        status: row.status || 'pending',
         date: row.date,
         scripture: row.scripture,
         summary: row.summary,
@@ -219,8 +219,8 @@ export async function deleteSubmission(request, env, id) {
       }, { status: 404 });
     }
 
-    // 只允许删除草稿和被拒绝的讲道
-    if (sermon.status !== 'draft' && sermon.status !== 'rejected') {
+    // 只允许删除待审核和被拒绝的讲道
+    if (sermon.status !== 'pending' && sermon.status !== 'rejected') {
       return Response.json({ 
         success: false, 
         error: { message: '只能删除草稿或被拒绝的讲道' } 

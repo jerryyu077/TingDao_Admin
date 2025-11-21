@@ -270,6 +270,7 @@
                                         <option value="published">已发布</option>
                                         <option value="pending">待审核</option>
                                         <option value="rejected">已退回</option>
+                                        <option value="revision">需修改</option>
                                     </select>
                                 </div>
                             </div>
@@ -431,16 +432,16 @@
                 const scripture = sermon.scripture || '--';
                 const speakerName = sermon.speaker?.name || '未知讲员';
                 
-                // Status badge
+                // Status badge - 只有4种状态
                 let statusBadge = '';
                 if (sermon.status === 'published') {
                     statusBadge = '<span class="badge badge-success badge-sm">已发布</span>';
-                } else if (sermon.status === 'pending' || sermon.status === 'reviewing') {
+                } else if (sermon.status === 'pending') {
                     statusBadge = '<span class="badge badge-warning badge-sm">待审核</span>';
-                } else if (sermon.status === 'rejected' || sermon.status === 'revision') {
+                } else if (sermon.status === 'rejected') {
                     statusBadge = '<span class="badge badge-error badge-sm">已退回</span>';
-                } else if (sermon.status === 'draft') {
-                    statusBadge = '<span class="badge badge-ghost badge-sm">草稿</span>';
+                } else if (sermon.status === 'revision') {
+                    statusBadge = '<span class="badge badge-info badge-sm">需修改</span>';
                 } else {
                     statusBadge = `<span class="badge badge-ghost badge-sm">${sermon.status || '未知'}</span>`;
                 }
@@ -486,15 +487,8 @@
                     sermon.title.toLowerCase().includes(searchTerm) ||
                     (sermon.speaker?.name && sermon.speaker.name.toLowerCase().includes(searchTerm));
                 
-                // Match status - handle multiple statuses for same display
-                let matchStatus = !statusFilter || sermon.status === statusFilter;
-                if (statusFilter === 'pending') {
-                    // "待审核" includes both pending and reviewing
-                    matchStatus = sermon.status === 'pending' || sermon.status === 'reviewing';
-                } else if (statusFilter === 'rejected') {
-                    // "已退回" includes both rejected and revision
-                    matchStatus = sermon.status === 'rejected' || sermon.status === 'revision';
-                }
+                // Match status - 只有4种状态
+                const matchStatus = !statusFilter || sermon.status === statusFilter;
                 
                 return matchSearch && matchStatus;
             });

@@ -1152,13 +1152,7 @@
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
-                console.log('All sermons:', allSermons.length);
-                
-                // Filter only published sermons (support both English and Chinese status)
-                const publishedSermons = allSermons.filter(sermon => 
-                    sermon.status === '已发布' || sermon.status === 'published'
-                );
-                console.log('Published sermons:', publishedSermons.length);
+                console.log('📊 All sermons:', allSermons.length);
                 
                 // Get current topic's sermon IDs
                 const currentSermonIds = new Set();
@@ -1173,11 +1167,11 @@
                     }
                 });
                 
-                console.log('Current sermon IDs:', Array.from(currentSermonIds));
+                console.log('🔍 Current sermon IDs:', Array.from(currentSermonIds));
                 
-                // Filter out sermons already in this topic
-                const availableSermons = publishedSermons.filter(sermon => !currentSermonIds.has(sermon.id));
-                console.log('Available sermons:', availableSermons.length);
+                // Filter out sermons already in this topic (显示所有状态的讲道)
+                const availableSermons = allSermons.filter(sermon => !currentSermonIds.has(sermon.id));
+                console.log('✅ Available sermons:', availableSermons.length);
                 
                 // Render available sermons
                 renderAvailableSermons(availableSermons);

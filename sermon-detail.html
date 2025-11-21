@@ -1151,27 +1151,11 @@
             }
         };
 
-        // Function to load sermon status from localStorage or API
+        // Function to load sermon status - now loaded from API in loadSavedSermonData()
         function loadSermonStatus() {
-            const sermonId = getSermonIdFromUrl();
-            const statusKey = `sermon_status_${sermonId}`;
-            const savedStatus = localStorage.getItem(statusKey);
-            
-            console.log(`Loading status for ${sermonId}:`, {
-                savedStatus,
-                hasDefaultData: !!defaultSermonData[sermonId],
-                defaultStatus: defaultSermonData[sermonId]?.status
-            });
-            
-            if (savedStatus) {
-                console.log(`Using saved status: ${savedStatus}`);
-                updateStatusDisplay(savedStatus);
-            } else {
-                // If no saved status, use default from defaultSermonData
-                const defaultStatus = defaultSermonData[sermonId]?.status || 'pending';
-                console.log(`Using default status: ${defaultStatus}`);
-                updateStatusDisplay(defaultStatus);
-            }
+            // Status is now loaded from API in loadSavedSermonData()
+            // This function is kept for backwards compatibility but does nothing
+            console.log('Status will be loaded from API');
         }
 
         // Function to update status display
@@ -1258,11 +1242,18 @@
                         audioSize: apiData.audio_size || 0,
                         playCount: apiData.play_count || 0,
                         favoriteCount: apiData.favorite_count || 0,
-                        createdAt: apiData.created_at || ''
+                        createdAt: apiData.created_at || '',
+                        status: apiData.status || 'pending'
                     };
                     
                     console.log('✅ Loaded sermon data from API:', sermonData);
                     loadSermonDataIntoPage(sermonData);
+                    
+                    // Update status display with API data
+                    if (apiData.status) {
+                        updateStatusDisplay(apiData.status);
+                    }
+                    
                     return;
                 }
             } catch (error) {

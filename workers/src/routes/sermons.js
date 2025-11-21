@@ -57,10 +57,22 @@ export async function getSermons(request, env) {
       params.push(submitterId);
     }
 
-    // 搜索
+    // 搜索（支持标题、摘要、经文、讲员名称、标签）
     if (searchTerm) {
-      sql += ` AND (s.title LIKE ? OR s.summary LIKE ?)`;
-      params.push(`%${searchTerm}%`, `%${searchTerm}%`);
+      sql += ` AND (
+        s.title LIKE ? 
+        OR s.summary LIKE ? 
+        OR s.scripture LIKE ?
+        OR sp.name LIKE ?
+        OR s.tags LIKE ?
+      )`;
+      params.push(
+        `%${searchTerm}%`, 
+        `%${searchTerm}%`, 
+        `%${searchTerm}%`,
+        `%${searchTerm}%`,
+        `%${searchTerm}%`
+      );
     }
 
     // 排序

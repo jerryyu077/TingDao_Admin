@@ -590,7 +590,7 @@
         // Load topics from API
         async function loadTopics(page = 1) {
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=1000`);
                 const data = await response.json();
                 let apiTopics = data.data || data;
                 
@@ -689,7 +689,7 @@
                             <td class="text-center text-sm">${new Date(topic.created_at).toLocaleDateString('zh-CN')}</td>
                             <td class="text-center">${statusBadge}</td>
                             <td class="text-center">
-                                <button onclick="openEditModal('${topic.id}', '${topic.name.replace(/'/g, "\\'")}', ${actualSermonCount})" class="btn btn-ghost btn-xs gap-1">
+                                <button class="btn btn-ghost btn-xs gap-1 edit-topic-btn" data-topic-id="${topic.id}" data-topic-name="${topic.name}" data-sermon-count="${actualSermonCount}">
                                     <span class="iconify" data-icon="heroicons:pencil" data-width="14"></span>
                                     编辑
                                 </button>
@@ -852,7 +852,7 @@
                 console.log('Loading sermons for topic:', topicId);
                 
                 // Fetch all sermons
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1424,7 +1424,7 @@
 
             // Fetch full sermon data for duration and status
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1685,6 +1685,17 @@
         // Load custom topics on page load
         document.addEventListener('DOMContentLoaded', () => {
             loadTopics(1);
+            
+            // Event delegation for edit buttons
+            document.querySelector('tbody').addEventListener('click', (e) => {
+                const editBtn = e.target.closest('.edit-topic-btn');
+                if (editBtn) {
+                    const topicId = editBtn.getAttribute('data-topic-id');
+                    const topicName = editBtn.getAttribute('data-topic-name');
+                    const sermonCount = editBtn.getAttribute('data-sermon-count');
+                    openEditModal(topicId, topicName, parseInt(sermonCount));
+                }
+            });
         });
     </script>
 </body>

@@ -13,20 +13,26 @@ export async function getTopics(request, env) {
   const searchTerm = url.searchParams.get('q');
 
   try {
-    let sql = 'SELECT * FROM topics WHERE 1=1';
+    // 使用 LEFT JOIN 从 sermon_topics 表动态计算 sermon_count
+    let sql = `
+      SELECT t.*, COUNT(DISTINCT st.sermon_id) as sermon_count
+      FROM topics t
+      LEFT JOIN sermon_topics st ON t.id = st.topic_id
+      WHERE 1=1
+    `;
     const params = [];
 
     if (status) {
-      sql += ' AND status = ?';
+      sql += ' AND t.status = ?';
       params.push(status);
     }
 
     if (searchTerm) {
-      sql += ' AND (name LIKE ? OR description LIKE ?)';
+      sql += ' AND (t.name LIKE ? OR t.description LIKE ?)';
       params.push(`%${searchTerm}%`, `%${searchTerm}%`);
     }
 
-    sql += ' ORDER BY display_order ASC, created_at DESC';
+    sql += ' GROUP BY t.id ORDER BY t.display_order ASC, t.created_at DESC';
 
     const result = await queryPaginated(env.DB, sql, params, page, limit);
 

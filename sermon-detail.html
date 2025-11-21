@@ -581,6 +581,16 @@
             const sermonId = getSermonIdFromUrl();
             const sermonDataKey = `sermon_data_${sermonId}`;
             
+            // 获取封面图片 URL（优先使用上传后的 URL）
+            const coverPreview = document.getElementById('coverPreview');
+            const coverImageUrl = coverPreview.dataset.uploadedUrl || coverPreview.src;
+            
+            // 如果是 base64，说明用户选择了图片但还没上传成功
+            if (coverImageUrl.startsWith('data:')) {
+                alert('封面图片还在上传中，请稍候再保存');
+                return;
+            }
+            
             const sermonData = {
                 title: document.getElementById('titleEdit').value,
                 date: document.getElementById('dateEdit').value,
@@ -595,8 +605,8 @@
                 speakerName: document.getElementById('speakerNameEdit').value,
                 speakerTitle: document.getElementById('speakerTitleEdit').value,
                 speakerBio: document.getElementById('speakerBioEdit').value,
-                // Use base64 image data
-                coverImage: document.getElementById('coverPreview').src,
+                // Use uploaded R2 URL
+                coverImage: coverImageUrl,
                 savedAt: new Date().toISOString()
             };
             
@@ -689,15 +699,50 @@
         }
 
         // Preview cover image
-        function previewCover(event) {
+        async function previewCover(event) {
             const file = event.target.files[0];
-            if (file) {
-                // Convert to base64 for local testing
+            if (!file) return;
+            
+            try {
+                // 先显示本地预览
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     document.getElementById('coverPreview').src = e.target.result;
                 };
                 reader.readAsDataURL(file);
+                
+                // 上传到 R2
+                console.log('📤 开始上传封面图片到 R2...');
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('type', 'sermon');
+                
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/upload/image`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('上传失败');
+                }
+                
+                const result = await response.json();
+                if (!result.success || !result.data?.url) {
+                    throw new Error('上传返回格式错误');
+                }
+                
+                // 保存上传后的 URL
+                const uploadedUrl = result.data.url;
+                console.log('✅ 图片上传成功:', uploadedUrl);
+                
+                // 更新预览图片为 R2 URL
+                document.getElementById('coverPreview').src = uploadedUrl;
+                document.getElementById('coverPreview').dataset.uploadedUrl = uploadedUrl;
+                
+                alert('封面图片上传成功！');
+            } catch (error) {
+                console.error('❌ 上传封面失败:', error);
+                alert('上传封面失败: ' + error.message);
             }
         }
 

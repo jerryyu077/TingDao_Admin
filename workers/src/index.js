@@ -4,6 +4,7 @@
  */
 
 import { handleOptions } from './utils/response.js';
+import { withCache } from './middleware/cache.js';
 import * as sermonsRoute from './routes/sermons.js';
 import * as speakersRoute from './routes/speakers.js';
 import * as usersRoute from './routes/users.js';
@@ -36,9 +37,9 @@ export default {
     try {
       // ==================== Sermons API ====================
       
-      // GET /v1/sermons
+      // GET /v1/sermons (带缓存)
       if (path === '/api/v1/sermons' && method === 'GET') {
-        return await sermonsRoute.getSermons(request, env);
+        return await withCache(request, () => sermonsRoute.getSermons(request, env), ctx, 300);
       }
       
       // POST /v1/sermons
@@ -61,7 +62,7 @@ export default {
       // PATCH /v1/sermons/:id
       if (path.match(/^\/api\/v1\/sermons\/[^/]+$/) && method === 'PATCH') {
         const id = path.split('/').pop();
-        return await sermonsRoute.updateSermonStatus(request, env, id);
+        return await sermonsRoute.updateSermon(request, env, id);
       }
       
       // DELETE /v1/sermons/:id

@@ -46,7 +46,19 @@ export async function getTopics(request, env) {
 // GET /v1/topics/:id - 获取单个主题
 export async function getTopic(request, env, id) {
   try {
-    const sql = 'SELECT * FROM topics WHERE id = ?';
+    // 动态计算 sermon_count, total_duration, total_play_count, speaker_count
+    const sql = `
+      SELECT t.*,
+             COUNT(DISTINCT st.sermon_id) as sermon_count,
+             COALESCE(SUM(s.duration), 0) as total_duration,
+             COALESCE(SUM(s.play_count), 0) as total_play_count,
+             COUNT(DISTINCT s.speaker_id) as speaker_count
+      FROM topics t
+      LEFT JOIN sermon_topics st ON t.id = st.topic_id
+      LEFT JOIN sermons s ON st.sermon_id = s.id AND s.status = 'published'
+      WHERE t.id = ?
+      GROUP BY t.id
+    `;
     const topic = await queryOne(env.DB, sql, [id]);
     
     if (!topic) {

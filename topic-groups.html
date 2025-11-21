@@ -609,7 +609,6 @@
                 
                 currentPage = page;
                 renderTopics();
-                updateStats();
             } catch (error) {
                 console.error('Failed to load topics:', error);
                 alert('加载主题组失败，请刷新页面重试');
@@ -701,7 +700,7 @@
             }
             
             // Update stats
-                updateStats();
+            updateStats();
             
             // Update pagination
             renderPagination(filteredTopics.length, totalPages);
@@ -839,7 +838,7 @@
                 console.log('Loading sermons for topic:', topicId);
                 
                 // Fetch all sermons
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1251,7 +1250,7 @@
         
         async function loadAvailableSermons() {
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1386,7 +1385,7 @@
 
             // Fetch full sermon data for duration and status
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1595,7 +1594,7 @@
             
             try {
                 // Call API to create topic
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics', {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

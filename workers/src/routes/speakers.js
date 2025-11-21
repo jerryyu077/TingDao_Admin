@@ -55,11 +55,16 @@ export async function getSpeakers(request, env) {
 
     const result = await queryPaginated(env.DB, sql, params, page, limit);
     
-    // 解析JSON字段
+    // 解析JSON字段 (可能需要解析两次，因为数据库中可能是双重编码)
     result.data = result.data.map(speaker => {
       if (speaker.social_media && typeof speaker.social_media === 'string') {
         try {
-          speaker.social_media = JSON.parse(speaker.social_media);
+          let parsed = JSON.parse(speaker.social_media);
+          // 如果第一次解析后还是字符串，再解析一次
+          if (typeof parsed === 'string') {
+            parsed = JSON.parse(parsed);
+          }
+          speaker.social_media = parsed;
         } catch (e) {
           console.error('Failed to parse social_media:', e);
           speaker.social_media = null;
@@ -104,12 +109,17 @@ export async function getSpeaker(request, env, id) {
       return notFound('讲员不存在');
     }
 
-    // 解析JSON字段
+    // 解析JSON字段 (可能需要解析两次，因为数据库中可能是双重编码)
     if (speaker.social_media && typeof speaker.social_media === 'string') {
       try {
-        speaker.social_media = JSON.parse(speaker.social_media);
+        let parsed = JSON.parse(speaker.social_media);
+        // 如果第一次解析后还是字符串，再解析一次
+        if (typeof parsed === 'string') {
+          parsed = JSON.parse(parsed);
+        }
+        speaker.social_media = parsed;
       } catch (e) {
-        console.error('Failed to parse social_media:', e);
+        console.error('❌ Failed to parse social_media:', e);
         speaker.social_media = null;
       }
     }

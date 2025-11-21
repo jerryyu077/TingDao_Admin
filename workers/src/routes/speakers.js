@@ -56,7 +56,17 @@ export async function getSpeakers(request, env) {
     const result = await queryPaginated(env.DB, sql, params, page, limit);
     
     // 解析JSON字段
-    result.data = parseJsonFieldsInArray(result.data, ['social_media']);
+    result.data = result.data.map(speaker => {
+      if (speaker.social_media && typeof speaker.social_media === 'string') {
+        try {
+          speaker.social_media = JSON.parse(speaker.social_media);
+        } catch (e) {
+          console.error('Failed to parse social_media:', e);
+          speaker.social_media = null;
+        }
+      }
+      return speaker;
+    });
 
     return paginated(result.data, result.pagination);
   } catch (e) {
@@ -95,9 +105,14 @@ export async function getSpeaker(request, env, id) {
     }
 
     // 解析JSON字段
-    console.log('Before parse:', typeof speaker.social_media, speaker.social_media);
-    speaker = parseJsonFields(speaker, ['social_media']);
-    console.log('After parse:', typeof speaker.social_media, speaker.social_media);
+    if (speaker.social_media && typeof speaker.social_media === 'string') {
+      try {
+        speaker.social_media = JSON.parse(speaker.social_media);
+      } catch (e) {
+        console.error('Failed to parse social_media:', e);
+        speaker.social_media = null;
+      }
+    }
 
     return success(speaker);
   } catch (e) {

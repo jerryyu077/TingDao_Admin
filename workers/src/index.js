@@ -89,6 +89,13 @@ export default {
         return await speakersRoute.createSpeaker(request, env);
       }
       
+      // GET /v1/speakers/:id/sermons
+      if (path.match(/^\/api\/v1\/speakers\/[^/]+\/sermons$/) && method === 'GET') {
+        const parts = path.split('/');
+        const speakerId = parts[parts.length - 2];
+        return await speakersRoute.getSpeakerSermons(request, env, speakerId);
+      }
+      
       // GET /v1/speakers/:id
       if (path.match(/^\/api\/v1\/speakers\/[^/]+$/) && method === 'GET') {
         const id = path.split('/').pop();
@@ -281,6 +288,11 @@ export default {
       // PUT /v1/auth/profile
       if (path === '/api/v1/auth/profile' && method === 'PUT') {
         return await authRoute.updateProfile(request, env);
+      }
+      
+      // DELETE /v1/auth/account
+      if (path === '/api/v1/auth/account' && method === 'DELETE') {
+        return await authRoute.deleteAccount(request, env);
       }
       
       // POST /v1/auth/forgot-password

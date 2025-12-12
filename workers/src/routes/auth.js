@@ -396,3 +396,65 @@ export async function updateProfile(request, env) {
   }
 }
 
+/**
+ * DELETE /api/v1/auth/account - 删除账号
+ */
+export async function deleteAccount(request, env) {
+  try {
+    const userId = getUserIdFromRequest(request);
+    if (!userId) {
+      return Response.json({ success: false, error: { message: '未授权' } }, { status: 401 });
+    }
+    
+    console.log(`🗑️ 开始删除账号: ${userId}`);
+    
+    // 获取用户信息（用于日志）
+    const user = await env.DB.prepare(`
+      SELECT id, email FROM users WHERE id = ?
+    `).bind(userId).first();
+    
+    if (!user) {
+      return Response.json({ success: false, error: { message: '用户不存在' } }, { status: 404 });
+    }
+    
+    console.log(`📧 删除用户: ${user.email}`);
+    
+    // 使用事务删除所有相关数据
+    const stmt = env.DB.batch([
+      // 1. 删除用户收藏
+      env.DB.prepare('DELETE FROM user_favorites WHERE user_id = ?').bind(userId),
+      
+      // 2. 删除讲员收藏
+      env.DB.prepare('DELETE FROM speaker_favorites WHERE user_id = ?').bind(userId),
+      
+      // 3. 删除主题收藏
+      env.DB.prepare('DELETE FROM topic_favorites WHERE user_id = ?').bind(userId),
+      
+      // 4. 删除播放历史
+      env.DB.prepare('DELETE FROM play_history WHERE user_id = ?').bind(userId),
+      
+      // 5. 删除密码重置记录
+      env.DB.prepare('DELETE FROM password_resets WHERE user_id = ?').bind(userId),
+      
+      // 6. 删除用户记录（最后删除，因为有外键约束）
+      env.DB.prepare('DELETE FROM users WHERE id = ?').bind(userId)
+    ]);
+    
+    await stmt;
+    
+    console.log(`✅ 账号删除成功: ${user.email}`);
+    
+    return Response.json({ 
+      success: true, 
+      data: { message: '账号删除成功' } 
+    }, { status: 200 });
+    
+  } catch (error) {
+    console.error('Delete account error:', error);
+    return Response.json({ 
+      success: false, 
+      error: { message: '删除账号失败' } 
+    }, { status: 500 });
+  }
+}
+

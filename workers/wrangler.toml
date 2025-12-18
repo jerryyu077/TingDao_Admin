@@ -1,6 +1,7 @@
 name = "tingdao-api"
 main = "src/index.js"
 compatibility_date = "2024-01-01"
+account_id = "d2f4b7aab6efe3baacfb44c77f100ca9"
 
 # D1 Database Binding
 [[d1_databases]]
@@ -17,6 +18,11 @@ bucket_name = "tingdao-media"
 [[kv_namespaces]]
 binding = "VERIFICATION_CODES"
 id = "c4f77cc8a7804d65b8ca766a213983c5"
+
+# KV Namespace for rate limiting
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "4ac7285a074d4b2d81ed21c9a916a8e3"
 
 # Environment Variables
 [vars]

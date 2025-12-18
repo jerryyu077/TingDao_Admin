@@ -419,28 +419,45 @@ export async function deleteAccount(request, env) {
     
     console.log(`📧 删除用户: ${user.email}`);
     
-    // 使用事务删除所有相关数据
-    const stmt = env.DB.batch([
-      // 1. 删除用户收藏
-      env.DB.prepare('DELETE FROM user_favorites WHERE user_id = ?').bind(userId),
-      
-      // 2. 删除讲员收藏
-      env.DB.prepare('DELETE FROM speaker_favorites WHERE user_id = ?').bind(userId),
-      
-      // 3. 删除主题收藏
-      env.DB.prepare('DELETE FROM topic_favorites WHERE user_id = ?').bind(userId),
-      
-      // 4. 删除播放历史
-      env.DB.prepare('DELETE FROM play_history WHERE user_id = ?').bind(userId),
-      
-      // 5. 删除密码重置记录
-      env.DB.prepare('DELETE FROM password_resets WHERE user_id = ?').bind(userId),
-      
-      // 6. 删除用户记录（最后删除，因为有外键约束）
-      env.DB.prepare('DELETE FROM users WHERE id = ?').bind(userId)
-    ]);
+    // 逐个删除相关数据（忽略表不存在的错误）
+    try {
+      await env.DB.prepare('DELETE FROM user_favorites WHERE user_id = ?').bind(userId).run();
+      console.log('✅ 已删除用户收藏');
+    } catch (e) {
+      console.log('⚠️ 删除用户收藏失败:', e.message);
+    }
     
-    await stmt;
+    try {
+      await env.DB.prepare('DELETE FROM speaker_favorites WHERE user_id = ?').bind(userId).run();
+      console.log('✅ 已删除讲员收藏');
+    } catch (e) {
+      console.log('⚠️ 删除讲员收藏失败:', e.message);
+    }
+    
+    try {
+      await env.DB.prepare('DELETE FROM topic_favorites WHERE user_id = ?').bind(userId).run();
+      console.log('✅ 已删除主题收藏');
+    } catch (e) {
+      console.log('⚠️ 删除主题收藏失败:', e.message);
+    }
+    
+    try {
+      await env.DB.prepare('DELETE FROM play_history WHERE user_id = ?').bind(userId).run();
+      console.log('✅ 已删除播放历史');
+    } catch (e) {
+      console.log('⚠️ 删除播放历史失败:', e.message);
+    }
+    
+    try {
+      await env.DB.prepare('DELETE FROM password_resets WHERE user_id = ?').bind(userId).run();
+      console.log('✅ 已删除密码重置记录');
+    } catch (e) {
+      console.log('⚠️ 删除密码重置记录失败:', e.message);
+    }
+    
+    // 最后删除用户记录
+    await env.DB.prepare('DELETE FROM users WHERE id = ?').bind(userId).run();
+    console.log('✅ 已删除用户记录');
     
     console.log(`✅ 账号删除成功: ${user.email}`);
     

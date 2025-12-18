@@ -1,10 +1,13 @@
 /**
  * TingDao API - Cloudflare Workers
- * Main entry point
+ * Main entry point - 集成安全中间件
  */
 
 import { handleOptions } from './utils/response.js';
 import { withCache } from './middleware/cache.js';
+import { checkRateLimit, rateLimitResponse, addRateLimitHeaders } from './middleware/rateLimit.js';
+import { handleCorsPreFlight, addCorsHeaders, isOriginAllowed } from './middleware/cors.js';
+import { validateApiKey, apiKeyErrorResponse } from './middleware/apiKey.js';
 import * as sermonsRoute from './routes/sermons.js';
 import * as speakersRoute from './routes/speakers.js';
 import * as usersRoute from './routes/users.js';
@@ -20,14 +23,36 @@ import * as topicFavoritesRoute from './routes/topic-favorites.js';
 import * as speakerFavoritesRoute from './routes/speaker-favorites.js';
 import * as submissionsRoute from './routes/submissions.js';
 
+// Helper function to wrap responses with security headers
+function wrapResponse(response, origin, rateLimitResult) {
+  let newResponse = addCorsHeaders(response, origin);
+  newResponse = addRateLimitHeaders(newResponse, rateLimitResult);
+  return newResponse;
+}
+
 export default {
   async fetch(request, env, ctx) {
     // 获取请求来源
     const origin = request.headers.get('Origin');
     
+    // 🔒 CORS检查 - 验证请求来源
+    if (origin && !isOriginAllowed(origin)) {
+      console.warn(`🚫 Blocked request from unauthorized origin: ${origin}`);
+      return new Response(JSON.stringify({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: '不允许的请求来源'
+        }
+      }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' }
+      });
+    }
+    
     // 处理CORS预检请求
     if (request.method === 'OPTIONS') {
-      return handleOptions(origin);
+      return handleCorsPreFlight(origin);
     }
 
     const url = new URL(request.url);
@@ -35,22 +60,40 @@ export default {
     const method = request.method;
 
     try {
+      // 🚦 Rate Limiting检查
+      const rateLimitResult = await checkRateLimit(request, env);
+      if (!rateLimitResult.allowed) {
+        return rateLimitResponse(rateLimitResult);
+      }
+      
+      // 🔑 API Key验证
+      const apiKeyResult = validateApiKey(request);
+      if (!apiKeyResult || !apiKeyResult.valid) {
+        return apiKeyErrorResponse('Invalid or missing API Key');
+      }
+      
+      if (apiKeyResult.warning) {
+        console.warn(`⚠️ ${apiKeyResult.warning}`);
+      }
+      
+      // 定义响应包装器
+      const wrap = (response) => wrapResponse(response, origin, rateLimitResult);
       // ==================== Sermons API ====================
       
       // GET /v1/sermons (带缓存)
       if (path === '/api/v1/sermons' && method === 'GET') {
-        return await withCache(request, () => sermonsRoute.getSermons(request, env), ctx, 300);
+        return wrap(await withCache(request, () => sermonsRoute.getSermons(request, env), ctx, 300));
       }
       
       // POST /v1/sermons
       if (path === '/api/v1/sermons' && method === 'POST') {
-        return await sermonsRoute.createSermon(request, env);
+        return wrap(await sermonsRoute.createSermon(request, env));
       }
       
       // GET /v1/sermons/:id
       if (path.match(/^\/api\/v1\/sermons\/[^/]+$/) && method === 'GET') {
         const id = path.split('/').pop();
-        return await sermonsRoute.getSermon(request, env, id);
+        return wrap(await sermonsRoute.getSermon(request, env, id));
       }
       
       // PUT /v1/sermons/:id
@@ -461,7 +504,7 @@ export default {
 
       // ==================== 404 ====================
       
-      return new Response(JSON.stringify({
+      return wrap(new Response(JSON.stringify({
         success: false,
         error: {
           code: 'NOT_FOUND',
@@ -472,15 +515,14 @@ export default {
       }), {
         status: 404,
         headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Access-Control-Allow-Origin': '*'
+          'Content-Type': 'application/json;charset=UTF-8'
         }
-      });
+      }));
 
     } catch (error) {
       console.error('Unhandled error:', error);
       
-      return new Response(JSON.stringify({
+      return addCorsHeaders(new Response(JSON.stringify({
         success: false,
         error: {
           code: 'INTERNAL_SERVER_ERROR',
@@ -489,10 +531,9 @@ export default {
       }), {
         status: 500,
         headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Access-Control-Allow-Origin': '*'
+          'Content-Type': 'application/json;charset=UTF-8'
         }
-      });
+      }), origin);
     }
   }
 };

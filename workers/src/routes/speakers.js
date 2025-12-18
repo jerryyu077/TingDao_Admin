@@ -261,3 +261,41 @@ export async function deleteSpeaker(request, env, id) {
   }
 }
 
+// GET /v1/speakers/:id/sermons - 获取讲员的讲道列表
+export async function getSpeakerSermons(request, env, speakerId) {
+  const url = new URL(request.url);
+  const page = parseInt(url.searchParams.get('_page') || '1');
+  const limit = parseInt(url.searchParams.get('_limit') || '10');
+  const status = url.searchParams.get('status') || 'published'; // 默认只返回已发布的
+
+  try {
+    let sql = `
+      SELECT s.*,
+             sp.id as speaker_id,
+             sp.name as speaker_name,
+             sp.avatar_url as speaker_avatar_url
+      FROM sermons s
+      LEFT JOIN speakers sp ON s.speaker_id = sp.id
+      WHERE s.speaker_id = ?
+    `;
+    const params = [speakerId];
+
+    if (status) {
+      sql += ' AND s.status = ?';
+      params.push(status);
+    }
+
+    sql += ' ORDER BY s.date DESC, s.created_at DESC';
+
+    const result = await queryPaginated(env.DB, sql, params, page, limit);
+    
+    // 解析 JSON 字段
+    result.data = parseJsonFieldsInArray(result.data, ['tags']);
+
+    return paginated(result.data, result.pagination);
+  } catch (e) {
+    console.error('Error fetching speaker sermons:', e);
+    return error('获取讲员讲道失败: ' + e.message);
+  }
+}
+

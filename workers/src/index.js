@@ -131,68 +131,68 @@ export default {
       
       // GET /v1/speakers
       if (path === '/api/v1/speakers' && method === 'GET') {
-        return await speakersRoute.getSpeakers(request, env);
+        return wrap(await speakersRoute.getSpeakers(request, env));
       }
       
       // POST /v1/speakers
       if (path === '/api/v1/speakers' && method === 'POST') {
-        return await speakersRoute.createSpeaker(request, env);
+        return wrap(await speakersRoute.createSpeaker(request, env));
       }
       
       // GET /v1/speakers/:id/sermons
       if (path.match(/^\/api\/v1\/speakers\/[^/]+\/sermons$/) && method === 'GET') {
         const parts = path.split('/');
         const speakerId = parts[parts.length - 2];
-        return await speakersRoute.getSpeakerSermons(request, env, speakerId);
+        return wrap(await speakersRoute.getSpeakerSermons(request, env, speakerId));
       }
       
       // GET /v1/speakers/:id
       if (path.match(/^\/api\/v1\/speakers\/[^/]+$/) && method === 'GET') {
         const id = path.split('/').pop();
-        return await speakersRoute.getSpeaker(request, env, id);
+        return wrap(await speakersRoute.getSpeaker(request, env, id));
       }
       
       // PUT /v1/speakers/:id
       if (path.match(/^\/api\/v1\/speakers\/[^/]+$/) && method === 'PUT') {
         const id = path.split('/').pop();
-        return await speakersRoute.updateSpeaker(request, env, id);
+        return wrap(await speakersRoute.updateSpeaker(request, env, id));
       }
       
       // PATCH /v1/speakers/:id
       if (path.match(/^\/api\/v1\/speakers\/[^/]+$/) && method === 'PATCH') {
         const id = path.split('/').pop();
-        return await speakersRoute.updateSpeakerStatus(request, env, id);
+        return wrap(await speakersRoute.updateSpeakerStatus(request, env, id));
       }
       
       // DELETE /v1/speakers/:id
       if (path.match(/^\/api\/v1\/speakers\/[^/]+$/) && method === 'DELETE') {
         const id = path.split('/').pop();
-        return await speakersRoute.deleteSpeaker(request, env, id);
+        return wrap(await speakersRoute.deleteSpeaker(request, env, id));
       }
 
       // ==================== Users API ====================
       
       // GET /v1/users
       if (path === '/api/v1/users' && method === 'GET') {
-        return await usersRoute.getUsers(request, env);
+        return wrap(await usersRoute.getUsers(request, env));
       }
       
       // GET /v1/users/:id
       if (path.match(/^\/api\/v1\/users\/[^/]+$/) && method === 'GET') {
         const id = path.split('/').pop();
-        return await usersRoute.getUser(request, env, id);
+        return wrap(await usersRoute.getUser(request, env, id));
       }
       
       // PUT /v1/users/:id
       if (path.match(/^\/api\/v1\/users\/[^/]+$/) && method === 'PUT') {
         const id = path.split('/').pop();
-        return await usersRoute.updateUser(request, env, id);
+        return wrap(await usersRoute.updateUser(request, env, id));
       }
       
       // PATCH /v1/users/:id
       if (path.match(/^\/api\/v1\/users\/[^/]+$/) && method === 'PATCH') {
         const id = path.split('/').pop();
-        return await usersRoute.updateUserStatus(request, env, id);
+        return wrap(await usersRoute.updateUserStatus(request, env, id));
       }
 
       // ==================== Topics API ====================

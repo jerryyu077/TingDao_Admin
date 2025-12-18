@@ -63,13 +63,20 @@ export default {
       // 🚦 Rate Limiting检查
       const rateLimitResult = await checkRateLimit(request, env);
       if (!rateLimitResult.allowed) {
-        return rateLimitResponse(rateLimitResult);
+        // Rate Limit 429响应也要添加CORS headers
+        let response = rateLimitResponse(rateLimitResult);
+        response = addCorsHeaders(response, origin);
+        return response;
       }
       
       // 🔑 API Key验证
       const apiKeyResult = validateApiKey(request);
       if (!apiKeyResult || !apiKeyResult.valid) {
-        return apiKeyErrorResponse('Invalid or missing API Key');
+        // 返回401时也要添加CORS headers
+        let response = apiKeyErrorResponse('Invalid or missing API Key');
+        response = addCorsHeaders(response, origin);
+        response = addRateLimitHeaders(response, rateLimitResult);
+        return response;
       }
       
       if (apiKeyResult.warning) {

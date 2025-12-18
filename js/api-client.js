@@ -42,10 +42,12 @@ class APIClient {
         // 构建请求头
         const requestHeaders = {
             'Content-Type': 'application/json',
+            'X-API-Key': 'admin_panel_v1_2025', // Admin后台API Key
+            'X-Client-Type': 'admin-panel',
             ...headers
         };
         
-        // 添加认证令牌
+        // 添加认证令牌（如果有的话，目前Admin使用Zero Trust不需要）
         if (requireAuth) {
             const token = this.getAuthToken();
             if (token) {

@@ -126,7 +126,7 @@ const APIEndpoints = {
     
     // ==================== 仪表盘统计 ====================
     dashboard: {
-        stats: '/dashboard/stats',                 // GET - 总体统计
+        stats: '/stats/overview',                  // GET - 总体统计
         recentActivity: '/dashboard/activity',     // GET - 最近活动
         charts: '/dashboard/charts'                // GET - 图表数据
     },

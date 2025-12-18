@@ -354,7 +354,12 @@
         // Load users from API
         async function loadUsers() {
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users`, {
+                    headers: {
+                        'X-API-Key': 'admin_panel_v1_2025',
+                        'X-Client-Type': 'admin-panel'
+                    }
+                });
                 const result = await response.json();
                 
                 if (result.success && result.data) {
@@ -552,6 +557,8 @@
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
+                                'X-API-Key': 'admin_panel_v1_2025',
+                                'X-Client-Type': 'admin-panel'
                             },
                             body: JSON.stringify({ can_upload: 1 })
                         });
@@ -606,6 +613,8 @@
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
+                                'X-API-Key': 'admin_panel_v1_2025',
+                                'X-Client-Type': 'admin-panel'
                             },
                             body: JSON.stringify({ can_upload: 0 })
                         });

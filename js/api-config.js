@@ -12,6 +12,10 @@ const APIConfig = {
     // 本地开发备用URL（取消注释以使用本地服务器）
     // baseURL: 'http://localhost:3000/v1',
     
+    // API 安全认证
+    apiKey: 'admin_panel_v1_2025',
+    clientType: 'admin_panel',
+    
     // 超时时间（毫秒）
     timeout: 30000,
     

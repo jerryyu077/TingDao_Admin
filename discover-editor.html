@@ -614,7 +614,12 @@
             
             try {
                 console.log('🔄 加载发现页配置...');
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/discover-config`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/discover-config`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
@@ -728,7 +733,12 @@
                         }
                         
                         try {
-                            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`);
+                            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`, {
+                                headers: {
+                                    'X-API-Key': APIConfig.apiKey,
+                                    'X-Client-Type': APIConfig.clientType
+                                }
+                            });
                             if (!response.ok) continue;
                             
                             const result = await response.json();
@@ -767,7 +777,12 @@
                         }
                         
                         try {
-                            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`);
+                            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`, {
+                                headers: {
+                                    'X-API-Key': APIConfig.apiKey,
+                                    'X-Client-Type': APIConfig.clientType
+                                }
+                            });
                             if (!response.ok) continue;
                             
                             const result = await response.json();
@@ -813,7 +828,12 @@
                 console.log('🔄 自动加载最新批准的讲道...');
                 
                 // 获取最新已发布的讲道，按更新时间排序，限制10条
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?status=published&_sort=updated_at&_order=desc&_limit=10`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?status=published&_sort=updated_at&_order=desc&_limit=10`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 if (!response.ok) throw new Error('获取讲道失败');
                 
                 const result = await response.json();
@@ -984,7 +1004,12 @@
                 
                 if (isSpeakersType) {
                     // 从 API 加载讲员列表（包含完整数据）
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_limit=50`);
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_limit=50`, {
+                        headers: {
+                            'X-API-Key': APIConfig.apiKey,
+                            'X-Client-Type': APIConfig.clientType
+                        }
+                    });
                     const result = await response.json();
                     const speakers = result.data || result;
                     items = speakers.map(speaker => ({
@@ -995,7 +1020,12 @@
                     }));
                 } else {
                     // 从 API 加载讲道列表（包含完整数据）
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=50`);
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=50`, {
+                        headers: {
+                            'X-API-Key': APIConfig.apiKey,
+                            'X-Client-Type': APIConfig.clientType
+                        }
+                    });
                     const result = await response.json();
                     const sermons = result.data || result;
                     items = sermons.map(sermon => ({
@@ -1239,8 +1269,8 @@
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                                'X-API-Key': 'admin_panel_v1_2025',
-                                'X-Client-Type': 'admin-panel'
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
                     },
                     body: JSON.stringify(configData)
                 });

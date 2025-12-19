@@ -394,7 +394,12 @@
         async function loadUserSermons(userId) {
             try {
                 console.log('Loading sermons for user:', userId);
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?submitter_id=${userId}`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?submitter_id=${userId}`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 const result = await response.json();
                 
                 console.log('Sermons API response:', result);
@@ -701,7 +706,12 @@
         async function loadUserSermons(userId) {
             try {
                 // Fetch all sermons from API
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons');
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 const data = await response.json();
                 const allSermons = data.data || data;
 

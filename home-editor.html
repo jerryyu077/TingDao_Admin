@@ -1071,7 +1071,12 @@
             
             try {
                 // 1. 获取当前的经文列表
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
@@ -1108,8 +1113,8 @@
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                                'X-API-Key': 'admin_panel_v1_2025',
-                                'X-Client-Type': 'admin-panel',
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
                     },
                     body: JSON.stringify({
                         id: 'home-config',
@@ -1198,7 +1203,12 @@
                 const scriptureId = card.dataset.scriptureId;
                 
                 // 1. 获取当前的经文列表
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
@@ -1218,8 +1228,8 @@
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                                'X-API-Key': 'admin_panel_v1_2025',
-                                'X-Client-Type': 'admin-panel',
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
                     },
                     body: JSON.stringify({
                         id: 'home-config',
@@ -1275,8 +1285,8 @@
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                                'X-API-Key': 'admin_panel_v1_2025',
-                                'X-Client-Type': 'admin-panel',
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
                     },
                     body: JSON.stringify({
                         id: 'home-config',

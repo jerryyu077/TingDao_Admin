@@ -64,20 +64,10 @@ export async function checkRateLimit(request, env) {
   // 获取客户端类型
   const clientType = request.headers.get('X-Client-Type') || '';
   
-  // 🔓 临时：Admin Panel 完全跳过 rate limit（用于调试）
-  if (clientType === 'admin_panel') {
-    console.log(`⚠️ Admin Panel bypass for IP: ${clientIP}`);
-    return {
-      allowed: true,
-      remaining: 999999,
-      limit: 999999
-    };
-  }
-  
   // 确定端点类型和限制
   let endpointType = getEndpointType(path, method);
   
-  // Admin Panel 使用更高的限制
+  // Admin Panel 使用更高的限制（5000次/小时）
   if (clientType === 'admin_panel' && endpointType === 'authenticated') {
     endpointType = 'admin';
   }

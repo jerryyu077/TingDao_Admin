@@ -559,7 +559,12 @@
         async function updateStats() {
             try {
                 // Get all topics
-                const topicsResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=1000`);
+                const topicsResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=1000`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 const topicsData = await topicsResponse.json();
                 const topics = topicsData.data || topicsData;
                 
@@ -590,7 +595,12 @@
         // Load topics from API
         async function loadTopics(page = 1) {
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=1000`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=1000`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 const data = await response.json();
                 let apiTopics = data.data || data;
                 
@@ -760,7 +770,12 @@
         async function openEditModal(topicId, topicName, sermonCount) {
             try {
                 // Fetch topic data from API
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 if (!response.ok) {
                     throw new Error('Failed to load topic data');
                 }
@@ -830,7 +845,12 @@
                 console.log('📡 Loading sermons for topic:', topicId);
                 
                 // 直接从 API 获取该主题的讲道列表
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}/sermons`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}/sermons`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 
                 if (!response.ok) {
                     throw new Error(`API returned ${response.status}`);
@@ -981,7 +1001,11 @@
                 try {
                     // Call API to delete topic
                     const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${currentTopic.id}`, {
-                        method: 'DELETE'
+                        method: 'DELETE',
+                        headers: {
+                            'X-API-Key': APIConfig.apiKey,
+                            'X-Client-Type': APIConfig.clientType
+                        }
                     });
                     
                     const result = await response.json();
@@ -1104,8 +1128,8 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                                'X-API-Key': 'admin_panel_v1_2025',
-                                'X-Client-Type': 'admin-panel'
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
                     },
                     body: JSON.stringify(currentTopic)
                 });
@@ -1123,8 +1147,8 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                                'X-API-Key': 'admin_panel_v1_2025',
-                                'X-Client-Type': 'admin-panel'
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
                     },
                     body: JSON.stringify({ sermon_ids })
                 });
@@ -1445,8 +1469,8 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                                'X-API-Key': 'admin_panel_v1_2025',
-                                'X-Client-Type': 'admin-panel'
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
                     },
                     body: JSON.stringify(newTopic)
                 });

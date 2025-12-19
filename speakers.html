@@ -409,7 +409,12 @@
                 document.getElementById('speakersTableBody').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-base-content/70">加载中...</td></tr>';
                 
                 // Load all speakers to calculate stats and populate church filter
-                const allResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`);
+                const allResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 const allResult = await allResponse.json();
                 
                 if (allResult.success) {
@@ -418,7 +423,12 @@
                     populateChurchFilter(allData);
                     
                     // Now load paginated data
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_page=${page}&_limit=${pageSize}`);
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_page=${page}&_limit=${pageSize}`, {
+                        headers: {
+                            'X-API-Key': APIConfig.apiKey,
+                            'X-Client-Type': APIConfig.clientType
+                        }
+                    });
                     const result = await response.json();
                     
                     if (result.success) {
@@ -573,7 +583,12 @@
                 }
 
                 // Load all speakers for filtering
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 const result = await response.json();
                 
                 if (result.success) {
@@ -633,8 +648,8 @@
                             method: 'PATCH',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-API-Key': 'admin_panel_v1_2025',
-                                'X-Client-Type': 'admin-panel',
+                                'X-API-Key': APIConfig.apiKey,
+                                'X-Client-Type': APIConfig.clientType
                             },
                             body: JSON.stringify({ status: 'active' })
                         });

@@ -356,8 +356,8 @@
             try {
                 const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users`, {
                     headers: {
-                        'X-API-Key': 'admin_panel_v1_2025',
-                        'X-Client-Type': 'admin-panel'
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
                     }
                 });
                 const result = await response.json();
@@ -557,8 +557,8 @@
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-API-Key': 'admin_panel_v1_2025',
-                                'X-Client-Type': 'admin-panel'
+                                'X-API-Key': APIConfig.apiKey,
+                                'X-Client-Type': APIConfig.clientType
                             },
                             body: JSON.stringify({ can_upload: 1 })
                         });

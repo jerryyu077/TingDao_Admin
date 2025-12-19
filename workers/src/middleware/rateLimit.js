@@ -10,9 +10,9 @@ const RATE_LIMITS = {
     requests: 100,
     window: 3600 // 1小时（秒）
   },
-  // 认证端点 - 每个IP每小时500次
+  // 认证端点 - 每个IP每小时2000次（admin需要更高限制）
   authenticated: {
-    requests: 500,
+    requests: 2000,
     window: 3600
   },
   // 敏感操作（登录、注册）- 每个IP每小时10次

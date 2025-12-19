@@ -1010,8 +1010,19 @@
                             'X-Client-Type': APIConfig.clientType
                         }
                     });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`API错误 ${response.status}: ${errorText}`);
+                    }
+                    
                     const result = await response.json();
                     const speakers = result.data || result;
+                    
+                    if (!Array.isArray(speakers)) {
+                        throw new Error('API返回格式错误：期望数组');
+                    }
+                    
                     items = speakers.map(speaker => ({
                         id: speaker.id,
                         name: speaker.name,
@@ -1026,8 +1037,19 @@
                             'X-Client-Type': APIConfig.clientType
                         }
                     });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`API错误 ${response.status}: ${errorText}`);
+                    }
+                    
                     const result = await response.json();
                     const sermons = result.data || result;
+                    
+                    if (!Array.isArray(sermons)) {
+                        throw new Error('API返回格式错误：期望数组');
+                    }
+                    
                     items = sermons.map(sermon => ({
                         id: sermon.id,
                         title: sermon.title,

@@ -20,6 +20,11 @@ const RATE_LIMITS = {
     requests: 5000,
     window: 3600
   },
+  // Share Web - 每个IP每小时1000次（公开分享页面）
+  shareWeb: {
+    requests: 1000,
+    window: 3600
+  },
   // 敏感操作（登录、注册）- 每个IP每小时10次
   sensitive: {
     requests: 10,
@@ -70,6 +75,11 @@ export async function checkRateLimit(request, env) {
   // Admin Panel 使用更高的限制（5000次/小时）
   if (clientType === 'admin_panel' && endpointType === 'authenticated') {
     endpointType = 'admin';
+  }
+  
+  // Share Web 使用中等限制（1000次/小时）
+  if (clientType === 'share-web' && endpointType === 'public') {
+    endpointType = 'shareWeb';
   }
   
   const limit = RATE_LIMITS[endpointType];

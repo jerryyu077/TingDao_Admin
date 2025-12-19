@@ -13,9 +13,16 @@ export async function getTopics(request, env) {
   const searchTerm = url.searchParams.get('q');
 
   try {
-    // 使用 LEFT JOIN 从 sermon_topics 表动态计算 sermon_count
+    // 使用 LEFT JOIN 从 sermon_topics 表动态计算 sermon_count 和 follower_count
     let sql = `
-      SELECT t.*, COUNT(DISTINCT st.sermon_id) as sermon_count
+      SELECT t.*, 
+             COUNT(DISTINCT st.sermon_id) as sermon_count,
+             COALESCE(
+               (SELECT COUNT(DISTINCT user_id)
+                FROM user_topic_favorites
+                WHERE topic_id = t.id),
+               0
+             ) as follower_count
       FROM topics t
       LEFT JOIN sermon_topics st ON t.id = st.topic_id
       WHERE 1=1
@@ -52,7 +59,13 @@ export async function getTopic(request, env, id) {
              COUNT(DISTINCT st.sermon_id) as sermon_count,
              COALESCE(SUM(s.duration), 0) as total_duration,
              COALESCE(SUM(s.play_count), 0) as total_play_count,
-             COUNT(DISTINCT s.speaker_id) as speaker_count
+             COUNT(DISTINCT s.speaker_id) as speaker_count,
+             COALESCE(
+               (SELECT COUNT(DISTINCT user_id)
+                FROM user_topic_favorites
+                WHERE topic_id = t.id),
+               0
+             ) as follower_count
       FROM topics t
       LEFT JOIN sermon_topics st ON t.id = st.topic_id
       LEFT JOIN sermons s ON st.sermon_id = s.id AND s.status = 'published'

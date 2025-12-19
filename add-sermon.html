@@ -803,6 +803,10 @@
             
             const audioUploadResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/upload/audio`, {
                 method: 'POST',
+                headers: {
+                    'X-API-Key': APIConfig.apiKey,
+                    'X-Client-Type': APIConfig.clientType
+                },
                 body: audioFormData
             });
             
@@ -823,6 +827,10 @@
             
             const imageUploadResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/upload/image`, {
                 method: 'POST',
+                headers: {
+                    'X-API-Key': APIConfig.apiKey,
+                    'X-Client-Type': APIConfig.clientType
+                },
                 body: imageFormData
             });
             

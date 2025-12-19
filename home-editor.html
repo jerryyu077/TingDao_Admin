@@ -1553,7 +1553,12 @@
             
             for (const sermonId of sermonIds) {
                 try {
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`);
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`, {
+                        headers: {
+                            'X-API-Key': APIConfig.apiKey,
+                            'X-Client-Type': APIConfig.clientType
+                        }
+                    });
                     if (!response.ok) continue;
                     
                     const result = await response.json();
@@ -1596,7 +1601,12 @@
             
             for (const topicId of topicIds) {
                 try {
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}`);
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}`, {
+                        headers: {
+                            'X-API-Key': APIConfig.apiKey,
+                            'X-Client-Type': APIConfig.clientType
+                        }
+                    });
                     if (!response.ok) continue;
                     
                     const result = await response.json();
@@ -1639,7 +1649,12 @@
             
             for (const speakerId of speakerIds) {
                 try {
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`);
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`, {
+                        headers: {
+                            'X-API-Key': APIConfig.apiKey,
+                            'X-Client-Type': APIConfig.clientType
+                        }
+                    });
                     if (!response.ok) continue;
                     
                     const result = await response.json();

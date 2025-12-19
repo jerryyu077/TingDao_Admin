@@ -330,7 +330,12 @@
         // Load user data from API
         async function loadUserData(userId) {
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users/${userId}`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users/${userId}`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 const result = await response.json();
                 
                 if (result.success && result.data) {
@@ -530,8 +535,8 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                                'X-API-Key': 'admin_panel_v1_2025',
-                                'X-Client-Type': 'admin-panel',
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
                     },
                     body: JSON.stringify({ can_upload: canUpload })
                 });
@@ -824,8 +829,8 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                                'X-API-Key': 'admin_panel_v1_2025',
-                                'X-Client-Type': 'admin-panel',
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
                     },
                     body: JSON.stringify({
                         name: name,

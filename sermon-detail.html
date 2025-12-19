@@ -619,8 +619,8 @@
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                                'X-API-Key': 'admin_panel_v1_2025',
-                                'X-Client-Type': 'admin-panel'
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
                     },
                     body: JSON.stringify({
                         title: sermonData.title,
@@ -1233,7 +1233,12 @@
             
             // First, try to load from API
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 if (response.ok) {
                     const result = await response.json();
                     const apiData = result.data;

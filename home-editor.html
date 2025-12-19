@@ -835,7 +835,12 @@
                 
                 if (isSermonsType) {
                     // 从 API 加载讲道列表
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=50`);
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=50`, {
+                        headers: {
+                            'X-API-Key': APIConfig.apiKey,
+                            'X-Client-Type': APIConfig.clientType
+                        }
+                    });
                     const result = await response.json();
                     // API 返回格式: { success: true, data: [...] }
                     const sermons = result.success ? result.data : (result.data || result);
@@ -846,7 +851,12 @@
                     }));
                 } else if (isSpeakersType) {
                     // 从 API 加载讲员列表
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_limit=50`);
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_limit=50`, {
+                        headers: {
+                            'X-API-Key': APIConfig.apiKey,
+                            'X-Client-Type': APIConfig.clientType
+                        }
+                    });
                     const result = await response.json();
                     // API 返回格式: { success: true, data: [...] }
                     const speakers = result.success ? result.data : (result.data || result);
@@ -857,7 +867,12 @@
                     }));
                 } else if (isTopicsType) {
                     // 从 API 加载主题列表
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=50`);
+                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=50`, {
+                        headers: {
+                            'X-API-Key': APIConfig.apiKey,
+                            'X-Client-Type': APIConfig.clientType
+                        }
+                    });
                     const result = await response.json();
                     // API 返回格式: { success: true, data: [...] }
                     const topics = result.success ? result.data : (result.data || result);

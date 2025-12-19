@@ -40,7 +40,12 @@ const SermonsPage = {
     async loadStats() {
         try {
             const url = `${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`;
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: {
+                    'X-API-Key': APIConfig.apiKey,
+                    'X-Client-Type': APIConfig.clientType
+                }
+            });
             const jsonData = await response.json();
             const allSermons = jsonData.success ? jsonData.data : jsonData;
             
@@ -115,7 +120,12 @@ const SermonsPage = {
             
             console.log('Loading sermons from:', url);
             
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: {
+                    'X-API-Key': APIConfig.apiKey,
+                    'X-Client-Type': APIConfig.clientType
+                }
+            });
             const jsonData = await response.json();
             
             // Handle wrapped response from backend

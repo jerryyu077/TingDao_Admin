@@ -21,7 +21,12 @@ const HomeEditorPage = {
         try {
             // 直接从 API 获取配置
             const url = `${APIConfig.baseURL}/curation/home-config`;
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: {
+                    'X-API-Key': APIConfig.apiKey,
+                    'X-Client-Type': APIConfig.clientType
+                }
+            });
             if (response.ok) {
                 const result = await response.json();
                 // 处理包装格式 { success: true, data: {...} }
@@ -152,7 +157,12 @@ const HomeEditorPage = {
                 sermonIds.map(async id => {
                     try {
                         const url = `${APIConfig.baseURL}/sermons/${id}`;
-                        const response = await fetch(url);
+                        const response = await fetch(url, {
+                            headers: {
+                                'X-API-Key': APIConfig.apiKey,
+                                'X-Client-Type': APIConfig.clientType
+                            }
+                        });
                         if (!response.ok) return null;
                         const result = await response.json();
                         // 处理包装格式 { success: true, data: {...} }
@@ -196,7 +206,12 @@ const HomeEditorPage = {
                 speakerIds.map(async id => {
                     try {
                         const url = `${APIConfig.baseURL}/speakers/${id}`;
-                        const response = await fetch(url);
+                        const response = await fetch(url, {
+                            headers: {
+                                'X-API-Key': APIConfig.apiKey,
+                                'X-Client-Type': APIConfig.clientType
+                            }
+                        });
                         if (!response.ok) return null;
                         const result = await response.json();
                         // 处理包装格式 { success: true, data: {...} }
@@ -240,7 +255,12 @@ const HomeEditorPage = {
                 topicIds.map(async id => {
                     try {
                         const url = `${APIConfig.baseURL}/topics/${id}`;
-                        const response = await fetch(url);
+                        const response = await fetch(url, {
+                            headers: {
+                                'X-API-Key': APIConfig.apiKey,
+                                'X-Client-Type': APIConfig.clientType
+                            }
+                        });
                         if (!response.ok) return null;
                         const result = await response.json();
                         return result.data || result;

@@ -65,9 +65,9 @@ export async function checkRateLimit(request, env) {
   // 获取客户端类型
   const clientType = request.headers.get('X-Client-Type') || '';
   
-  // 🔓 Admin Panel 完全跳过 Rate Limit（已有API Key保护）
-  if (clientType === 'admin_panel') {
-    console.log(`✅ Admin Panel 跳过 Rate Limit for IP: ${clientIP}`);
+  // 🔓 Admin Panel 和 iOS App 完全跳过 Rate Limit（已有API Key保护）
+  if (clientType === 'admin_panel' || clientType === 'ios-app') {
+    console.log(`✅ ${clientType} 跳过 Rate Limit for IP: ${clientIP}`);
     return {
       allowed: true,
       remaining: 999999,

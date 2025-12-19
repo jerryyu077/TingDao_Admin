@@ -1571,13 +1571,11 @@
                     card.dataset.sermonId = sermon.id;
                     card.innerHTML = `
                         <div class="card-body p-2">
-                            <div class="flex items-start gap-2">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium">${sermon.title}</p>
-                                    <p class="text-xs text-base-content/60">${sermon.speaker_name || '未知讲员'}</p>
-                                </div>
-                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error">移除</button>
+                            <div>
+                                <p class="text-sm font-medium line-clamp-2">${sermon.title}</p>
+                                <p class="text-xs text-base-content/60">${sermon.speaker_name || '未知讲员'}</p>
                             </div>
+                            <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full mt-2">移除</button>
                         </div>
                     `;
                     container.appendChild(card);
@@ -1619,13 +1617,11 @@
                     card.dataset.topicId = topic.id;
                     card.innerHTML = `
                         <div class="card-body p-2">
-                            <div class="flex items-start gap-2">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium">${topic.name}</p>
-                                    <p class="text-xs text-base-content/60">${topic.description || ''}</p>
-                                </div>
-                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error">移除</button>
+                            <div>
+                                <p class="text-sm font-medium">${topic.name}</p>
+                                <p class="text-xs text-base-content/60 line-clamp-2">${topic.description || ''}</p>
                             </div>
+                            <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full mt-2">移除</button>
                         </div>
                     `;
                     container.appendChild(card);
@@ -1667,13 +1663,11 @@
                     card.dataset.speakerId = speaker.id;
                     card.innerHTML = `
                         <div class="card-body p-2">
-                            <div class="flex items-start gap-2">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium">${speaker.name}</p>
-                                    <p class="text-xs text-base-content/60">${speaker.bio || ''}</p>
-                                </div>
-                                <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error">移除</button>
+                            <div>
+                                <p class="text-sm font-medium">${speaker.name}</p>
+                                <p class="text-xs text-base-content/60 line-clamp-2">${speaker.bio || ''}</p>
                             </div>
+                            <button onclick="removeItem(this)" class="btn btn-ghost btn-xs text-error w-full mt-2">移除</button>
                         </div>
                     `;
                     container.appendChild(card);

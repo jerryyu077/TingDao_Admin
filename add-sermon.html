@@ -671,7 +671,12 @@
         try {
             const url = `${APIConfig.baseURL}${APIConfig.apiVersion}/topics`;
             console.log('[Topics] 请求 URL:', url);
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: {
+                    'X-API-Key': APIConfig.apiKey,
+                    'X-Client-Type': APIConfig.clientType
+                }
+            });
             console.log('[Topics] 响应状态:', response.status);
             const result = await response.json();
             console.log('[Topics] 响应数据:', result);
@@ -957,7 +962,12 @@
     // Load speakers from API
     async function loadSpeakers() {
         try {
-            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`);
+            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`, {
+                headers: {
+                    'X-API-Key': APIConfig.apiKey,
+                    'X-Client-Type': APIConfig.clientType
+                }
+            });
             const result = await response.json();
             
             if (result.success && result.data) {
@@ -976,7 +986,12 @@
     // Load users from API
     async function loadUsers() {
         try {
-            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users`);
+            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/users`, {
+                headers: {
+                    'X-API-Key': APIConfig.apiKey,
+                    'X-Client-Type': APIConfig.clientType
+                }
+            });
             const result = await response.json();
             
             if (result.success && result.data) {

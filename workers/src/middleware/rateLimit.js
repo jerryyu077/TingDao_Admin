@@ -10,9 +10,9 @@ const RATE_LIMITS = {
     requests: 100,
     window: 3600 // 1小时（秒）
   },
-  // 认证端点 - iOS App - 每个IP每小时1000次
+  // 认证端点 - iOS App - 每个IP每小时10000次
   authenticated: {
-    requests: 1000,
+    requests: 10000,
     window: 3600
   },
   // Share Web - 每个IP每小时1000次（公开分享页面）

@@ -15,11 +15,6 @@ const RATE_LIMITS = {
     requests: 500,
     window: 3600
   },
-  // Admin Panel - 每个IP每小时5000次（需要加载大量内容）
-  admin: {
-    requests: 5000,
-    window: 3600
-  },
   // Share Web - 每个IP每小时1000次（公开分享页面）
   shareWeb: {
     requests: 1000,
@@ -30,6 +25,7 @@ const RATE_LIMITS = {
     requests: 10,
     window: 3600
   }
+  // 注意：Admin Panel 完全跳过 Rate Limit（已有API Key保护）
 };
 
 // 确定端点类型
@@ -69,13 +65,18 @@ export async function checkRateLimit(request, env) {
   // 获取客户端类型
   const clientType = request.headers.get('X-Client-Type') || '';
   
+  // 🔓 Admin Panel 完全跳过 Rate Limit（已有API Key保护）
+  if (clientType === 'admin_panel') {
+    console.log(`✅ Admin Panel 跳过 Rate Limit for IP: ${clientIP}`);
+    return {
+      allowed: true,
+      remaining: 999999,
+      limit: 999999
+    };
+  }
+  
   // 确定端点类型和限制
   let endpointType = getEndpointType(path, method);
-  
-  // Admin Panel 使用更高的限制（5000次/小时）
-  if (clientType === 'admin_panel' && endpointType === 'authenticated') {
-    endpointType = 'admin';
-  }
   
   // Share Web 使用中等限制（1000次/小时）
   if (clientType === 'share-web' && endpointType === 'public') {

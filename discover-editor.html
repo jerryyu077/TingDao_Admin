@@ -593,6 +593,23 @@
         }
         window.initTagDragDrop = initTagDragDrop;
         
+        // 请求节流辅助函数（防止短时间内大量请求触发DDoS保护）
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        let requestCount = 0;
+        const REQUEST_DELAY = 50; // 每个请求间隔50ms
+        
+        async function throttledFetch(url, options) {
+            if (requestCount > 0 && requestCount % 10 === 0) {
+                // 每10个请求后暂停500ms
+                await sleep(500);
+            } else {
+                // 正常请求间隔50ms
+                await sleep(REQUEST_DELAY);
+            }
+            requestCount++;
+            return fetch(url, options);
+        }
+        
         // 加载发现页配置
         // 防止重复加载的标志
         let isLoadingConfig = false;
@@ -733,7 +750,7 @@
                         }
                         
                         try {
-                            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`, {
+                            const response = await throttledFetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers/${speakerId}`, {
                                 headers: {
                                     'X-API-Key': APIConfig.apiKey,
                                     'X-Client-Type': APIConfig.clientType
@@ -777,7 +794,7 @@
                         }
                         
                         try {
-                            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`, {
+                            const response = await throttledFetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons/${sermonId}`, {
                                 headers: {
                                     'X-API-Key': APIConfig.apiKey,
                                     'X-Client-Type': APIConfig.clientType

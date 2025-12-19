@@ -1438,7 +1438,12 @@
         async function loadAllConfigToPage() {
             try {
                 console.log('🔄 加载所有配置内容...');
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
@@ -1695,7 +1700,12 @@
         async function loadExistingScriptures() {
             try {
                 console.log('📝 加载经文库...');
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/curation/home-config`, {
+                    headers: {
+                        'X-API-Key': APIConfig.apiKey,
+                        'X-Client-Type': APIConfig.clientType
+                    }
+                });
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }

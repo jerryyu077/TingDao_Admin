@@ -10,9 +10,14 @@ const RATE_LIMITS = {
     requests: 100,
     window: 3600 // 1小时（秒）
   },
-  // 认证端点 - 每个IP每小时2000次（admin需要更高限制）
+  // 认证端点 - iOS App - 每个IP每小时500次
   authenticated: {
-    requests: 2000,
+    requests: 500,
+    window: 3600
+  },
+  // Admin Panel - 每个IP每小时5000次（需要加载大量内容）
+  admin: {
+    requests: 5000,
     window: 3600
   },
   // 敏感操作（登录、注册）- 每个IP每小时10次
@@ -56,8 +61,17 @@ export async function checkRateLimit(request, env) {
                    request.headers.get('X-Real-IP') || 
                    'unknown';
   
+  // 获取客户端类型
+  const clientType = request.headers.get('X-Client-Type') || '';
+  
   // 确定端点类型和限制
-  const endpointType = getEndpointType(path, method);
+  let endpointType = getEndpointType(path, method);
+  
+  // Admin Panel 使用更高的限制
+  if (clientType === 'admin_panel' && endpointType === 'authenticated') {
+    endpointType = 'admin';
+  }
+  
   const limit = RATE_LIMITS[endpointType];
   
   // 生成唯一的限流key

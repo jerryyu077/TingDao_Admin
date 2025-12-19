@@ -5,9 +5,9 @@
 
 // Rate Limit 配置
 const RATE_LIMITS = {
-  // 公开端点 - 每个IP每小时100次
+  // 公开端点 - 每个IP每小时5000次（兼容旧版本App）
   public: {
-    requests: 100,
+    requests: 5000,
     window: 3600 // 1小时（秒）
   },
   // 认证端点 - iOS App - 每个IP每小时10000次
@@ -25,7 +25,7 @@ const RATE_LIMITS = {
     requests: 10,
     window: 3600
   }
-  // 注意：Admin Panel 完全跳过 Rate Limit（已有API Key保护）
+  // 注意：iOS App (新版本) 和 Admin Panel 完全跳过 Rate Limit（已有API Key保护）
 };
 
 // 确定端点类型

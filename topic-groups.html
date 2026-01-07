@@ -888,7 +888,7 @@
                 modalSermonPage = 1;
                 
                 // 直接从 API 获取该主题的讲道列表
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}/sermons`, {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}/sermons?_limit=10000`, {
                     headers: {
                         'X-API-Key': APIConfig.apiKey,
                         'X-Client-Type': APIConfig.clientType

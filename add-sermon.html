@@ -669,7 +669,7 @@
         console.log('[Topics] 开始加载主题列表...');
         console.log('[Topics] APIConfig:', APIConfig);
         try {
-            const url = `${APIConfig.baseURL}${APIConfig.apiVersion}/topics`;
+            const url = `${APIConfig.baseURL}${APIConfig.apiVersion}/topics?_limit=10000`;
             console.log('[Topics] 请求 URL:', url);
             const response = await fetch(url, {
                 headers: {
@@ -962,7 +962,7 @@
     // Load speakers from API
     async function loadSpeakers() {
         try {
-            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`, {
+            const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_limit=10000`, {
                 headers: {
                     'X-API-Key': APIConfig.apiKey,
                     'X-Client-Type': APIConfig.clientType

@@ -417,7 +417,7 @@
                 document.getElementById('speakersTableBody').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-base-content/70">加载中...</td></tr>';
                 
                 // Load all speakers (no server-side pagination, we do it client-side)
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`, {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_limit=10000`, {
                     headers: {
                         'X-API-Key': APIConfig.apiKey,
                         'X-Client-Type': APIConfig.clientType
@@ -586,7 +586,7 @@
                 }
 
                 // Load all speakers for filtering
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`, {
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_limit=10000`, {
                     headers: {
                         'X-API-Key': APIConfig.apiKey,
                         'X-Client-Type': APIConfig.clientType

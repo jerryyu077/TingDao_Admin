@@ -1281,7 +1281,7 @@
         
         async function loadAvailableSermons() {
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=10000`);
                 const data = await response.json();
                 const allSermons = data.data || data;
                 
@@ -1410,7 +1410,7 @@
 
             // Fetch full sermon data for duration and status
             try {
-                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`);
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=10000`);
                 const data = await response.json();
                 const allSermons = data.data || data;
                 

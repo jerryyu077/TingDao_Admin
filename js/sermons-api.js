@@ -113,9 +113,9 @@ const SermonsPage = {
             this.showLoading(true);
             
             // Build URL with speaker_id filter if present
-            let url = `${APIConfig.baseURL}${APIConfig.apiVersion}/sermons`;
+            let url = `${APIConfig.baseURL}${APIConfig.apiVersion}/sermons?_limit=10000`;
             if (this.filters.speaker_id) {
-                url += `?speaker_id=${this.filters.speaker_id}`;
+                url += `&speaker_id=${this.filters.speaker_id}`;
             }
             
             console.log('Loading sermons from:', url);

@@ -331,8 +331,16 @@
                         <div class="text-sm text-base-content/70">
                             共 <span id="totalCount">0</span> 个讲员，每页显示 <span id="pageSize">10</span> 条
                         </div>
-                        <div class="join" id="paginationContainer">
-                            <!-- Pagination buttons will be generated dynamically -->
+                        <div class="flex items-center gap-2">
+                            <div class="join" id="paginationContainer">
+                                <!-- Pagination buttons will be generated dynamically -->
+                            </div>
+                            <select class="select select-bordered select-sm" onchange="pageSize = parseInt(this.value); currentPage = 1; loadSpeakers(1)">
+                                <option value="10" selected>10条/页</option>
+                                <option value="20">20条/页</option>
+                                <option value="50">50条/页</option>
+                                <option value="100">100条/页</option>
+                            </select>
                         </div>
                     </section>
                 </div>
@@ -397,10 +405,10 @@
 
         // Global variables for pagination
         let currentPage = 1;
-        const pageSize = 10;
+        let pageSize = 10;
         let allSpeakers = [];
 
-        // Load speakers from API
+        // Load speakers from API (client-side pagination)
         async function loadSpeakers(page = 1) {
             try {
                 currentPage = page;
@@ -408,46 +416,41 @@
                 // Clear table immediately to prevent flash
                 document.getElementById('speakersTableBody').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-base-content/70">加载中...</td></tr>';
                 
-                // Load all speakers to calculate stats and populate church filter
-                const allResponse = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`, {
+                // Load all speakers (no server-side pagination, we do it client-side)
+                const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers`, {
                     headers: {
                         'X-API-Key': APIConfig.apiKey,
                         'X-Client-Type': APIConfig.clientType
                     }
                 });
-                const allResult = await allResponse.json();
+                const result = await response.json();
                 
-                if (allResult.success) {
-                    const allData = allResult.data;
-                    updateStats(allData, allData.length);
-                    populateChurchFilter(allData);
+                if (result.success) {
+                    allSpeakers = result.data;
                     
-                    // Now load paginated data
-                    const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/speakers?_page=${page}&_limit=${pageSize}`, {
-                        headers: {
-                            'X-API-Key': APIConfig.apiKey,
-                            'X-Client-Type': APIConfig.clientType
-                        }
-                    });
-                    const result = await response.json();
+                    // Update stats and church filter with all data
+                    updateStats(allSpeakers, allSpeakers.length);
+                    populateChurchFilter(allSpeakers);
                     
-                    if (result.success) {
-                        allSpeakers = result.data;
-                        renderSpeakersTable(result.data);
-                        
-                        // Calculate pagination ourselves
-                        const total = allData.length;
-                        const totalPages = Math.ceil(total / pageSize);
-                        const pagination = {
-                            page: page,
-                            per_page: pageSize,
-                            total: total,
-                            total_pages: totalPages
-                        };
-                        
-                        renderPagination(pagination);
-                        document.getElementById('totalCount').textContent = total;
-                    }
+                    // Client-side pagination
+                    const total = allSpeakers.length;
+                    const totalPages = Math.ceil(total / pageSize);
+                    const startIndex = (page - 1) * pageSize;
+                    const endIndex = startIndex + pageSize;
+                    const paginatedSpeakers = allSpeakers.slice(startIndex, endIndex);
+                    
+                    renderSpeakersTable(paginatedSpeakers);
+                    
+                    const pagination = {
+                        page: page,
+                        per_page: pageSize,
+                        total: total,
+                        total_pages: totalPages
+                    };
+                    
+                    renderPagination(pagination);
+                    document.getElementById('totalCount').textContent = total;
+                    document.getElementById('pageSize').textContent = pageSize;
                 }
             } catch (error) {
                 console.error('Error loading speakers:', error);

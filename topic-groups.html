@@ -271,12 +271,20 @@
                                 <div class="text-sm text-base-content/60">
                                     显示 1-5 / 共 28 条
                                 </div>
-                                <div class="join">
-                                    <button class="join-item btn btn-sm">«</button>
-                                    <button class="join-item btn btn-sm btn-active">1</button>
-                                    <button class="join-item btn btn-sm">2</button>
-                                    <button class="join-item btn btn-sm">3</button>
-                                    <button class="join-item btn btn-sm">»</button>
+                                <div class="flex items-center gap-2">
+                                    <div class="join">
+                                        <button class="join-item btn btn-sm">«</button>
+                                        <button class="join-item btn btn-sm btn-active">1</button>
+                                        <button class="join-item btn btn-sm">2</button>
+                                        <button class="join-item btn btn-sm">3</button>
+                                        <button class="join-item btn btn-sm">»</button>
+                                    </div>
+                                    <select class="select select-bordered select-sm" onchange="pageSize = parseInt(this.value); currentPage = 1; renderTopics()">
+                                        <option value="10" selected>10条/页</option>
+                                        <option value="20">20条/页</option>
+                                        <option value="50">50条/页</option>
+                                        <option value="100">100条/页</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -389,6 +397,26 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                
+                <!-- Modal Sermon Pagination -->
+                <div class="flex items-center justify-between mt-4 pb-2 border-t border-base-200 pt-4">
+                    <div class="text-sm text-base-content/60" id="modal-sermon-pagination-info">
+                        显示 1-10 / 共 0 条
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="join" id="modal-sermon-pagination-buttons">
+                            <button class="join-item btn btn-sm" disabled>«</button>
+                            <button class="join-item btn btn-sm btn-active">1</button>
+                            <button class="join-item btn btn-sm" disabled>»</button>
+                        </div>
+                        <select class="select select-bordered select-sm" onchange="modalSermonPageSize = parseInt(this.value); modalSermonPage = 1; renderTopicSermons(allModalSermons)">
+                            <option value="10" selected>10条/页</option>
+                            <option value="20">20条/页</option>
+                            <option value="50">50条/页</option>
+                            <option value="100">100条/页</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -555,7 +583,10 @@
         let currentTopic = null;
         let allTopics = [];
         let currentPage = 1;
-        const pageSize = 10;
+        let pageSize = 10;
+        let modalSermonPage = 1;
+        let modalSermonPageSize = 10;
+        let allModalSermons = [];
 
         function handleLogout() {
             localStorage.removeItem('admin_token');
@@ -853,6 +884,9 @@
             try {
                 console.log('📡 Loading sermons for topic:', topicId);
                 
+                // Reset modal sermon pagination
+                modalSermonPage = 1;
+                
                 // 直接从 API 获取该主题的讲道列表
                 const response = await fetch(`${APIConfig.baseURL}${APIConfig.apiVersion}/topics/${topicId}/sermons`, {
                     headers: {
@@ -866,23 +900,23 @@
                 }
                 
                 const data = await response.json();
-                const topicSermons = data.data || data;
+                allModalSermons = data.data || data;
                 
-                console.log('✅ Loaded sermons from API:', topicSermons.length);
+                console.log('✅ Loaded sermons from API:', allModalSermons.length);
                 
                 // Update topic's sermon count cache
                 if (currentTopic) {
-                    currentTopic.topic_sermons_cache = topicSermons.length;
+                    currentTopic.topic_sermons_cache = allModalSermons.length;
                     
                     // Update in allTopics array
                     const topicIndex = allTopics.findIndex(t => t.id === currentTopic.id);
                     if (topicIndex !== -1) {
-                        allTopics[topicIndex].topic_sermons_cache = topicSermons.length;
+                        allTopics[topicIndex].topic_sermons_cache = allModalSermons.length;
                     }
                 }
                 
-                // Render sermons table
-                renderTopicSermons(topicSermons);
+                // Render sermons table with pagination
+                renderTopicSermons(allModalSermons);
             } catch (error) {
                 console.error('Failed to load topic sermons:', error);
                 document.getElementById('sermons-table-body').innerHTML = `
@@ -907,10 +941,19 @@
                     </tr>
                 `;
                 document.getElementById('sermon-count').textContent = '0篇';
+                // Update pagination info
+                document.getElementById('modal-sermon-pagination-info').textContent = '显示 0 / 共 0 条';
                 return;
             }
             
-            tbody.innerHTML = sermons.map(sermon => {
+            // Client-side pagination
+            const total = sermons.length;
+            const totalPages = Math.ceil(total / modalSermonPageSize);
+            const startIndex = (modalSermonPage - 1) * modalSermonPageSize;
+            const endIndex = startIndex + modalSermonPageSize;
+            const paginatedSermons = sermons.slice(startIndex, endIndex);
+            
+            tbody.innerHTML = paginatedSermons.map(sermon => {
                 const duration = sermon.duration ? `${Math.floor(sermon.duration / 60)}:${(sermon.duration % 60).toString().padStart(2, '0')}` : '--:--';
                 
                 // Normalize status to Chinese
@@ -946,7 +989,48 @@
                 `;
             }).join('');
             
-            document.getElementById('sermon-count').textContent = `${sermons.length}篇`;
+            document.getElementById('sermon-count').textContent = `${total}篇`;
+            
+            // Render pagination
+            renderModalSermonPagination(total, totalPages);
+        }
+        
+        function renderModalSermonPagination(total, totalPages) {
+            const start = (modalSermonPage - 1) * modalSermonPageSize + 1;
+            const end = Math.min(modalSermonPage * modalSermonPageSize, total);
+            
+            // Update pagination info
+            const paginationInfo = document.getElementById('modal-sermon-pagination-info');
+            if (paginationInfo) {
+                paginationInfo.textContent = `显示 ${start}-${end} / 共 ${total} 条`;
+            }
+            
+            // Update pagination buttons
+            const paginationButtons = document.getElementById('modal-sermon-pagination-buttons');
+            if (paginationButtons) {
+                let buttonsHTML = `
+                    <button class="join-item btn btn-sm" ${modalSermonPage === 1 ? 'disabled' : ''} 
+                        onclick="modalSermonPage = ${modalSermonPage - 1}; renderTopicSermons(allModalSermons)">«</button>
+                `;
+                
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= modalSermonPage - 1 && i <= modalSermonPage + 1)) {
+                        buttonsHTML += `
+                            <button class="join-item btn btn-sm ${i === modalSermonPage ? 'btn-active' : ''}" 
+                                onclick="modalSermonPage = ${i}; renderTopicSermons(allModalSermons)">${i}</button>
+                        `;
+                    } else if (i === modalSermonPage - 2 || i === modalSermonPage + 2) {
+                        buttonsHTML += `<button class="join-item btn btn-sm btn-disabled">...</button>`;
+                    }
+                }
+                
+                buttonsHTML += `
+                    <button class="join-item btn btn-sm" ${modalSermonPage === totalPages || totalPages === 0 ? 'disabled' : ''} 
+                        onclick="modalSermonPage = ${modalSermonPage + 1}; renderTopicSermons(allModalSermons)">»</button>
+                `;
+                
+                paginationButtons.innerHTML = buttonsHTML;
+            }
         }
 
         let uploadedIconData = null;
@@ -1038,19 +1122,25 @@
         }
 
         function searchModalSermons() {
-            const searchTerm = document.getElementById('modal-search').value.toLowerCase();
-            const rows = document.querySelectorAll('#sermons-table-body tr');
+            const searchTerm = document.getElementById('modal-search').value.toLowerCase().trim();
             
-            rows.forEach(row => {
-                const title = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
-                const speaker = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
-                
-                if (title.includes(searchTerm) || speaker.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+            if (!searchTerm) {
+                // No search term, show all sermons with pagination
+                modalSermonPage = 1;
+                renderTopicSermons(allModalSermons);
+                return;
+            }
+            
+            // Filter sermons by search term
+            const filteredSermons = allModalSermons.filter(sermon => {
+                const title = sermon.title?.toLowerCase() || '';
+                const speaker = sermon.speaker?.name?.toLowerCase() || '';
+                return title.includes(searchTerm) || speaker.includes(searchTerm);
             });
+            
+            // Reset to page 1 and render filtered sermons
+            modalSermonPage = 1;
+            renderTopicSermons(filteredSermons);
         }
 
         function toggleSelectAll(checkbox) {

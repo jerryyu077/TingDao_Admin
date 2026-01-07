@@ -301,6 +301,14 @@
             <!-- Topic Info Section -->
             <div class="card bg-base-200 mb-6">
                 <div class="card-body p-4">
+                    <!-- Description -->
+                    <div class="form-control mb-4">
+                        <label class="label">
+                            <span class="label-text font-medium">主题描述</span>
+                        </label>
+                        <textarea id="topic-description" class="textarea textarea-bordered" rows="2" placeholder="简要描述这个主题的内容和目的..."></textarea>
+                    </div>
+                    
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <!-- Topic Icon -->
                         <div class="form-control">
@@ -790,6 +798,7 @@
                 document.getElementById('modal-title').textContent = `编辑主题组 - ${currentTopic.name}`;
                 document.getElementById('sermon-count').textContent = `${currentTopic.sermon_count || 0}篇`;
                 document.getElementById('topic-status').value = currentTopic.status || 'active';
+                document.getElementById('topic-description').value = currentTopic.description || '';
                 
                 // Reset icon preview and uploaded data
                 uploadedIconData = null;
@@ -1106,9 +1115,11 @@
             if (!currentTopic) return;
             
             const status = document.getElementById('topic-status').value;
+            const description = document.getElementById('topic-description').value.trim();
             
-            // Update topic status
+            // Update topic status and description
             currentTopic.status = status;
+            currentTopic.description = description;
             currentTopic.updated_at = new Date().toISOString();
             
             // Update icon if uploaded
